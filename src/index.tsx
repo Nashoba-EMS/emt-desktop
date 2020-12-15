@@ -8,14 +8,14 @@ import themes from "./themes";
 import reportWebVitals from "./reportWebVitals";
 import CssBaseline from "./CssBaseline";
 import store from "./redux";
-import App from "./App";
+import EntryPoint from "./EntryPoint";
 
 ReactDOM.render(
   <MuiThemeProvider theme={themes}>
     <CssBaseline />
     <Provider store={store}>
       <BrowserRouter>
-        <App />
+        <EntryPoint />
       </BrowserRouter>
     </Provider>
   </MuiThemeProvider>,
