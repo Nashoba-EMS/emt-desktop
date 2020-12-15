@@ -2,17 +2,22 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter } from "react-router-dom";
 import { MuiThemeProvider } from "@material-ui/core/styles";
-import CssBaseline from "./CssBaseline";
+import { Provider } from "react-redux";
+
 import themes from "./themes";
-import App from "./App";
 import reportWebVitals from "./reportWebVitals";
+import CssBaseline from "./CssBaseline";
+import store from "./redux";
+import App from "./App";
 
 ReactDOM.render(
   <MuiThemeProvider theme={themes}>
     <CssBaseline />
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <Provider store={store}>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </Provider>
   </MuiThemeProvider>,
   document.getElementById("root")
 );
