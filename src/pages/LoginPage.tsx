@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
+import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 
@@ -12,6 +13,9 @@ const useStyles = makeStyles((theme) =>
   createStyles({
     loginForm: {
       padding: theme.spacing(2)
+    },
+    subtitle: {
+      color: theme.palette.grey["500"]
     },
     innerFormField: {
       marginTop: theme.spacing(2)
@@ -44,7 +48,14 @@ const LoginPage: React.FC = () => {
       <Grid item xs={3}>
         <Paper className={classes.loginForm} variant="outlined">
           <form>
+            <Typography variant="h6">EMT Scheduler</Typography>
+            <Typography className={classes.subtitle} variant="body2">
+              If this is your first time signing in, please use the email and password provided to you by the schedule
+              admin. You can change your password once you have signed in.
+            </Typography>
+
             <TextField
+              className={classes.innerFormField}
               variant="outlined"
               fullWidth
               label="Email"
