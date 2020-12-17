@@ -15,7 +15,9 @@ const loginFailure = (): AuthActionTypes => ({
   type: LOGIN_FAILURE
 });
 
-export const login: ThunkAction<void, any, unknown, Action<string>> = async (dispatch) => {
+export const login = (email: string, password: string): ThunkAction<void, any, unknown, Action<string>> => async (
+  dispatch
+) => {
   dispatch(loginStart());
 };
 
