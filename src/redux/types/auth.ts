@@ -9,10 +9,13 @@ interface LoginStartAction {
 
 interface LoginSuccessAction {
   type: typeof LOGIN_SUCCESS;
+  user: {};
+  token: string;
 }
 
 interface LoginFailureAction {
   type: typeof LOGIN_FAILURE;
+  errorMessage: string;
 }
 
 interface LogoutAction {

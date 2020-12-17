@@ -3,11 +3,19 @@ import { AuthActionTypes, LOGIN_FAILURE, LOGIN_START, LOGIN_SUCCESS, LOGOUT } fr
 export interface AuthState {
   authenticated: boolean;
   isAuthenticating: boolean;
+  authenticationErrorMessage: string;
+
+  user: {};
+  token: string;
 }
 
 const initialState: AuthState = {
   authenticated: false,
-  isAuthenticating: false
+  isAuthenticating: false,
+  authenticationErrorMessage: "",
+
+  user: {},
+  token: ""
 };
 
 const reducer = (state = initialState, action: AuthActionTypes): AuthState => {
@@ -16,19 +24,23 @@ const reducer = (state = initialState, action: AuthActionTypes): AuthState => {
       return {
         ...state,
         authenticated: false,
-        isAuthenticating: true
+        isAuthenticating: true,
+        authenticationErrorMessage: ""
       };
     case LOGIN_SUCCESS:
       return {
         ...state,
         authenticated: true,
-        isAuthenticating: false
+        isAuthenticating: false,
+        user: action.user,
+        token: action.token
       };
     case LOGIN_FAILURE:
       return {
         ...state,
         authenticated: false,
-        isAuthenticating: false
+        isAuthenticating: false,
+        authenticationErrorMessage: action.errorMessage
       };
     case LOGOUT:
       return {
