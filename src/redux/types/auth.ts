@@ -1,5 +1,5 @@
 import { FailureResponse, SuccessResponse } from "../../api/endpoints";
-import { LoginResponse } from "../../api/auth";
+import { LoginResponse } from "../../api/users";
 
 export const LOGIN_START = "LOGIN_START";
 export const LOGIN_SUCCESS = "LOGIN_SUCCESS";

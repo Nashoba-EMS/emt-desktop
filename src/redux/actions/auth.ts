@@ -1,7 +1,7 @@
 import { Action } from "redux";
 import { ThunkAction } from "redux-thunk";
 
-import { Auth } from "../../api";
+import { Users } from "../../api";
 import { FailureResponse, SuccessResponse } from "../../api/endpoints";
 import { AuthActionTypes, LOGIN_FAILURE, LOGIN_START, LOGIN_SUCCESS, LOGOUT } from "../types/auth";
 
@@ -15,7 +15,7 @@ const loginStart = (): AuthActionTypes => ({
 /**
  * Login request has succeeded
  */
-const loginSuccess = (response: SuccessResponse<Auth.LoginResponse>): AuthActionTypes => ({
+const loginSuccess = (response: SuccessResponse<Users.LoginResponse>): AuthActionTypes => ({
   type: LOGIN_SUCCESS,
   ...response
 });
@@ -36,7 +36,7 @@ export const login = (email: string, password: string): ThunkAction<void, any, u
 ) => {
   dispatch(loginStart());
 
-  const response = await Auth.login({ email, password });
+  const response = await Users.login({ email, password });
 
   if (response.code === 200) {
     dispatch(loginSuccess(response));

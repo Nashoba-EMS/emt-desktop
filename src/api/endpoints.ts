@@ -1,5 +1,3 @@
-import { User } from "./auth.d";
-
 export const GetMethod = "GET";
 export const PostMethod = "POST";
 
