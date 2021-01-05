@@ -48,7 +48,7 @@ const LoginPage: React.FC = () => {
       <Grid item xs={3}>
         <Paper className={classes.loginForm} variant="outlined">
           <form>
-            <Typography variant="h6">EMT Scheduler</Typography>
+            <Typography variant="h6">Nashoba EMS Scheduler</Typography>
             <Typography className={classes.subtitle} variant="body2">
               If this is your first time signing in, please use the email and password provided to you by the schedule
               admin. You can change your password once you have signed in.

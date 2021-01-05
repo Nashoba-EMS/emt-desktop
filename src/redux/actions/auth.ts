@@ -1,24 +1,36 @@
 import { Action } from "redux";
 import { ThunkAction } from "redux-thunk";
-import { Auth } from "../../api";
 
+import { Auth } from "../../api";
+import { FailureResponse, SuccessResponse } from "../../api/endpoints";
 import { AuthActionTypes, LOGIN_FAILURE, LOGIN_START, LOGIN_SUCCESS, LOGOUT } from "../types/auth";
 
+/**
+ * Login request has started
+ */
 const loginStart = (): AuthActionTypes => ({
   type: LOGIN_START
 });
 
-const loginSuccess = (user: {}, token: string): AuthActionTypes => ({
+/**
+ * Login request has succeeded
+ */
+const loginSuccess = (response: SuccessResponse<Auth.LoginResponse>): AuthActionTypes => ({
   type: LOGIN_SUCCESS,
-  user,
-  token
+  ...response
 });
 
-const loginFailure = (errorMessage: string): AuthActionTypes => ({
+/**
+ * Login request has failed
+ */
+const loginFailure = (response: FailureResponse): AuthActionTypes => ({
   type: LOGIN_FAILURE,
-  errorMessage
+  ...response
 });
 
+/**
+ * Login with the given user credentials
+ */
 export const login = (email: string, password: string): ThunkAction<void, any, unknown, Action<string>> => async (
   dispatch
 ) => {
@@ -26,13 +38,16 @@ export const login = (email: string, password: string): ThunkAction<void, any, u
 
   const response = await Auth.login({ email, password });
 
-  if (response.success) {
-    dispatch(loginSuccess(response.data.user, response.data.token));
+  if (response.code === 200) {
+    dispatch(loginSuccess(response));
   } else {
-    dispatch(loginFailure(response.errorMessage));
+    dispatch(loginFailure(response));
   }
 };
 
+/**
+ * Logout the current user
+ */
 export const logout = (): AuthActionTypes => {
   return {
     type: LOGOUT

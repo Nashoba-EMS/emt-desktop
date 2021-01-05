@@ -1,3 +1,4 @@
+import { UserWithoutPassword } from "../api/auth.d";
 import { AuthActionTypes, LOGIN_FAILURE, LOGIN_START, LOGIN_SUCCESS, LOGOUT } from "./types/auth";
 
 export interface AuthState {
@@ -5,7 +6,7 @@ export interface AuthState {
   isAuthenticating: boolean;
   authenticationErrorMessage: string;
 
-  user: {};
+  user: UserWithoutPassword | null;
   token: string;
 }
 
@@ -14,7 +15,7 @@ const initialState: AuthState = {
   isAuthenticating: false,
   authenticationErrorMessage: "",
 
-  user: {},
+  user: null,
   token: ""
 };
 
@@ -32,20 +33,22 @@ const reducer = (state = initialState, action: AuthActionTypes): AuthState => {
         ...state,
         authenticated: true,
         isAuthenticating: false,
-        user: action.user,
-        token: action.token
+        user: action.body.user,
+        token: action.body.token
       };
     case LOGIN_FAILURE:
       return {
         ...state,
         authenticated: false,
         isAuthenticating: false,
-        authenticationErrorMessage: action.errorMessage
+        authenticationErrorMessage: action.body.error.message
       };
     case LOGOUT:
       return {
         ...state,
-        authenticated: false
+        authenticated: false,
+        user: null,
+        token: ""
       };
     default:
       return state;

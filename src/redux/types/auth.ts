@@ -1,3 +1,6 @@
+import { FailureResponse, SuccessResponse } from "../../api/endpoints";
+import { LoginResponse } from "../../api/auth";
+
 export const LOGIN_START = "LOGIN_START";
 export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
 export const LOGIN_FAILURE = "LOGIN_FAILURE";
@@ -7,16 +10,13 @@ interface LoginStartAction {
   type: typeof LOGIN_START;
 }
 
-interface LoginSuccessAction {
+type LoginSuccessAction = {
   type: typeof LOGIN_SUCCESS;
-  user: {};
-  token: string;
-}
+} & SuccessResponse<LoginResponse>;
 
-interface LoginFailureAction {
+type LoginFailureAction = {
   type: typeof LOGIN_FAILURE;
-  errorMessage: string;
-}
+} & FailureResponse;
 
 interface LogoutAction {
   type: typeof LOGOUT;

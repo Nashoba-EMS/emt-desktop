@@ -1,19 +1,18 @@
-import { ApiResponse } from "./backend";
+import { UserWithoutPassword } from "./auth.d";
+import { ENDPOINT, request } from "./endpoints";
 
-export const login = async (payload: {
-  email: string;
-  password: string;
-}): Promise<
-  ApiResponse<{
-    user: {};
-    token: string;
-  }>
-> => {
-  return {
-    success: true,
-    data: {
-      user: {},
-      token: ""
-    }
-  };
+export type LoginResponse = {
+  token: string;
+  user: UserWithoutPassword;
 };
+
+/**
+ * Login with the given credentials
+ */
+export const login = (payload: { email: string; password: string }) =>
+  request<LoginResponse>(ENDPOINT.users.login, {
+    body: {
+      email: payload.email,
+      password: payload.password
+    }
+  });
