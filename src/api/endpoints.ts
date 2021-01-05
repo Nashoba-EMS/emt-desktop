@@ -45,7 +45,7 @@ export type Response<Body> = SuccessResponse<Body> | FailureResponse;
 export const request = async <ResponseBody>(
   endpoint: Endpoint,
   args: {
-    token?: string;
+    token: string | null;
     body?: any;
   }
 ): Promise<Response<ResponseBody>> => {
@@ -59,7 +59,7 @@ export const request = async <ResponseBody>(
 
   if (args.token) {
     // Attach authorization
-    headers["Authorization"] = `Bearer: ${args.token}`;
+    headers["Authorization"] = `Bearer ${args.token}`;
   }
 
   try {

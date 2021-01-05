@@ -1,7 +1,16 @@
 import { UserWithoutPassword } from "../api/users.d";
-import { AuthActionTypes, LOGIN_FAILURE, LOGIN_RESET, LOGIN_START, LOGIN_SUCCESS, LOGOUT } from "./types/auth";
+import {
+  AuthActionTypes,
+  LOAD_SESSION_DONE,
+  LOGIN_FAILURE,
+  LOGIN_RESET,
+  LOGIN_START,
+  LOGIN_SUCCESS,
+  LOGOUT
+} from "./types/auth";
 
 export interface AuthState {
+  loadedUser: boolean;
   authenticated: boolean;
   isAuthenticating: boolean;
   authenticationErrorMessage: string;
@@ -11,6 +20,7 @@ export interface AuthState {
 }
 
 const initialState: AuthState = {
+  loadedUser: false,
   authenticated: false,
   isAuthenticating: false,
   authenticationErrorMessage: "",
@@ -21,6 +31,15 @@ const initialState: AuthState = {
 
 const reducer = (state = initialState, action: AuthActionTypes): AuthState => {
   switch (action.type) {
+    case LOAD_SESSION_DONE:
+      return {
+        ...state,
+        loadedUser: true,
+        authenticated: action.body?.user ? true : false,
+        isAuthenticating: false,
+        user: action.body?.user ?? null,
+        token: action.body?.token ?? ""
+      };
     case LOGIN_RESET:
       return {
         ...state,

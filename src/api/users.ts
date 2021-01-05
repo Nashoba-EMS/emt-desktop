@@ -9,8 +9,9 @@ export type LoginResponse = {
 /**
  * Login with the given credentials
  */
-export const login = (payload: { email: string; password: string }) =>
+export const login = (token: string | null, payload?: { email: string; password: string }) =>
   request<LoginResponse>(ENDPOINT.users.login, {
+    token,
     body: payload
   });
 
