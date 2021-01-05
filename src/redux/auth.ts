@@ -1,5 +1,5 @@
 import { UserWithoutPassword } from "../api/users.d";
-import { AuthActionTypes, LOGIN_FAILURE, LOGIN_START, LOGIN_SUCCESS, LOGOUT } from "./types/auth";
+import { AuthActionTypes, LOGIN_FAILURE, LOGIN_RESET, LOGIN_START, LOGIN_SUCCESS, LOGOUT } from "./types/auth";
 
 export interface AuthState {
   authenticated: boolean;
@@ -21,6 +21,11 @@ const initialState: AuthState = {
 
 const reducer = (state = initialState, action: AuthActionTypes): AuthState => {
   switch (action.type) {
+    case LOGIN_RESET:
+      return {
+        ...state,
+        authenticationErrorMessage: ""
+      };
     case LOGIN_START:
       return {
         ...state,

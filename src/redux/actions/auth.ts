@@ -3,7 +3,14 @@ import { ThunkAction } from "redux-thunk";
 
 import { Users } from "../../api";
 import { FailureResponse, SuccessResponse } from "../../api/endpoints";
-import { AuthActionTypes, LOGIN_FAILURE, LOGIN_START, LOGIN_SUCCESS, LOGOUT } from "../types/auth";
+import { AuthActionTypes, LOGIN_FAILURE, LOGIN_RESET, LOGIN_START, LOGIN_SUCCESS, LOGOUT } from "../types/auth";
+
+/**
+ * Reset the login state
+ */
+export const loginReset = (): AuthActionTypes => ({
+  type: LOGIN_RESET
+});
 
 /**
  * Login request has started
