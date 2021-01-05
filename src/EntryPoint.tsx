@@ -32,7 +32,7 @@ const EntryPoint: React.FC = () => {
     <Switch>
       <Route path="/login" component={LoginPage} />
       <Route path="/app" component={App} />
-      <Route path="/" exact render={() => <Redirect to="/app" />} />
+      <Route path="/" exact render={() => <Redirect to="/login" />} />
     </Switch>
   );
 };
