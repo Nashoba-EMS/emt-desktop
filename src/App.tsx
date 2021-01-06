@@ -16,10 +16,9 @@ import Collapse from "@material-ui/core/Collapse";
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
-import PersonIcon from "@material-ui/icons/PersonOutline";
-import ScheduleIcon from "@material-ui/icons/Schedule";
+import PersonIcon from "@material-ui/icons/Person";
+import FolderIcon from "@material-ui/icons/Folder";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
-import VerifiedUserIcon from "@material-ui/icons/VerifiedUserOutlined";
 
 import { ReduxState } from "./redux";
 import { _auth } from "./redux/actions";
@@ -114,7 +113,7 @@ const App: React.FC = () => {
 
           <ListItem button onClick={() => setSchedulesOpen(!schedulesOpen)}>
             <ListItemIcon>
-              <ScheduleIcon />
+              <FolderIcon />
             </ListItemIcon>
             <ListItemText primary="Schedules" />
             {schedulesOpen ? <ExpandLess /> : <ExpandMore />}
@@ -138,7 +137,7 @@ const App: React.FC = () => {
 
           <ListItem button onClick={() => setUsersOpen(!usersOpen)}>
             <ListItemIcon>
-              <VerifiedUserIcon />
+              <FolderIcon />
             </ListItemIcon>
             <ListItemText primary="Cadets" />
             {usersOpen ? <ExpandLess /> : <ExpandMore />}
