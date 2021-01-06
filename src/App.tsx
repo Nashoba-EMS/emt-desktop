@@ -67,7 +67,7 @@ const App: React.FC = () => {
 
   const user = useSelector((state: ReduxState) => state.auth.user);
 
-  const [schedulesOpen, setSchedulesOpen] = React.useState<boolean>(true);
+  const [crewsOpen, setCrewsOpen] = React.useState<boolean>(true);
   const [usersOpen, setUsersOpen] = React.useState<boolean>(true);
 
   const dispatch = useDispatch();
@@ -111,25 +111,27 @@ const App: React.FC = () => {
             {user?.admin && <Chip label="Admin" color="secondary" size="small" />}
           </ListItem>
 
-          <ListItem button onClick={() => setSchedulesOpen(!schedulesOpen)}>
+          <ListItem button onClick={() => setCrewsOpen(!crewsOpen)}>
             <ListItemIcon>
               <FolderIcon />
             </ListItemIcon>
-            <ListItemText primary="Schedules" />
-            {schedulesOpen ? <ExpandLess /> : <ExpandMore />}
+            <ListItemText primary="Crews" />
+            {crewsOpen ? <ExpandLess /> : <ExpandMore />}
           </ListItem>
-          <Collapse in={schedulesOpen} timeout="auto" unmountOnExit>
+          <Collapse in={crewsOpen} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItem button className={classes.nested}>
+              {/* <ListItem button className={classes.nested}>
                 <ListItemText primary="TODO" />
-              </ListItem>
+              </ListItem> */}
 
-              <ListItem button className={classes.nested}>
-                <ListItemIcon>
-                  <AddCircleIcon color="secondary" />
-                </ListItemIcon>
-                <ListItemText primary="New Schedule" />
-              </ListItem>
+              {user?.admin && (
+                <ListItem button className={classes.nested}>
+                  <ListItemIcon>
+                    <AddCircleIcon color="secondary" />
+                  </ListItemIcon>
+                  <ListItemText primary="New Crew" />
+                </ListItem>
+              )}
             </List>
           </Collapse>
 
@@ -144,9 +146,9 @@ const App: React.FC = () => {
           </ListItem>
           <Collapse in={usersOpen} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItem button className={classes.nested}>
+              {/* <ListItem button className={classes.nested}>
                 <ListItemText primary="TODO" />
-              </ListItem>
+              </ListItem> */}
 
               <ListItem button className={classes.nested}>
                 <ListItemIcon>
