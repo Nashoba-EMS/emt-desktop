@@ -4,22 +4,25 @@ import { createStyles, makeStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
-import Chip from "@material-ui/core/Chip";
+import IconButton from "@material-ui/core/IconButton";
 import Drawer from "@material-ui/core/Drawer";
 import Divider from "@material-ui/core/Divider";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
+import Chip from "@material-ui/core/Chip";
 import Collapse from "@material-ui/core/Collapse";
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import PersonIcon from "@material-ui/icons/PersonOutline";
 import ScheduleIcon from "@material-ui/icons/Schedule";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUserOutlined";
 
 import { ReduxState } from "./redux";
+import { _auth } from "./redux/actions";
 
 const drawerWidth = 240;
 
@@ -32,6 +35,7 @@ const useStyles = makeStyles((theme) =>
       zIndex: theme.zIndex.drawer + 1
     },
     leftAppBar: {
+      flexGrow: 1,
       display: "flex",
       flexDirection: "row",
       alignItems: "center"
@@ -68,6 +72,7 @@ const App: React.FC = () => {
   const [usersOpen, setUsersOpen] = React.useState<boolean>(true);
 
   const dispatch = useDispatch();
+  const dispatchLogout = React.useCallback(() => dispatch(_auth.logout()), [dispatch]);
 
   return (
     <div className={classes.root}>
@@ -77,10 +82,15 @@ const App: React.FC = () => {
             <Typography className={classes.title} variant="h6" noWrap>
               Nashoba EMS
             </Typography>
-            <Typography variant="body1" noWrap>
-              {user?.name}
-            </Typography>
           </div>
+
+          <Typography variant="body1" noWrap>
+            {user?.name}
+          </Typography>
+
+          <IconButton onClick={dispatchLogout}>
+            <ExitToAppIcon />
+          </IconButton>
         </Toolbar>
       </AppBar>
 
