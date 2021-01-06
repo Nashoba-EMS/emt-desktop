@@ -1,4 +1,5 @@
 import React from "react";
+import { Link, Route, Switch, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
@@ -22,6 +23,9 @@ import AddCircleIcon from "@material-ui/icons/AddCircle";
 
 import { ReduxState } from "./redux";
 import { _auth } from "./redux/actions";
+import ProfilePage from "./pages/ProfilePage";
+import CrewPage from "./pages/CrewPage";
+import CadetPage from "./pages/CadetPage";
 
 const drawerWidth = 240;
 
@@ -64,11 +68,12 @@ const useStyles = makeStyles((theme) =>
 
 const App: React.FC = () => {
   const classes = useStyles();
+  const location = useLocation();
 
   const user = useSelector((state: ReduxState) => state.auth.user);
 
   const [crewsOpen, setCrewsOpen] = React.useState<boolean>(true);
-  const [usersOpen, setUsersOpen] = React.useState<boolean>(true);
+  const [cadetsOpen, setCadetsOpen] = React.useState<boolean>(true);
 
   const dispatch = useDispatch();
   const dispatchLogout = React.useCallback(() => dispatch(_auth.logout()), [dispatch]);
@@ -103,7 +108,7 @@ const App: React.FC = () => {
         <Toolbar />
 
         <div className={classes.drawerContainer}>
-          <ListItem button>
+          <ListItem button component={Link} to="/app/profile" selected={location.pathname === "/app/profile"}>
             <ListItemIcon>
               <PersonIcon />
             </ListItemIcon>
@@ -120,12 +125,27 @@ const App: React.FC = () => {
           </ListItem>
           <Collapse in={crewsOpen} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              {/* <ListItem button className={classes.nested}>
-                <ListItemText primary="TODO" />
-              </ListItem> */}
+              <ListItem
+                className={classes.nested}
+                button
+                component={Link}
+                to="/app/crew/test1"
+                selected={location.pathname === "/app/crew/test1"}
+              >
+                <ListItemText primary="Test 1" />
+              </ListItem>
+              <ListItem
+                className={classes.nested}
+                button
+                component={Link}
+                to="/app/crew/test2"
+                selected={location.pathname === "/app/crew/test2"}
+              >
+                <ListItemText primary="Test 2" />
+              </ListItem>
 
               {user?.admin && (
-                <ListItem button className={classes.nested}>
+                <ListItem className={classes.nested} button>
                   <ListItemIcon>
                     <AddCircleIcon color="secondary" />
                   </ListItemIcon>
@@ -137,24 +157,39 @@ const App: React.FC = () => {
 
           <Divider />
 
-          <ListItem button onClick={() => setUsersOpen(!usersOpen)}>
+          <ListItem button onClick={() => setCadetsOpen(!cadetsOpen)}>
             <ListItemIcon>
               <FolderIcon />
             </ListItemIcon>
             <ListItemText primary="Cadets" />
-            {usersOpen ? <ExpandLess /> : <ExpandMore />}
+            {cadetsOpen ? <ExpandLess /> : <ExpandMore />}
           </ListItem>
-          <Collapse in={usersOpen} timeout="auto" unmountOnExit>
+          <Collapse in={cadetsOpen} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              {/* <ListItem button className={classes.nested}>
-                <ListItemText primary="TODO" />
-              </ListItem> */}
+              <ListItem
+                className={classes.nested}
+                button
+                component={Link}
+                to="/app/cadet/test1"
+                selected={location.pathname === "/app/cadet/test1"}
+              >
+                <ListItemText primary="Test 1" />
+              </ListItem>
+              <ListItem
+                className={classes.nested}
+                button
+                component={Link}
+                to="/app/cadet/test2"
+                selected={location.pathname === "/app/cadet/test2"}
+              >
+                <ListItemText primary="Test 2" />
+              </ListItem>
 
-              <ListItem button className={classes.nested}>
+              <ListItem className={classes.nested} button>
                 <ListItemIcon>
                   <AddCircleIcon color="secondary" />
                 </ListItemIcon>
-                <ListItemText primary="New User" />
+                <ListItemText primary="New Cadet" />
               </ListItem>
             </List>
           </Collapse>
@@ -163,26 +198,11 @@ const App: React.FC = () => {
 
       <main className={classes.content}>
         <Toolbar />
-        <Typography paragraph>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-          magna aliqua. Rhoncus dolor purus non enim praesent elementum facilisis leo vel. Risus at ultrices mi tempus
-          imperdiet. Semper risus in hendrerit gravida rutrum quisque non tellus. Convallis convallis tellus id interdum
-          velit laoreet id donec ultrices. Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
-          adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra nibh cras. Metus vulputate eu
-          scelerisque felis imperdiet proin fermentum leo. Mauris commodo quis imperdiet massa tincidunt. Cras tincidunt
-          lobortis feugiat vivamus at augue. At augue eget arcu dictum varius duis at consectetur lorem. Velit sed
-          ullamcorper morbi tincidunt. Lorem donec massa sapien faucibus et molestie ac.
-        </Typography>
-        <Typography paragraph>
-          Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper eget nulla facilisi etiam
-          dignissim diam. Pulvinar elementum integer enim neque volutpat ac tincidunt. Ornare suspendisse sed nisi lacus
-          sed viverra tellus. Purus sit amet volutpat consequat mauris. Elementum eu facilisis sed odio morbi. Euismod
-          lacinia at quis risus sed vulputate odio. Morbi tincidunt ornare massa eget egestas purus viverra accumsan in.
-          In hendrerit gravida rutrum quisque non tellus orci ac. Pellentesque nec nam aliquam sem et tortor. Habitant
-          morbi tristique senectus et. Adipiscing elit duis tristique sollicitudin nibh sit. Ornare aenean euismod
-          elementum nisi quis eleifend. Commodo viverra maecenas accumsan lacus vel facilisis. Nulla posuere
-          sollicitudin aliquam ultrices sagittis orci a.
-        </Typography>
+        <Switch>
+          <Route path="/app/profile" component={ProfilePage} />
+          <Route path="/app/crew/:id" component={CrewPage} />
+          <Route path="/app/cadet/:id" component={CadetPage} />
+        </Switch>
       </main>
     </div>
   );

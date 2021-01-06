@@ -1,6 +1,6 @@
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { Route, Switch, withRouter, useHistory } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
 import App from "./App";
 import LoginPage from "./pages/LoginPage";
 import { ReduxState } from "./redux";
