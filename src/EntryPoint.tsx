@@ -19,7 +19,7 @@ const EntryPoint: React.FC = () => {
       dispatchLoadUser();
     } else {
       if (authenticated) {
-        history.push("/app");
+        history.push("/");
       } else {
         history.push("/login");
       }
@@ -29,7 +29,7 @@ const EntryPoint: React.FC = () => {
   return (
     <Switch>
       <Route path="/login" component={LoginPage} />
-      <Route path="/app" component={App} />
+      <Route path="/" component={App} />
     </Switch>
   );
 };

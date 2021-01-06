@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, Route, Switch, useLocation } from "react-router-dom";
+import { Link, Redirect, Route, Switch, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
@@ -108,7 +108,7 @@ const App: React.FC = () => {
         <Toolbar />
 
         <div className={classes.drawerContainer}>
-          <ListItem button component={Link} to="/app/profile" selected={location.pathname === "/app/profile"}>
+          <ListItem button component={Link} to="/profile" selected={location.pathname === "/profile"}>
             <ListItemIcon>
               <PersonIcon />
             </ListItemIcon>
@@ -129,8 +129,8 @@ const App: React.FC = () => {
                 className={classes.nested}
                 button
                 component={Link}
-                to="/app/crew/test1"
-                selected={location.pathname === "/app/crew/test1"}
+                to="/crew/test1"
+                selected={location.pathname === "/crew/test1"}
               >
                 <ListItemText primary="Test 1" />
               </ListItem>
@@ -138,8 +138,8 @@ const App: React.FC = () => {
                 className={classes.nested}
                 button
                 component={Link}
-                to="/app/crew/test2"
-                selected={location.pathname === "/app/crew/test2"}
+                to="/crew/test2"
+                selected={location.pathname === "/crew/test2"}
               >
                 <ListItemText primary="Test 2" />
               </ListItem>
@@ -170,8 +170,8 @@ const App: React.FC = () => {
                 className={classes.nested}
                 button
                 component={Link}
-                to="/app/cadet/test1"
-                selected={location.pathname === "/app/cadet/test1"}
+                to="/cadet/test1"
+                selected={location.pathname === "/cadet/test1"}
               >
                 <ListItemText primary="Test 1" />
               </ListItem>
@@ -179,8 +179,8 @@ const App: React.FC = () => {
                 className={classes.nested}
                 button
                 component={Link}
-                to="/app/cadet/test2"
-                selected={location.pathname === "/app/cadet/test2"}
+                to="/cadet/test2"
+                selected={location.pathname === "/cadet/test2"}
               >
                 <ListItemText primary="Test 2" />
               </ListItem>
@@ -199,9 +199,10 @@ const App: React.FC = () => {
       <main className={classes.content}>
         <Toolbar />
         <Switch>
-          <Route path="/app/profile" component={ProfilePage} />
-          <Route path="/app/crew/:id" component={CrewPage} />
-          <Route path="/app/cadet/:id" component={CadetPage} />
+          <Redirect exact from="/" to="/profile" />
+          <Route path="/profile" component={ProfilePage} />
+          <Route path="/crew/:id" component={CrewPage} />
+          <Route path="/cadet/:id" component={CadetPage} />
         </Switch>
       </main>
     </div>
