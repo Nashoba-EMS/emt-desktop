@@ -15,7 +15,8 @@ export default createMuiTheme({
       main: "#90CAF9"
     },
     secondary: {
-      main: "#F48FB1"
+      main: "#F48FB1",
+      contrastText: "#FFFFFF"
     },
     type: isDarkMatch.matches ? "dark" : "light"
   }

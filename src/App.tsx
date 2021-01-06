@@ -16,6 +16,7 @@ import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 import PersonIcon from "@material-ui/icons/PersonOutline";
 import ScheduleIcon from "@material-ui/icons/Schedule";
+import AddCircleIcon from "@material-ui/icons/AddCircle";
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUserOutlined";
 
 import { ReduxState } from "./redux";
@@ -113,6 +114,13 @@ const App: React.FC = () => {
               <ListItem button className={classes.nested}>
                 <ListItemText primary="TODO" />
               </ListItem>
+
+              <ListItem button className={classes.nested}>
+                <ListItemIcon>
+                  <AddCircleIcon color="secondary" />
+                </ListItemIcon>
+                <ListItemText primary="New Schedule" />
+              </ListItem>
             </List>
           </Collapse>
 
@@ -129,6 +137,13 @@ const App: React.FC = () => {
             <List component="div" disablePadding>
               <ListItem button className={classes.nested}>
                 <ListItemText primary="TODO" />
+              </ListItem>
+
+              <ListItem button className={classes.nested}>
+                <ListItemIcon>
+                  <AddCircleIcon color="secondary" />
+                </ListItemIcon>
+                <ListItemText primary="New User" />
               </ListItem>
             </List>
           </Collapse>
