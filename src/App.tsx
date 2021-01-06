@@ -1,19 +1,24 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
-
-import { ReduxState } from "./redux";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
+import Chip from "@material-ui/core/Chip";
 import Drawer from "@material-ui/core/Drawer";
 import Divider from "@material-ui/core/Divider";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-import InboxIcon from "@material-ui/icons/MoveToInbox";
-import MailIcon from "@material-ui/icons/Mail";
+import Collapse from "@material-ui/core/Collapse";
+import ExpandLess from "@material-ui/icons/ExpandLess";
+import ExpandMore from "@material-ui/icons/ExpandMore";
+import PersonIcon from "@material-ui/icons/PersonOutline";
+import ScheduleIcon from "@material-ui/icons/Schedule";
+import VerifiedUserIcon from "@material-ui/icons/VerifiedUserOutlined";
+
+import { ReduxState } from "./redux";
 
 const drawerWidth = 240;
 
@@ -25,6 +30,14 @@ const useStyles = makeStyles((theme) =>
     appBar: {
       zIndex: theme.zIndex.drawer + 1
     },
+    leftAppBar: {
+      display: "flex",
+      flexDirection: "row",
+      alignItems: "center"
+    },
+    title: {
+      marginRight: theme.spacing(1)
+    },
     drawer: {
       width: drawerWidth,
       flexShrink: 0
@@ -34,6 +47,9 @@ const useStyles = makeStyles((theme) =>
     },
     drawerContainer: {
       overflow: "auto"
+    },
+    nested: {
+      paddingLeft: theme.spacing(4)
     },
     content: {
       flexGrow: 1,
@@ -47,15 +63,23 @@ const App: React.FC = () => {
 
   const user = useSelector((state: ReduxState) => state.auth.user);
 
+  const [schedulesOpen, setSchedulesOpen] = React.useState<boolean>(true);
+  const [usersOpen, setUsersOpen] = React.useState<boolean>(true);
+
   const dispatch = useDispatch();
 
   return (
     <div className={classes.root}>
       <AppBar className={classes.appBar} position="fixed">
         <Toolbar>
-          <Typography variant="h6" noWrap>
-            Nashoba EMS
-          </Typography>
+          <div className={classes.leftAppBar}>
+            <Typography className={classes.title} variant="h6" noWrap>
+              Nashoba EMS
+            </Typography>
+            <Typography variant="body1" noWrap>
+              {user?.name}
+            </Typography>
+          </div>
         </Toolbar>
       </AppBar>
 
@@ -69,23 +93,45 @@ const App: React.FC = () => {
         <Toolbar />
 
         <div className={classes.drawerContainer}>
-          <List>
-            {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
-              <ListItem button key={text}>
-                <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-                <ListItemText primary={text} />
+          <ListItem button>
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            <ListItemText primary="Profile" />
+            {user?.admin && <Chip label="Admin" color="secondary" size="small" />}
+          </ListItem>
+
+          <ListItem button onClick={() => setSchedulesOpen(!schedulesOpen)}>
+            <ListItemIcon>
+              <ScheduleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Schedules" />
+            {schedulesOpen ? <ExpandLess /> : <ExpandMore />}
+          </ListItem>
+          <Collapse in={schedulesOpen} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              <ListItem button className={classes.nested}>
+                <ListItemText primary="TODO" />
               </ListItem>
-            ))}
-          </List>
+            </List>
+          </Collapse>
+
           <Divider />
-          <List>
-            {["All mail", "Trash", "Spam"].map((text, index) => (
-              <ListItem button key={text}>
-                <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-                <ListItemText primary={text} />
+
+          <ListItem button onClick={() => setUsersOpen(!usersOpen)}>
+            <ListItemIcon>
+              <VerifiedUserIcon />
+            </ListItemIcon>
+            <ListItemText primary="Cadets" />
+            {usersOpen ? <ExpandLess /> : <ExpandMore />}
+          </ListItem>
+          <Collapse in={usersOpen} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              <ListItem button className={classes.nested}>
+                <ListItemText primary="TODO" />
               </ListItem>
-            ))}
-          </List>
+            </List>
+          </Collapse>
         </div>
       </Drawer>
 
