@@ -1,6 +1,13 @@
 import { createMuiTheme } from "@material-ui/core/styles";
 
-const isDarkMatch = window.matchMedia("(prefers-color-scheme: dark)");
+const envTheme = process.env.REACT_APP_THEME ?? "auto";
+
+export const isDarkMatch =
+  envTheme === "auto"
+    ? window.matchMedia("(prefers-color-scheme: dark)")
+    : {
+        matches: envTheme === "dark"
+      };
 
 export default createMuiTheme({
   palette: {

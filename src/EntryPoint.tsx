@@ -1,6 +1,6 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Route, Switch, Redirect, withRouter, useHistory } from "react-router";
+import { Route, Switch, withRouter, useHistory } from "react-router";
 import App from "./App";
 import LoginPage from "./pages/LoginPage";
 import { ReduxState } from "./redux";
@@ -17,22 +17,19 @@ const EntryPoint: React.FC = () => {
   React.useEffect(() => {
     if (!loadedUser) {
       dispatchLoadUser();
-    }
-  }, [dispatchLoadUser, loadedUser]);
-
-  React.useEffect(() => {
-    if (authenticated) {
-      history.push("/app");
     } else {
-      history.push("/login");
+      if (authenticated) {
+        history.push("/app");
+      } else {
+        history.push("/login");
+      }
     }
-  }, [authenticated, history]);
+  }, [authenticated, dispatchLoadUser, history, loadedUser]);
 
   return (
     <Switch>
       <Route path="/login" component={LoginPage} />
       <Route path="/app" component={App} />
-      <Route path="/" exact render={() => <Redirect to="/login" />} />
     </Switch>
   );
 };
