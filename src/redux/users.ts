@@ -39,6 +39,7 @@ export interface UsersState {
   deleteUserErrorMessage: string;
 
   cadets: (User | UserWithoutPassword)[];
+  latestCadet: User | UserWithoutPassword | null;
 }
 
 const initialState: UsersState = {
@@ -59,7 +60,8 @@ const initialState: UsersState = {
   isDeletingUser: false,
   deleteUserErrorMessage: "",
 
-  cadets: []
+  cadets: [],
+  latestCadet: null
 };
 
 const reducer = (state = initialState, action: UsersActionTypes): UsersState => {
@@ -135,7 +137,8 @@ const reducer = (state = initialState, action: UsersActionTypes): UsersState => 
       return {
         ...state,
         isCreatingUser: false,
-        cadets: [...state.cadets, action.body.user]
+        cadets: [...state.cadets, action.body.user],
+        latestCadet: action.body.user
       };
     case CREATE_USER_FAILURE:
       return {
@@ -153,7 +156,8 @@ const reducer = (state = initialState, action: UsersActionTypes): UsersState => 
       return {
         ...state,
         isUpdatingUser: false,
-        cadets: [...state.cadets.filter((cadet) => cadet._id !== action.body.user._id), action.body.user]
+        cadets: [...state.cadets.filter((cadet) => cadet._id !== action.body.user._id), action.body.user],
+        latestCadet: action.body.user
       };
     case UPDATE_USER_FAILURE:
       return {
