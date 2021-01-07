@@ -1,15 +1,15 @@
 import { UserWithoutPassword } from "../api/users.d";
 import {
-  AuthActionTypes,
+  UsersActionTypes,
   LOAD_SESSION_DONE,
   LOGIN_FAILURE,
   LOGIN_RESET,
   LOGIN_START,
   LOGIN_SUCCESS,
   LOGOUT
-} from "./types/auth";
+} from "./types/users";
 
-export interface AuthState {
+export interface UsersState {
   loadedUser: boolean;
   authenticated: boolean;
   isAuthenticating: boolean;
@@ -19,7 +19,7 @@ export interface AuthState {
   token: string;
 }
 
-const initialState: AuthState = {
+const initialState: UsersState = {
   loadedUser: false,
   authenticated: false,
   isAuthenticating: false,
@@ -29,7 +29,7 @@ const initialState: AuthState = {
   token: ""
 };
 
-const reducer = (state = initialState, action: AuthActionTypes): AuthState => {
+const reducer = (state = initialState, action: UsersActionTypes): UsersState => {
   switch (action.type) {
     case LOAD_SESSION_DONE:
       return {

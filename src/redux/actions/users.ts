@@ -4,19 +4,19 @@ import { ThunkAction } from "redux-thunk";
 import { Users } from "../../api";
 import { FailureResponse, SuccessResponse } from "../../api/endpoints";
 import {
-  AuthActionTypes,
+  UsersActionTypes,
   LOAD_SESSION_DONE,
   LOGIN_FAILURE,
   LOGIN_RESET,
   LOGIN_START,
   LOGIN_SUCCESS,
   LOGOUT
-} from "../types/auth";
+} from "../types/users";
 
 /**
  * Finished loading from local storage
  */
-const loadSessionDone = (response?: SuccessResponse<Users.LoginResponse>): AuthActionTypes => ({
+const loadSessionDone = (response?: SuccessResponse<Users.LoginResponse>): UsersActionTypes => ({
   type: LOAD_SESSION_DONE,
   ...response
 });
@@ -50,21 +50,21 @@ export const loadSession = (): ThunkAction<void, any, unknown, Action<string>> =
 /**
  * Reset the login state
  */
-export const loginReset = (): AuthActionTypes => ({
+export const loginReset = (): UsersActionTypes => ({
   type: LOGIN_RESET
 });
 
 /**
  * Login request has started
  */
-const loginStart = (): AuthActionTypes => ({
+const loginStart = (): UsersActionTypes => ({
   type: LOGIN_START
 });
 
 /**
  * Login request has succeeded
  */
-const loginSuccess = (response: SuccessResponse<Users.LoginResponse>): AuthActionTypes => ({
+const loginSuccess = (response: SuccessResponse<Users.LoginResponse>): UsersActionTypes => ({
   type: LOGIN_SUCCESS,
   ...response
 });
@@ -72,7 +72,7 @@ const loginSuccess = (response: SuccessResponse<Users.LoginResponse>): AuthActio
 /**
  * Login request has failed
  */
-const loginFailure = (response: FailureResponse): AuthActionTypes => ({
+const loginFailure = (response: FailureResponse): UsersActionTypes => ({
   type: LOGIN_FAILURE,
   ...response
 });
@@ -100,7 +100,7 @@ export const login = (email: string, password: string): ThunkAction<void, any, u
 /**
  * Logout the current user
  */
-export const logout = (): AuthActionTypes => {
+export const logout = (): UsersActionTypes => {
   // Remove the session info on signout
   localStorage.removeItem("token");
 

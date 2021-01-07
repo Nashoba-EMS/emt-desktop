@@ -55,8 +55,8 @@ const useStyles = makeStyles((theme) =>
 const ProfilePage: React.FC = () => {
   const classes = useStyles();
 
-  const user = useSelector((state: ReduxState) => state.auth.user);
-  const token = useSelector((state: ReduxState) => state.auth.token);
+  const user = useSelector((state: ReduxState) => state.users.user);
+  const token = useSelector((state: ReduxState) => state.users.token);
 
   const [modifications, setModifications] = React.useState<Partial<User>>({});
   const [confirmPassword, setConfirmPassword] = React.useState<string>("");

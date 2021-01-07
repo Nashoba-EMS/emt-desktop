@@ -22,7 +22,7 @@ import FolderIcon from "@material-ui/icons/Folder";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 
 import { ReduxState } from "./redux";
-import { _auth } from "./redux/actions";
+import { _users } from "./redux/actions";
 import ProfilePage from "./pages/ProfilePage";
 import CrewPage from "./pages/CrewPage";
 import CadetPage from "./pages/CadetPage";
@@ -70,13 +70,13 @@ const App: React.FC = () => {
   const classes = useStyles();
   const location = useLocation();
 
-  const user = useSelector((state: ReduxState) => state.auth.user);
+  const user = useSelector((state: ReduxState) => state.users.user);
 
   const [crewsOpen, setCrewsOpen] = React.useState<boolean>(true);
   const [cadetsOpen, setCadetsOpen] = React.useState<boolean>(true);
 
   const dispatch = useDispatch();
-  const dispatchLogout = React.useCallback(() => dispatch(_auth.logout()), [dispatch]);
+  const dispatchLogout = React.useCallback(() => dispatch(_users.logout()), [dispatch]);
 
   return (
     <div className={classes.root}>

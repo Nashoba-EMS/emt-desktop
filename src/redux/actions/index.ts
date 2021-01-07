@@ -1,3 +1,3 @@
-import * as _auth from "./auth";
+import * as _users from "./users";
 
-export { _auth };
+export { _users };

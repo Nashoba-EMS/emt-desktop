@@ -11,7 +11,7 @@ import Snackbar from "@material-ui/core/Snackbar";
 import SnackbarContent from "@material-ui/core/SnackbarContent";
 
 import { ReduxState } from "../redux";
-import { _auth } from "../redux/actions";
+import { _users } from "../redux/actions";
 import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "../constants/users";
 
 const useStyles = makeStyles((theme) =>
@@ -38,8 +38,8 @@ const useStyles = makeStyles((theme) =>
 const LoginPage: React.FC = () => {
   const classes = useStyles();
 
-  const isAuthenticating = useSelector((state: ReduxState) => state.auth.isAuthenticating);
-  const authenticationErrorMessage = useSelector((state: ReduxState) => state.auth.authenticationErrorMessage);
+  const isAuthenticating = useSelector((state: ReduxState) => state.users.isAuthenticating);
+  const authenticationErrorMessage = useSelector((state: ReduxState) => state.users.authenticationErrorMessage);
 
   const [email, setEmail] = React.useState<string>("");
   const [password, setPassword] = React.useState<string>("");
@@ -51,8 +51,8 @@ const LoginPage: React.FC = () => {
   );
 
   const dispatch = useDispatch();
-  const dispatchLogin = React.useCallback(() => dispatch(_auth.login(email, password)), [dispatch, email, password]);
-  const dispatchLoginReset = React.useCallback(() => dispatch(_auth.loginReset()), [dispatch]);
+  const dispatchLogin = React.useCallback(() => dispatch(_users.login(email, password)), [dispatch, email, password]);
+  const dispatchLoginReset = React.useCallback(() => dispatch(_users.loginReset()), [dispatch]);
 
   const onClickSignIn = React.useCallback(
     (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {

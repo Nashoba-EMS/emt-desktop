@@ -32,7 +32,7 @@ interface LogoutAction {
   type: typeof LOGOUT;
 }
 
-export type AuthActionTypes =
+export type UsersActionTypes =
   | LoadSessionDoneAction
   | LoginResetAction
   | LoginStartAction
