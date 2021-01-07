@@ -57,7 +57,7 @@ export const updateUser = (token: string, payload: { targetEmail: string; userPa
   manage<UpdateUserResponse>(token, { action: "UPDATE", ...payload });
 
 export type DeleteUserResponse = {
-  user: null;
+  user: UserWithoutPassword;
 };
 
 /**
