@@ -168,7 +168,7 @@ const ProfilePage: React.FC = () => {
           <Typography className={classes.subheading} variant="subtitle2">
             This information is used to determine crew assignments. Please contact an admin if the information is
             incorrect. Eligible cadets are ones who should be assigned to a crew. Certified must have passed the
-            certification requirements.
+            certification requirements for Basic EMTs.
           </Typography>
 
           <Grid className={classes.controls}>
