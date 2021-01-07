@@ -27,7 +27,7 @@ import ProfilePage from "./pages/ProfilePage";
 import CrewPage from "./pages/CrewPage";
 import CadetPage from "./pages/CadetPage";
 
-const drawerWidth = 240;
+const drawerWidth = 256;
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -71,12 +71,21 @@ const App: React.FC = () => {
   const location = useLocation();
 
   const user = useSelector((state: ReduxState) => state.users.user);
+  const token = useSelector((state: ReduxState) => state.users.token);
+  const cadets = useSelector((state: ReduxState) => state.users.cadets);
 
   const [crewsOpen, setCrewsOpen] = React.useState<boolean>(true);
   const [cadetsOpen, setCadetsOpen] = React.useState<boolean>(true);
 
   const dispatch = useDispatch();
   const dispatchLogout = React.useCallback(() => dispatch(_users.logout()), [dispatch]);
+  const dispatchGetAllUsers = React.useCallback(() => dispatch(_users.getAllUsers(token)), [dispatch, token]);
+
+  React.useEffect(() => {
+    if (token) {
+      dispatchGetAllUsers();
+    }
+  }, [dispatchGetAllUsers, token]);
 
   return (
     <div className={classes.root}>
@@ -166,24 +175,21 @@ const App: React.FC = () => {
           </ListItem>
           <Collapse in={cadetsOpen} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItem
-                className={classes.nested}
-                button
-                component={Link}
-                to="/cadet/test1"
-                selected={location.pathname === "/cadet/test1"}
-              >
-                <ListItemText primary="Test 1" />
-              </ListItem>
-              <ListItem
-                className={classes.nested}
-                button
-                component={Link}
-                to="/cadet/test2"
-                selected={location.pathname === "/cadet/test2"}
-              >
-                <ListItemText primary="Test 2" />
-              </ListItem>
+              {cadets
+                .sort((a, b) => (a.name > b.name ? 1 : a.name < b.name ? -1 : 0))
+                .map((cadet) => (
+                  <ListItem
+                    key={cadet._id}
+                    className={classes.nested}
+                    button
+                    component={Link}
+                    to={`/cadet/${cadet._id}`}
+                    selected={location.pathname === `/cadet/${cadet._id}`}
+                  >
+                    <ListItemText primary={cadet.name} />
+                    {cadet.admin && <Chip label="Admin" color="secondary" size="small" />}
+                  </ListItem>
+                ))}
 
               <ListItem className={classes.nested} button>
                 <ListItemIcon>
