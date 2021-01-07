@@ -15,38 +15,53 @@ export const login = (token: string | null, payload?: { email: string; password:
     body: payload
   });
 
-export type ManageResponse = {
-  user: UserWithoutPassword[] | UserWithoutPassword | null;
-};
-
 /**
  * CRUD operations on the user database
  */
-const manage = (token: string, payload: { action: string; targetEmail?: string; userPayload?: Partial<User> }) =>
-  request<ManageResponse>(ENDPOINT.users.manage, {
+const manage = <Response>(
+  token: string,
+  payload: { action: string; targetEmail?: string; userPayload?: Partial<User> }
+) =>
+  request<Response>(ENDPOINT.users.manage, {
     token,
     body: payload
   });
 
+export type GetAllUsersResponse = {
+  user: UserWithoutPassword[];
+};
+
 /**
  * Get a list of all users
  */
-export const getAllUsers = (token: string) => manage(token, { action: "GET" });
+export const getAllUsers = (token: string) => manage<GetAllUsersResponse>(token, { action: "GET" });
+
+export type CreateUserResponse = {
+  user: User;
+};
 
 /**
  * Create a new user
  */
 export const createUser = (token: string, payload: { targetEmail: string; userPayload: Partial<User> }) =>
-  manage(token, { action: "CREATE", ...payload });
+  manage<CreateUserResponse>(token, { action: "CREATE", ...payload });
+
+export type UpdateUserResponse = {
+  user: UserWithoutPassword;
+};
 
 /**
  * Update a given user
  */
 export const updateUser = (token: string, payload: { targetEmail: string; userPayload: Partial<User> }) =>
-  manage(token, { action: "UPDATE", ...payload });
+  manage<UpdateUserResponse>(token, { action: "UPDATE", ...payload });
+
+export type DeleteUserResponse = {
+  user: null;
+};
 
 /**
  * Delete a given user
  */
 export const deleteUser = (token: string, payload: { targetEmail: string }) =>
-  manage(token, { action: "DELETE", ...payload });
+  manage<DeleteUserResponse>(token, { action: "DELETE", ...payload });
