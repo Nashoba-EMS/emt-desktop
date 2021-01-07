@@ -6,6 +6,7 @@ import Typography from "@material-ui/core/Typography";
 import Chip from "@material-ui/core/Chip";
 import TextField from "@material-ui/core/TextField";
 import Grid from "@material-ui/core/Grid";
+import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
 import Button from "@material-ui/core/Button";
@@ -13,6 +14,7 @@ import SaveIcon from "@material-ui/icons/Save";
 
 import { ReduxState } from "../redux";
 import { User } from "../api/users.d";
+import { _users } from "../redux/actions";
 import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "../constants/users";
 import { filterUndefined } from "../utils/filter";
 import { isEmpty } from "../utils/empty";
@@ -72,6 +74,10 @@ const ProfilePage: React.FC = () => {
     modifications.birthdate,
     user?.birthdate
   ]);
+  const visibleEligible = React.useMemo(() => modifications.eligible ?? user?.eligible ?? false, [
+    modifications.eligible,
+    user?.eligible
+  ]);
   const visibleCertified = React.useMemo(() => modifications.certified ?? user?.certified ?? false, [
     modifications.certified,
     user?.certified
@@ -109,6 +115,10 @@ const ProfilePage: React.FC = () => {
   );
 
   const dispatch = useDispatch();
+  const dispatchUpdateUser = React.useCallback(
+    () => dispatch(_users.updateUser(token, user?.email ?? "", modifications)),
+    [dispatch, modifications, token, user?.email]
+  );
 
   return (
     <div className={classes.root}>
@@ -157,7 +167,8 @@ const ProfilePage: React.FC = () => {
           </div>
           <Typography className={classes.subheading} variant="subtitle2">
             This information is used to determine crew assignments. Please contact an admin if the information is
-            incorrect.
+            incorrect. Eligible cadets are ones who should be assigned to a crew. Certified must have passed the
+            certification requirements.
           </Typography>
 
           <Grid className={classes.controls}>
@@ -175,21 +186,38 @@ const ProfilePage: React.FC = () => {
               }
               helperText="Format: YYYY-MM-DD"
             />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={visibleCertified}
-                  disabled={!user?.admin}
-                  onChange={(e) =>
-                    setModifications({
-                      ...modifications,
-                      certified: e.target.checked === user?.certified ? undefined : e.target.checked
-                    })
-                  }
-                />
-              }
-              label="Certified"
-            />
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={visibleEligible}
+                    disabled={!user?.admin}
+                    onChange={(e) =>
+                      setModifications({
+                        ...modifications,
+                        eligible: e.target.checked === user?.eligible ? undefined : e.target.checked
+                      })
+                    }
+                  />
+                }
+                label="Eligible"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={visibleCertified}
+                    disabled={!user?.admin}
+                    onChange={(e) =>
+                      setModifications({
+                        ...modifications,
+                        certified: e.target.checked === user?.certified ? undefined : e.target.checked
+                      })
+                    }
+                  />
+                }
+                label="Certified"
+              />
+            </FormGroup>
           </Grid>
         </Paper>
 
@@ -201,7 +229,7 @@ const ProfilePage: React.FC = () => {
           </div>
           <Typography className={classes.subheading} variant="subtitle2">
             You can change your password at any time but please remember it. If you forget your password, you will need
-            to contact an admin to reset it for you.
+            to contact an admin to reset it for you. It is recommended to save your password.
           </Typography>
 
           <Grid className={classes.controls}>
@@ -231,7 +259,7 @@ const ProfilePage: React.FC = () => {
           color="secondary"
           startIcon={<SaveIcon />}
           disabled={!canSave}
-          onClick={() => console.log(filteredModifications)}
+          onClick={dispatchUpdateUser}
         >
           Save Changes
         </Button>
