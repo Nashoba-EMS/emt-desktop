@@ -244,7 +244,7 @@ const App: React.FC = () => {
       {showCreateNewUser && <NewCadetDialog onClose={() => setShowCreateNewUser(false)} />}
 
       <Snackbar
-        anchorOrigin={{ horizontal: "left", vertical: "bottom" }}
+        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
         open={errorMessage !== ""}
         autoHideDuration={4000}
         onClose={() => setErrorMessage("")}

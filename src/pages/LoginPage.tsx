@@ -122,7 +122,7 @@ const LoginPage: React.FC = () => {
       </Grid>
 
       <Snackbar
-        anchorOrigin={{ horizontal: "left", vertical: "bottom" }}
+        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
         open={authenticationErrorMessage !== ""}
         autoHideDuration={4000}
         onClose={dispatchLoginReset}
