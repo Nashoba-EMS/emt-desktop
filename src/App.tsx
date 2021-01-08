@@ -6,6 +6,7 @@ import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Snackbar from "@material-ui/core/Snackbar";
 import SnackbarContent from "@material-ui/core/SnackbarContent";
+import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
 import Drawer from "@material-ui/core/Drawer";
@@ -249,7 +250,15 @@ const App: React.FC = () => {
         autoHideDuration={4000}
         onClose={() => setErrorMessage("")}
       >
-        <SnackbarContent className={classes.errorMessage} message="This is a test" />
+        <SnackbarContent
+          className={classes.errorMessage}
+          message={errorMessage}
+          action={
+            <Button color="inherit" size="small" onClick={() => setErrorMessage("")}>
+              Hide
+            </Button>
+          }
+        />
       </Snackbar>
     </div>
   );

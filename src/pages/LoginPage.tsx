@@ -127,7 +127,15 @@ const LoginPage: React.FC = () => {
         autoHideDuration={4000}
         onClose={dispatchLoginReset}
       >
-        <SnackbarContent className={classes.errorMessage} message={authenticationErrorMessage} />
+        <SnackbarContent
+          className={classes.errorMessage}
+          message={authenticationErrorMessage}
+          action={
+            <Button color="inherit" size="small" onClick={dispatchLoginReset}>
+              Hide
+            </Button>
+          }
+        />
       </Snackbar>
     </React.Fragment>
   );
