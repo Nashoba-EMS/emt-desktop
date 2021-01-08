@@ -1,4 +1,4 @@
-import { User, UserWithoutPassword } from "../api/users.d";
+import { User, UserOptionalPassword, UserWithoutPassword } from "../api/users.d";
 import {
   UsersActionTypes,
   LOAD_SESSION_DONE,
@@ -39,7 +39,7 @@ export interface UsersState {
   deleteUserErrorMessage: string;
 
   cadets: (User | UserWithoutPassword)[];
-  latestCadet: User | UserWithoutPassword | null;
+  latestCadet: UserOptionalPassword | null;
 }
 
 const initialState: UsersState = {

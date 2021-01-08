@@ -1,6 +1,7 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
+import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
@@ -14,7 +15,7 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 
 import { ReduxState } from "../redux";
-import { User, UserWithoutId, UserWithoutPassword } from "../api/users.d";
+import { UserOptionalPassword, UserWithoutId } from "../api/users.d";
 import { _users } from "../redux/actions";
 import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "../constants/users";
 
@@ -32,6 +33,10 @@ const useStyles = makeStyles((theme) =>
     rightField: {
       flex: 1,
       marginLeft: theme.spacing(1)
+    },
+    boldText: {
+      fontWeight: "bold",
+      color: theme.palette.secondary.main
     }
   })
 );
@@ -44,7 +49,7 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
   const createUserErrorMessage = useSelector((state: ReduxState) => state.users.createUserErrorMessage);
   const latestCadet = useSelector((state: ReduxState) => state.users.latestCadet);
 
-  const [latestCadetOnLoad, setLatestCadetOnLoad] = React.useState<User | UserWithoutPassword | null>(null);
+  const [latestCadetOnLoad, setLatestCadetOnLoad] = React.useState<UserOptionalPassword | null>(null);
   const [userCreated, setUserCreated] = React.useState<boolean>(false);
 
   const [userPayload, setUserPayload] = React.useState<UserWithoutId>({
@@ -101,109 +106,135 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
 
   return (
     <Dialog open={true} onClose={onClose}>
-      <DialogTitle>Add a new cadet</DialogTitle>
-      <DialogContent>
-        <DialogContentText>
-          After you add a new cadet to the system, you should tell them what email and password to use. They will be
-          able to change their password after signing in.
-        </DialogContentText>
-        <Grid container direction="row" alignItems="flex-start">
-          <TextField
-            className={classes.leftField}
-            margin="dense"
-            variant="filled"
-            label="Name"
-            required
-            helperText="This should be their full name"
-            error={!nameIsValid}
-            value={userPayload.name}
-            onChange={(e) => setUserPayload({ ...userPayload, name: e.target.value })}
-          />
-          <TextField
-            className={classes.rightField}
-            margin="dense"
-            variant="filled"
-            fullWidth
-            label="Birthdate"
-            required
-            helperText="Must use the format: YYYY-MM-DD"
-            error={!birthdateIsValid}
-            value={userPayload.birthdate}
-            onChange={(e) => setUserPayload({ ...userPayload, birthdate: e.target.value })}
-          />
-        </Grid>
-        <Grid container direction="row" alignItems="flex-start">
-          <TextField
-            className={classes.leftField}
-            margin="dense"
-            variant="filled"
-            label="Email"
-            type="email"
-            required
-            helperText="Recommended to pick school email for consistency"
-            error={!emailIsValid}
-            value={userPayload.email}
-            onChange={(e) => setUserPayload({ ...userPayload, email: e.target.value })}
-          />
-          <TextField
-            className={classes.rightField}
-            margin="dense"
-            variant="filled"
-            fullWidth
-            label="Password"
-            helperText={`Leave blank to generate a random one. If manually set, must be between ${MIN_PASSWORD_LENGTH} and ${MAX_PASSWORD_LENGTH} characters`}
-            error={!passwordIsValid}
-            value={userPayload.password}
-            onChange={(e) => setUserPayload({ ...userPayload, password: e.target.value })}
-          />
-        </Grid>
-        <Grid container direction="row" alignItems="flex-start">
-          <Grid className={classes.leftField}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={userPayload.eligible}
-                  onChange={(e) => setUserPayload({ ...userPayload, eligible: e.target.checked })}
+      {userCreated ? (
+        <React.Fragment>
+          <DialogTitle>Review created cadet</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              A cadet was created with the following credentials. Please save these and send them to the appropriate
+              cadet so they can sign in as you will not be able to view them again. You will need to generate a new
+              password if you forget to send it to them.
+            </DialogContentText>
+            <DialogContentText>
+              Email: <Typography className={classes.boldText}>{latestCadet?.email}</Typography>
+            </DialogContentText>
+            <DialogContentText>
+              Password: <Typography className={classes.boldText}>{latestCadet?.password}</Typography>
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={onClose} color="secondary">
+              Done
+            </Button>
+          </DialogActions>
+        </React.Fragment>
+      ) : (
+        <React.Fragment>
+          <DialogTitle>Add a new cadet</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              After you add a new cadet to the system, you should tell them what email and password to use. They will be
+              able to change their password after signing in.
+            </DialogContentText>
+            <Grid container direction="row" alignItems="flex-start">
+              <TextField
+                className={classes.leftField}
+                margin="dense"
+                variant="filled"
+                label="Name"
+                required
+                helperText="This should be their full name"
+                error={!nameIsValid}
+                value={userPayload.name}
+                onChange={(e) => setUserPayload({ ...userPayload, name: e.target.value })}
+              />
+              <TextField
+                className={classes.rightField}
+                margin="dense"
+                variant="filled"
+                fullWidth
+                label="Birthdate"
+                required
+                helperText="Must use the format: YYYY-MM-DD"
+                error={!birthdateIsValid}
+                value={userPayload.birthdate}
+                onChange={(e) => setUserPayload({ ...userPayload, birthdate: e.target.value })}
+              />
+            </Grid>
+            <Grid container direction="row" alignItems="flex-start">
+              <TextField
+                className={classes.leftField}
+                margin="dense"
+                variant="filled"
+                label="Email"
+                type="email"
+                required
+                helperText="Recommended to pick school email for consistency"
+                error={!emailIsValid}
+                value={userPayload.email}
+                onChange={(e) => setUserPayload({ ...userPayload, email: e.target.value })}
+              />
+              <TextField
+                className={classes.rightField}
+                margin="dense"
+                variant="filled"
+                fullWidth
+                label="Password"
+                helperText={`Leave blank to generate a random one. If manually set, must be between ${MIN_PASSWORD_LENGTH} and ${MAX_PASSWORD_LENGTH} characters`}
+                error={!passwordIsValid}
+                value={userPayload.password}
+                onChange={(e) => setUserPayload({ ...userPayload, password: e.target.value })}
+              />
+            </Grid>
+            <Grid container direction="row" alignItems="flex-start">
+              <Grid className={classes.leftField}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={userPayload.eligible}
+                      onChange={(e) => setUserPayload({ ...userPayload, eligible: e.target.checked })}
+                    />
+                  }
+                  label="Eligible"
                 />
-              }
-              label="Eligible"
-            />
-            <FormHelperText>Eligible means they should be assigned to crews.</FormHelperText>
-          </Grid>
-          <Grid className={classes.centerField}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={userPayload.certified}
-                  onChange={(e) => setUserPayload({ ...userPayload, certified: e.target.checked })}
+                <FormHelperText>Eligible means they should be assigned to crews.</FormHelperText>
+              </Grid>
+              <Grid className={classes.centerField}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={userPayload.certified}
+                      onChange={(e) => setUserPayload({ ...userPayload, certified: e.target.checked })}
+                    />
+                  }
+                  label="Certified"
                 />
-              }
-              label="Certified"
-            />
-            <FormHelperText>Certified means they have passed the certification requirements.</FormHelperText>
-          </Grid>
-          <Grid className={classes.rightField}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={userPayload.admin}
-                  onChange={(e) => setUserPayload({ ...userPayload, admin: e.target.checked })}
+                <FormHelperText>Certified means they have passed the certification requirements.</FormHelperText>
+              </Grid>
+              <Grid className={classes.rightField}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={userPayload.admin}
+                      onChange={(e) => setUserPayload({ ...userPayload, admin: e.target.checked })}
+                    />
+                  }
+                  label="Admin"
                 />
-              }
-              label="Admin"
-            />
-            <FormHelperText>Admins can manage schedules and cadets.</FormHelperText>
-          </Grid>
-        </Grid>
-        <DialogActions>
-          <Button onClick={onClose} color="secondary">
-            Cancel
-          </Button>
-          <Button disabled={!canSave} onClick={() => console.log(userPayload)} color="secondary">
-            Submit
-          </Button>
-        </DialogActions>
-      </DialogContent>
+                <FormHelperText>Admins can manage schedules and cadets.</FormHelperText>
+              </Grid>
+            </Grid>
+            <DialogActions>
+              <Button onClick={onClose} color="secondary">
+                Cancel
+              </Button>
+              <Button disabled={!canSave} onClick={() => console.log(userPayload)} color="secondary">
+                Submit
+              </Button>
+            </DialogActions>
+          </DialogContent>
+        </React.Fragment>
+      )}
     </Dialog>
   );
 };
