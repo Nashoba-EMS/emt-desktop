@@ -1,3 +1,4 @@
+import NewCadetDialog from "./NewCadetDialog";
 import Sidebar from "./Sidebar";
 
-export { Sidebar };
+export { NewCadetDialog, Sidebar };

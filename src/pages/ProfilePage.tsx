@@ -137,6 +137,7 @@ const ProfilePage: React.FC = () => {
               variant="outlined"
               label="Name"
               disabled={!user?.admin}
+              error={!nameIsValid}
               value={visibleName}
               onChange={(e) =>
                 setModifications({ ...modifications, name: e.target.value === user?.name ? undefined : e.target.value })
@@ -147,6 +148,7 @@ const ProfilePage: React.FC = () => {
               variant="outlined"
               label="Email"
               disabled={!user?.admin}
+              error={!emailIsValid}
               value={visibleEmail}
               onChange={(e) =>
                 setModifications({
@@ -177,6 +179,7 @@ const ProfilePage: React.FC = () => {
               variant="outlined"
               label="Birth Date"
               disabled={!user?.admin}
+              error={!birthdateIsValid}
               value={visibleBirthdate}
               onChange={(e) =>
                 setModifications({
@@ -237,6 +240,7 @@ const ProfilePage: React.FC = () => {
               className={classes.control}
               variant="outlined"
               label="New Password"
+              error={!passwordIsValid}
               value={visiblePassword}
               onChange={(e) =>
                 setModifications({ ...modifications, password: e.target.value === "" ? undefined : e.target.value })
@@ -247,6 +251,7 @@ const ProfilePage: React.FC = () => {
               className={classes.control}
               variant="outlined"
               label="Confirm New Password"
+              error={!confirmPasswordIsValid}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               helperText="Please retype to confirm"

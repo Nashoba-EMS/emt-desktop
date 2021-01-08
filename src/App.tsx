@@ -12,17 +12,6 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-import Grid from "@material-ui/core/Grid";
-import TextField from "@material-ui/core/TextField";
-import Button from "@material-ui/core/Button";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import FormHelperText from "@material-ui/core/FormHelperText";
-import Checkbox from "@material-ui/core/Checkbox";
-import Dialog from "@material-ui/core/Dialog";
-import DialogActions from "@material-ui/core/DialogActions";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText";
-import DialogTitle from "@material-ui/core/DialogTitle";
 import Chip from "@material-ui/core/Chip";
 import Collapse from "@material-ui/core/Collapse";
 import ExpandLess from "@material-ui/icons/ExpandLess";
@@ -37,6 +26,7 @@ import { _users } from "./redux/actions";
 import ProfilePage from "./pages/ProfilePage";
 import CrewPage from "./pages/CrewPage";
 import CadetPage from "./pages/CadetPage";
+import { NewCadetDialog } from "./components";
 
 const drawerWidth = 256;
 
@@ -73,18 +63,6 @@ const useStyles = makeStyles((theme) =>
     content: {
       flexGrow: 1,
       padding: theme.spacing(3)
-    },
-    row: {
-      display: "flex",
-      justifyContent: ""
-    },
-    leftField: {
-      flex: 1,
-      marginRight: theme.spacing(1)
-    },
-    rightField: {
-      flex: 1,
-      marginLeft: theme.spacing(1)
     }
   })
 );
@@ -246,68 +224,7 @@ const App: React.FC = () => {
         </Switch>
       </main>
 
-      <Dialog open={showCreateNewUser} onClose={() => setShowCreateNewUser(false)}>
-        <DialogTitle>Add a new cadet</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            After you add a new cadet to the system, you should tell them what email and password to use. They will be
-            able to change their password after signing in.
-          </DialogContentText>
-          <Grid container direction="row" alignItems="flex-start">
-            <TextField
-              className={classes.leftField}
-              margin="dense"
-              variant="filled"
-              label="Name"
-              helperText="This should be their full name"
-            />
-            <TextField
-              className={classes.rightField}
-              margin="dense"
-              variant="filled"
-              fullWidth
-              label="Birthdate"
-              helperText="Must use the format: YYYY-MM-DD"
-            />
-          </Grid>
-          <Grid container direction="row" alignItems="flex-start">
-            <TextField
-              className={classes.leftField}
-              margin="dense"
-              variant="filled"
-              label="Email"
-              type="email"
-              helperText="Recommended to pick school email"
-            />
-            <TextField
-              className={classes.rightField}
-              margin="dense"
-              variant="filled"
-              fullWidth
-              label="Password"
-              helperText="Leave blank to generate a random one"
-            />
-          </Grid>
-          <Grid container direction="row" alignItems="flex-start">
-            <Grid className={classes.leftField}>
-              <FormControlLabel control={<Checkbox checked={false} />} label="Eligible" />
-              <FormHelperText>Eligible means they should be assigned to crews.</FormHelperText>
-            </Grid>
-            <Grid className={classes.rightField}>
-              <FormControlLabel control={<Checkbox checked={false} />} label="Certified" />
-              <FormHelperText>Certified means they have passed the certification requirements.</FormHelperText>
-            </Grid>
-          </Grid>
-          <DialogActions>
-            <Button onClick={() => setShowCreateNewUser(false)} color="secondary">
-              Cancel
-            </Button>
-            <Button onClick={() => console.log("TODO")} color="secondary">
-              Submit
-            </Button>
-          </DialogActions>
-        </DialogContent>
-      </Dialog>
+      {showCreateNewUser && <NewCadetDialog onClose={() => setShowCreateNewUser(false)} />}
     </div>
   );
 };

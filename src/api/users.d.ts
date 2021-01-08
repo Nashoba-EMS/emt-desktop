@@ -10,6 +10,7 @@ export interface User {
   availability: UserAvailability[];
 }
 
+export type UserWithoutId = Omit<User, "_id">;
 export type UserWithoutPassword = Omit<User, "password">;
 
 export interface UserAvailability {
