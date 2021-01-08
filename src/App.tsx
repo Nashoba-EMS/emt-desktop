@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
+import Snackbar from "@material-ui/core/Snackbar";
+import SnackbarContent from "@material-ui/core/SnackbarContent";
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
 import Drawer from "@material-ui/core/Drawer";
@@ -63,6 +65,10 @@ const useStyles = makeStyles((theme) =>
     content: {
       flexGrow: 1,
       padding: theme.spacing(3)
+    },
+    errorMessage: {
+      background: theme.palette.error.main,
+      color: theme.palette.error.contrastText
     }
   })
 );
@@ -77,6 +83,7 @@ const App: React.FC = () => {
   const isGettingAllUsers = useSelector((state: ReduxState) => state.users.isGettingAllUsers);
   const getAllUsersErrorMessage = useSelector((state: ReduxState) => state.users.getAllUsersErrorMessage);
 
+  const [errorMessage, setErrorMessage] = React.useState<string>("");
   const [crewsOpen, setCrewsOpen] = React.useState<boolean>(true);
   const [cadetsOpen, setCadetsOpen] = React.useState<boolean>(true);
   const [showCreateNewCrew, setShowCreateNewCrew] = React.useState<boolean>(false);
@@ -94,6 +101,13 @@ const App: React.FC = () => {
       dispatchGetAllUsers();
     }
   }, [dispatchGetAllUsers, token]);
+
+  /**
+   * Display error message
+   */
+  React.useEffect(() => {
+    if (getAllUsersErrorMessage) setErrorMessage(getAllUsersErrorMessage);
+  }, [getAllUsersErrorMessage]);
 
   return (
     <div className={classes.root}>
@@ -228,6 +242,15 @@ const App: React.FC = () => {
       </main>
 
       {showCreateNewUser && <NewCadetDialog onClose={() => setShowCreateNewUser(false)} />}
+
+      <Snackbar
+        anchorOrigin={{ horizontal: "left", vertical: "bottom" }}
+        open={errorMessage !== ""}
+        autoHideDuration={4000}
+        onClose={() => setErrorMessage("")}
+      >
+        <SnackbarContent className={classes.errorMessage} message="This is a test" />
+      </Snackbar>
     </div>
   );
 };
