@@ -14,7 +14,7 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 
 import { ReduxState } from "../redux";
-import { UserWithoutId } from "../api/users.d";
+import { User, UserWithoutId, UserWithoutPassword } from "../api/users.d";
 import { _users } from "../redux/actions";
 import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "../constants/users";
 
@@ -43,6 +43,9 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
   const isCreatingUser = useSelector((state: ReduxState) => state.users.isCreatingUser);
   const createUserErrorMessage = useSelector((state: ReduxState) => state.users.createUserErrorMessage);
   const latestCadet = useSelector((state: ReduxState) => state.users.latestCadet);
+
+  const [latestCadetOnLoad, setLatestCadetOnLoad] = React.useState<User | UserWithoutPassword | null>(null);
+  const [userCreated, setUserCreated] = React.useState<boolean>(false);
 
   const [userPayload, setUserPayload] = React.useState<UserWithoutId>({
     name: "",
@@ -84,6 +87,17 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
     () => dispatch(_users.createUser(token, userPayload.email, userPayload)),
     [dispatch, token, userPayload]
   );
+
+  /**
+   * Detect if a user was created
+   */
+  React.useEffect(() => {
+    if (latestCadetOnLoad === null) {
+      setLatestCadetOnLoad(latestCadet);
+    } else if (latestCadet?._id !== latestCadetOnLoad._id) {
+      setUserCreated(true);
+    }
+  }, [latestCadet, latestCadetOnLoad]);
 
   return (
     <Dialog open={true} onClose={onClose}>

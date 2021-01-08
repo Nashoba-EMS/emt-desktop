@@ -86,6 +86,9 @@ const App: React.FC = () => {
   const dispatchLogout = React.useCallback(() => dispatch(_users.logout()), [dispatch]);
   const dispatchGetAllUsers = React.useCallback(() => dispatch(_users.getAllUsers(token)), [dispatch, token]);
 
+  /**
+   * Refresh critical data
+   */
   React.useEffect(() => {
     if (token) {
       dispatchGetAllUsers();

@@ -14,6 +14,9 @@ const EntryPoint: React.FC = () => {
   const dispatch = useDispatch();
   const dispatchLoadUser = React.useCallback(() => dispatch(_users.loadSession()), [dispatch]);
 
+  /**
+   * Automatically redirect based on authentication
+   */
   React.useEffect(() => {
     if (!loadedUser) {
       dispatchLoadUser();
