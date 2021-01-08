@@ -10,6 +10,7 @@ import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
 import Button from "@material-ui/core/Button";
+import CircularProgress from "@material-ui/core/CircularProgress";
 import SaveIcon from "@material-ui/icons/Save";
 
 import { ReduxState } from "../redux";
@@ -50,6 +51,10 @@ const useStyles = makeStyles((theme) =>
     },
     control: {
       marginRight: theme.spacing(2)
+    },
+    spinner: {
+      marginLeft: 2,
+      marginRight: 2
     }
   })
 );
@@ -59,6 +64,7 @@ const ProfilePage: React.FC = () => {
 
   const user = useSelector((state: ReduxState) => state.users.user);
   const token = useSelector((state: ReduxState) => state.users.token);
+  const isUpdatingUser = useSelector((state: ReduxState) => state.users.isUpdatingUser);
 
   const [modifications, setModifications] = React.useState<Partial<User>>({});
   const [confirmPassword, setConfirmPassword] = React.useState<string>("");
@@ -262,7 +268,9 @@ const ProfilePage: React.FC = () => {
         <Button
           variant="contained"
           color="secondary"
-          startIcon={<SaveIcon />}
+          startIcon={
+            isUpdatingUser ? <CircularProgress className={classes.spinner} color="inherit" size={16} /> : <SaveIcon />
+          }
           disabled={!canSave}
           onClick={dispatchUpdateUser}
         >

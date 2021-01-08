@@ -13,7 +13,8 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import SnackbarContent from "@material-ui/core/SnackbarContent";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import SaveIcon from "@material-ui/icons/Save";
 
 import { ReduxState } from "../redux";
 import { UserOptionalPassword, UserWithoutId } from "../api/users.d";
@@ -40,10 +41,9 @@ const useStyles = makeStyles((theme) =>
       fontWeight: "bold",
       color: theme.palette.secondary.main
     },
-    errorMessage: {
-      marginTop: theme.spacing(2),
-      background: theme.palette.error.main,
-      color: theme.palette.error.contrastText
+    spinner: {
+      marginLeft: 2,
+      marginRight: 2
     }
   })
 );
@@ -53,7 +53,6 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
 
   const token = useSelector((state: ReduxState) => state.users.token);
   const isCreatingUser = useSelector((state: ReduxState) => state.users.isCreatingUser);
-  const createUserErrorMessage = useSelector((state: ReduxState) => state.users.createUserErrorMessage);
   const latestCadet = useSelector((state: ReduxState) => state.users.latestCadet);
 
   const [latestCadetOnLoad, setLatestCadetOnLoad] = React.useState<UserOptionalPassword | null | undefined>();
@@ -112,7 +111,7 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
   }, [latestCadet, latestCadetOnLoad]);
 
   return (
-    <Dialog open={true} onClose={onClose}>
+    <Dialog open={true} onClose={() => !isCreatingUser && onClose()}>
       {userCreated ? (
         <React.Fragment>
           <DialogTitle>Review created cadet</DialogTitle>
@@ -134,7 +133,7 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
             </Grid>
           </DialogContent>
           <DialogActions>
-            <Button onClick={onClose} color="secondary">
+            <Button onClick={onClose} color="secondary" variant="contained">
               Done
             </Button>
           </DialogActions>
@@ -235,15 +234,24 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
                 <FormHelperText>Admins can manage schedules and cadets.</FormHelperText>
               </Grid>
             </Grid>
-            {createUserErrorMessage !== "" && (
-              <SnackbarContent className={classes.errorMessage} message={createUserErrorMessage} />
-            )}
             <DialogActions>
-              <Button onClick={onClose} color="secondary">
+              <Button disabled={isCreatingUser} onClick={onClose} color="secondary">
                 Cancel
               </Button>
-              <Button disabled={!canSave} onClick={dispatchCreateNewUser} color="secondary">
-                Submit
+              <Button
+                disabled={!canSave || isCreatingUser}
+                onClick={dispatchCreateNewUser}
+                color="secondary"
+                variant="contained"
+                startIcon={
+                  isCreatingUser ? (
+                    <CircularProgress className={classes.spinner} color="inherit" size={16} />
+                  ) : (
+                    <SaveIcon />
+                  )
+                }
+              >
+                Save
               </Button>
             </DialogActions>
           </DialogContent>

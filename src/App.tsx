@@ -83,6 +83,8 @@ const App: React.FC = () => {
   const cadets = useSelector((state: ReduxState) => state.users.cadets);
   const isGettingAllUsers = useSelector((state: ReduxState) => state.users.isGettingAllUsers);
   const getAllUsersErrorMessage = useSelector((state: ReduxState) => state.users.getAllUsersErrorMessage);
+  const createUserErrorMessage = useSelector((state: ReduxState) => state.users.createUserErrorMessage);
+  const updateUserErrorMessage = useSelector((state: ReduxState) => state.users.updateUserErrorMessage);
 
   const [errorMessage, setErrorMessage] = React.useState<string>("");
   const [crewsOpen, setCrewsOpen] = React.useState<boolean>(true);
@@ -109,6 +111,14 @@ const App: React.FC = () => {
   React.useEffect(() => {
     if (getAllUsersErrorMessage) setErrorMessage(getAllUsersErrorMessage);
   }, [getAllUsersErrorMessage]);
+
+  React.useEffect(() => {
+    if (createUserErrorMessage) setErrorMessage(createUserErrorMessage);
+  }, [createUserErrorMessage]);
+
+  React.useEffect(() => {
+    if (updateUserErrorMessage) setErrorMessage(updateUserErrorMessage);
+  }, [updateUserErrorMessage]);
 
   return (
     <div className={classes.root}>

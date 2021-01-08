@@ -6,6 +6,7 @@ import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
+import CircularProgress from "@material-ui/core/CircularProgress";
 import Tooltip from "@material-ui/core/Tooltip";
 import Snackbar from "@material-ui/core/Snackbar";
 import SnackbarContent from "@material-ui/core/SnackbarContent";
@@ -27,6 +28,9 @@ const useStyles = makeStyles((theme) =>
     },
     signInButton: {
       marginTop: theme.spacing(2)
+    },
+    spinner: {
+      marginLeft: theme.spacing(1)
     },
     errorMessage: {
       background: theme.palette.error.main,
@@ -113,6 +117,7 @@ const LoginPage: React.FC = () => {
                     onClick={onClickSignIn}
                   >
                     Sign In
+                    {isAuthenticating && <CircularProgress className={classes.spinner} color="inherit" size={14} />}
                   </Button>
                 </div>
               </Tooltip>
