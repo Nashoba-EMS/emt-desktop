@@ -13,6 +13,7 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
+import SnackbarContent from "@material-ui/core/SnackbarContent";
 
 import { ReduxState } from "../redux";
 import { UserOptionalPassword, UserWithoutId } from "../api/users.d";
@@ -35,8 +36,14 @@ const useStyles = makeStyles((theme) =>
       marginLeft: theme.spacing(1)
     },
     boldText: {
+      marginLeft: theme.spacing(1),
       fontWeight: "bold",
       color: theme.palette.secondary.main
+    },
+    errorMessage: {
+      marginTop: theme.spacing(2),
+      background: theme.palette.error.main,
+      color: theme.palette.error.contrastText
     }
   })
 );
@@ -49,7 +56,7 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
   const createUserErrorMessage = useSelector((state: ReduxState) => state.users.createUserErrorMessage);
   const latestCadet = useSelector((state: ReduxState) => state.users.latestCadet);
 
-  const [latestCadetOnLoad, setLatestCadetOnLoad] = React.useState<UserOptionalPassword | null>(null);
+  const [latestCadetOnLoad, setLatestCadetOnLoad] = React.useState<UserOptionalPassword | null | undefined>();
   const [userCreated, setUserCreated] = React.useState<boolean>(false);
 
   const [userPayload, setUserPayload] = React.useState<UserWithoutId>({
@@ -97,9 +104,9 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
    * Detect if a user was created
    */
   React.useEffect(() => {
-    if (latestCadetOnLoad === null) {
+    if (latestCadetOnLoad === undefined) {
       setLatestCadetOnLoad(latestCadet);
-    } else if (latestCadet?._id !== latestCadetOnLoad._id) {
+    } else if (latestCadet?._id !== latestCadetOnLoad?._id) {
       setUserCreated(true);
     }
   }, [latestCadet, latestCadetOnLoad]);
@@ -115,12 +122,16 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
               cadet so they can sign in as you will not be able to view them again. You will need to generate a new
               password if you forget to send it to them.
             </DialogContentText>
-            <DialogContentText>
-              Email: <Typography className={classes.boldText}>{latestCadet?.email}</Typography>
-            </DialogContentText>
-            <DialogContentText>
-              Password: <Typography className={classes.boldText}>{latestCadet?.password}</Typography>
-            </DialogContentText>
+
+            <Grid container direction="row" alignItems="flex-start">
+              <Typography>Email: </Typography>
+              <Typography className={classes.boldText}>{latestCadet?.email ?? ""}</Typography>
+            </Grid>
+
+            <Grid container direction="row" alignItems="flex-start">
+              <Typography>Password: </Typography>
+              <Typography className={classes.boldText}>{latestCadet?.password ?? ""}</Typography>
+            </Grid>
           </DialogContent>
           <DialogActions>
             <Button onClick={onClose} color="secondary">
@@ -172,7 +183,7 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
                 helperText="Recommended to pick school email for consistency"
                 error={!emailIsValid}
                 value={userPayload.email}
-                onChange={(e) => setUserPayload({ ...userPayload, email: e.target.value })}
+                onChange={(e) => setUserPayload({ ...userPayload, email: e.target.value.toLowerCase() })}
               />
               <TextField
                 className={classes.rightField}
@@ -224,11 +235,14 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
                 <FormHelperText>Admins can manage schedules and cadets.</FormHelperText>
               </Grid>
             </Grid>
+            {createUserErrorMessage !== "" && (
+              <SnackbarContent className={classes.errorMessage} message={createUserErrorMessage} />
+            )}
             <DialogActions>
               <Button onClick={onClose} color="secondary">
                 Cancel
               </Button>
-              <Button disabled={!canSave} onClick={() => console.log(userPayload)} color="secondary">
+              <Button disabled={!canSave} onClick={dispatchCreateNewUser} color="secondary">
                 Submit
               </Button>
             </DialogActions>

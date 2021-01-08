@@ -153,7 +153,7 @@ const ProfilePage: React.FC = () => {
               onChange={(e) =>
                 setModifications({
                   ...modifications,
-                  email: e.target.value === user?.email ? undefined : e.target.value
+                  email: e.target.value.toLowerCase() === user?.email ? undefined : e.target.value.toLowerCase()
                 })
               }
             />
