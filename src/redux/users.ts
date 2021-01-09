@@ -157,7 +157,8 @@ const reducer = (state = initialState, action: UsersActionTypes): UsersState => 
         ...state,
         isUpdatingUser: false,
         cadets: [...state.cadets.filter((cadet) => cadet._id !== action.body.user._id), action.body.user],
-        latestCadet: action.body.user
+        latestCadet: action.body.user,
+        ...(action.body.user._id === state.user?._id ? { user: action.body.user } : {})
       };
     case UPDATE_USER_FAILURE:
       return {

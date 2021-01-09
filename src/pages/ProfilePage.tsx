@@ -52,6 +52,9 @@ const useStyles = makeStyles((theme) =>
     control: {
       marginRight: theme.spacing(2)
     },
+    clearButton: {
+      marginRight: theme.spacing(1)
+    },
     spinner: {
       marginLeft: 2,
       marginRight: 2
@@ -65,6 +68,7 @@ const ProfilePage: React.FC = () => {
   const user = useSelector((state: ReduxState) => state.users.user);
   const token = useSelector((state: ReduxState) => state.users.token);
   const isUpdatingUser = useSelector((state: ReduxState) => state.users.isUpdatingUser);
+  const latestCadet = useSelector((state: ReduxState) => state.users.latestCadet);
 
   const [modifications, setModifications] = React.useState<Partial<User>>({});
   const [confirmPassword, setConfirmPassword] = React.useState<string>("");
@@ -125,6 +129,15 @@ const ProfilePage: React.FC = () => {
     () => dispatch(_users.updateUser(token, user?.email ?? "", modifications)),
     [dispatch, modifications, token, user?.email]
   );
+
+  /**
+   * Clear changes on save
+   */
+  React.useEffect(() => {
+    if (latestCadet?._id === user?._id) {
+      setModifications({});
+    }
+  }, [latestCadet, user?._id]);
 
   return (
     <div className={classes.root}>
@@ -265,6 +278,14 @@ const ProfilePage: React.FC = () => {
           </Grid>
         </Paper>
 
+        <Button
+          className={classes.clearButton}
+          color="secondary"
+          disabled={isEmpty(modifications)}
+          onClick={() => setModifications({})}
+        >
+          Clear Changes
+        </Button>
         <Button
           variant="contained"
           color="secondary"
