@@ -210,19 +210,24 @@ const App: React.FC = () => {
             <List component="div" disablePadding>
               {cadets
                 .sort((a, b) => (a.name > b.name ? 1 : a.name < b.name ? -1 : 0))
-                .map((cadet) => (
-                  <ListItem
-                    key={cadet._id}
-                    className={classes.nested}
-                    button
-                    component={Link}
-                    to={`/cadet/${cadet._id}`}
-                    selected={location.pathname === `/cadet/${cadet._id}`}
-                  >
-                    <ListItemText primary={cadet.name} />
-                    {cadet.admin && <Chip label="Admin" color="secondary" size="small" />}
-                  </ListItem>
-                ))}
+                .map((cadet) => {
+                  const link = user?._id === cadet._id ? "/profile" : `/cadet/${cadet._id}`;
+                  const selected = link !== "/profile" && location.pathname === link;
+
+                  return (
+                    <ListItem
+                      key={cadet._id}
+                      className={classes.nested}
+                      button
+                      component={Link}
+                      to={link}
+                      selected={selected}
+                    >
+                      <ListItemText primary={cadet.name} />
+                      {cadet.admin && <Chip label="Admin" color="secondary" size="small" />}
+                    </ListItem>
+                  );
+                })}
 
               {user?.admin && (
                 <ListItem
