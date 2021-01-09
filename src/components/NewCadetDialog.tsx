@@ -38,8 +38,7 @@ const useStyles = makeStyles((theme) =>
     },
     boldText: {
       marginLeft: theme.spacing(1),
-      fontWeight: "bold",
-      color: theme.palette.secondary.main
+      fontWeight: "bold"
     },
     spinner: {
       marginLeft: 2,
@@ -124,12 +123,16 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
 
             <Grid container direction="row" alignItems="flex-start">
               <Typography>Email: </Typography>
-              <Typography className={classes.boldText}>{latestCadet?.email ?? ""}</Typography>
+              <Typography className={classes.boldText} color="secondary">
+                {latestCadet?.email ?? ""}
+              </Typography>
             </Grid>
 
             <Grid container direction="row" alignItems="flex-start">
               <Typography>Password: </Typography>
-              <Typography className={classes.boldText}>{latestCadet?.password ?? ""}</Typography>
+              <Typography className={classes.boldText} color="secondary">
+                {latestCadet?.password ?? ""}
+              </Typography>
             </Grid>
           </DialogContent>
           <DialogActions>

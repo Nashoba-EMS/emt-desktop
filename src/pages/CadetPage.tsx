@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams } from "react-router";
+import { useHistory, useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
@@ -13,7 +13,14 @@ import FormHelperText from "@material-ui/core/FormHelperText";
 import Checkbox from "@material-ui/core/Checkbox";
 import Button from "@material-ui/core/Button";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import IconButton from "@material-ui/core/IconButton";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
 import SaveIcon from "@material-ui/icons/Save";
+import DeleteIcon from "@material-ui/icons/Delete";
 
 import { ReduxState } from "../redux";
 import { User } from "../api/users.d";
@@ -62,6 +69,16 @@ const useStyles = makeStyles((theme) =>
     clearButton: {
       marginRight: theme.spacing(1)
     },
+    saveButton: {
+      marginRight: theme.spacing(2)
+    },
+    savedPasswordContainer: {
+      marginTop: theme.spacing(1)
+    },
+    savedPassword: {
+      marginLeft: theme.spacing(1),
+      fontWeight: "bold"
+    },
     spinner: {
       marginLeft: 2,
       marginRight: 2
@@ -86,6 +103,7 @@ const CadetPage: React.FC = () => {
   const classes = useStyles();
 
   const { id } = useParams<{ id: string }>();
+  const history = useHistory();
 
   const user = useSelector((state: ReduxState) => state.users.user);
   const token = useSelector((state: ReduxState) => state.users.token);
@@ -94,6 +112,8 @@ const CadetPage: React.FC = () => {
   const latestCadet = useSelector((state: ReduxState) => state.users.latestCadet);
 
   const [modifications, setModifications] = React.useState<Partial<User>>({});
+  const [showDeleteDialog, setShowDeleteDialog] = React.useState<boolean>(false);
+  const [randomPassword, setRandomPassword] = React.useState<string>("");
 
   const filteredModifications = React.useMemo(() => filterUndefined(modifications), [modifications]);
 
@@ -338,19 +358,39 @@ const CadetPage: React.FC = () => {
                   label="New Password"
                   error={!passwordIsValid}
                   value={visiblePassword}
-                  onChange={(e) =>
-                    setModifications({ ...modifications, password: e.target.value === "" ? undefined : e.target.value })
-                  }
+                  onChange={(e) => {
+                    setRandomPassword("");
+                    setModifications({
+                      ...modifications,
+                      password: e.target.value === "" ? undefined : e.target.value
+                    });
+                  }}
                   helperText={`Between ${MIN_PASSWORD_LENGTH} and ${MAX_PASSWORD_LENGTH} characters`}
                 />
 
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  onClick={() => setModifications({ ...modifications, password: generateRandomPassword() })}
-                >
-                  Generate Random
-                </Button>
+                <Grid>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => {
+                      const password = generateRandomPassword();
+
+                      setRandomPassword(password);
+                      setModifications({ ...modifications, password });
+                    }}
+                  >
+                    Generate Random
+                  </Button>
+
+                  {randomPassword !== "" && (
+                    <Grid className={classes.savedPasswordContainer} container alignItems="center">
+                      <Typography>Remember to save:</Typography>
+                      <Typography className={classes.savedPassword} color="secondary">
+                        {randomPassword}
+                      </Typography>
+                    </Grid>
+                  )}
+                </Grid>
               </Grid>
             </Paper>
 
@@ -358,11 +398,15 @@ const CadetPage: React.FC = () => {
               className={classes.clearButton}
               color="secondary"
               disabled={isEmpty(filteredModifications)}
-              onClick={() => setModifications({})}
+              onClick={() => {
+                setRandomPassword("");
+                setModifications({});
+              }}
             >
               Clear Changes
             </Button>
             <Button
+              className={classes.saveButton}
               variant="contained"
               color="secondary"
               startIcon={
@@ -377,6 +421,35 @@ const CadetPage: React.FC = () => {
             >
               Save Changes
             </Button>
+            <IconButton onClick={() => setShowDeleteDialog(true)}>
+              <DeleteIcon />
+            </IconButton>
+
+            <Dialog open={showDeleteDialog} onClose={() => setShowDeleteDialog(false)}>
+              <DialogTitle>Delete {cadet?.name}?</DialogTitle>
+              <DialogContent>
+                <DialogContentText>
+                  Once deleted, you can create a new user with this email, but will have to start from scratch. Are you
+                  sure you want to continue?
+                </DialogContentText>
+              </DialogContent>
+
+              <DialogActions>
+                <Button color="secondary" onClick={() => setShowDeleteDialog(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  color="secondary"
+                  variant="contained"
+                  onClick={() => {
+                    dispatchDeleteUser();
+                    history.push("/profile");
+                  }}
+                >
+                  Delete
+                </Button>
+              </DialogActions>
+            </Dialog>
           </React.Fragment>
         )}
       </Grid>
