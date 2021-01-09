@@ -8,6 +8,7 @@ import TextField from "@material-ui/core/TextField";
 import Grid from "@material-ui/core/Grid";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
+import FormHelperText from "@material-ui/core/FormHelperText";
 import Checkbox from "@material-ui/core/Checkbox";
 import Button from "@material-ui/core/Button";
 import CircularProgress from "@material-ui/core/CircularProgress";
@@ -19,6 +20,7 @@ import { _users } from "../redux/actions";
 import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "../constants/users";
 import { filterUndefined } from "../utils/filter";
 import { isEmpty } from "../utils/empty";
+import { getAge } from "../utils/datetime";
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -50,6 +52,9 @@ const useStyles = makeStyles((theme) =>
       alignItems: "center"
     },
     control: {
+      marginRight: theme.spacing(2)
+    },
+    checkboxContainer: {
       marginRight: theme.spacing(2)
     },
     clearButton: {
@@ -123,6 +128,11 @@ const ProfilePage: React.FC = () => {
       confirmPasswordIsValid,
     [birthdateIsValid, confirmPasswordIsValid, emailIsValid, filteredModifications, nameIsValid, passwordIsValid]
   );
+
+  const age = React.useMemo(() => (birthdateIsValid ? getAge(visibleBirthdate) : 0), [
+    birthdateIsValid,
+    visibleBirthdate
+  ]);
 
   const dispatch = useDispatch();
   const dispatchUpdateUser = React.useCallback(
@@ -208,7 +218,11 @@ const ProfilePage: React.FC = () => {
               }
               helperText="Format: YYYY-MM-DD"
             />
-            <FormGroup>
+            <FormGroup className={classes.checkboxContainer}>
+              <FormControlLabel control={<Checkbox checked={age >= 18} disabled />} label="Over 18" />
+              <FormHelperText>Based on birthdate</FormHelperText>
+            </FormGroup>
+            <FormGroup className={classes.checkboxContainer}>
               <FormControlLabel
                 control={
                   <Checkbox
@@ -224,6 +238,9 @@ const ProfilePage: React.FC = () => {
                 }
                 label="Eligible"
               />
+              <FormHelperText>Eligible for crew placement</FormHelperText>
+            </FormGroup>
+            <FormGroup className={classes.checkboxContainer}>
               <FormControlLabel
                 control={
                   <Checkbox
@@ -239,6 +256,11 @@ const ProfilePage: React.FC = () => {
                 }
                 label="Certified"
               />
+              <FormHelperText>Passed certifications</FormHelperText>
+            </FormGroup>
+            <FormGroup className={classes.checkboxContainer}>
+              <FormControlLabel control={<Checkbox checked={user?.admin ?? false} disabled />} label="Admin" />
+              <FormHelperText>Has admin controls</FormHelperText>
             </FormGroup>
           </Grid>
         </Paper>
@@ -281,7 +303,7 @@ const ProfilePage: React.FC = () => {
         <Button
           className={classes.clearButton}
           color="secondary"
-          disabled={isEmpty(modifications)}
+          disabled={isEmpty(filteredModifications)}
           onClick={() => setModifications({})}
         >
           Clear Changes
