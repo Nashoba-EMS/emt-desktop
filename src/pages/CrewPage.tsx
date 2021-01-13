@@ -1,7 +1,7 @@
 import React from "react";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 import Drawer from "@material-ui/core/Drawer";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -127,120 +127,78 @@ const CrewPage: React.FC = () => {
     [cadets, crews]
   );
 
+  const handleDrop = (e: DropResult) => {
+    const sourceId = e.source.droppableId;
+    const destinationId = e.destination?.droppableId;
+
+    const sourceCrewIndex = crews.findIndex((crew) => crew.name === sourceId);
+    const destinationCrewIndex = crews.findIndex((crew) => crew.name === destinationId);
+
+    const sourceCrew = sourceId !== "CADETS" ? crews[sourceCrewIndex] : null;
+    const destinationCrew = e.destination ? crews[destinationCrewIndex] : null;
+
+    const newSourceCadets = Array.from(sourceCrew?.cadetIds ?? []);
+    const newDestinationCadets = Array.from(destinationCrew?.cadetIds ?? []);
+
+    if (!e.destination) {
+      // Remove
+      if (e.source.droppableId !== "CADETS") {
+        newSourceCadets.splice(e.source.index, 1);
+      }
+    } else {
+      switch (sourceId) {
+        case "CADETS": {
+          // Copy
+          const sourceItem = cadets.sort((a, b) => (a.name > b.name ? 1 : a.name < b.name ? -1 : 0))[e.source.index];
+
+          // Prevent duplicates
+          if (newDestinationCadets.includes(sourceItem._id)) return;
+
+          newDestinationCadets.splice(e.destination.index, 0, sourceItem._id);
+          break;
+        }
+        case e.destination.droppableId: {
+          // Reorder
+          const [removed] = newDestinationCadets.splice(e.source.index, 1);
+          newDestinationCadets.splice(e.destination.index, 0, removed);
+          break;
+        }
+        default: {
+          // Move
+          // Prevent duplicates
+          if (newDestinationCadets.includes(newSourceCadets[e.source.index])) return;
+
+          const [removed] = newSourceCadets.splice(e.source.index, 1);
+          newDestinationCadets.splice(e.destination.index, 0, removed);
+          break;
+        }
+      }
+    }
+
+    const newCrews = [...crews];
+
+    // Update source crew
+    if (sourceCrew) {
+      newCrews[sourceCrewIndex] = {
+        ...sourceCrew,
+        cadetIds: newSourceCadets
+      };
+    }
+
+    // Update destination crew
+    if (destinationCrew) {
+      newCrews[destinationCrewIndex] = {
+        ...destinationCrew,
+        cadetIds: newDestinationCadets
+      };
+    }
+
+    setCrews(newCrews);
+  };
+
   return (
     <div className={classes.root}>
-      <DragDropContext
-        onDragEnd={(e) => {
-          console.log(e);
-          if (!e.destination) {
-            // Remove
-            if (e.source.droppableId !== "CADETS") {
-              const crewIndex = crews.findIndex((crew) => crew.name === e.source.droppableId);
-
-              if (crewIndex === -1) return;
-
-              const crew = crews[crewIndex];
-
-              const newCadets = Array.from(crew.cadetIds);
-              newCadets.splice(e.source.index, 1);
-
-              const newCrews = [...crews];
-              newCrews[crewIndex] = {
-                ...newCrews[crewIndex],
-                cadetIds: newCadets
-              };
-
-              setCrews(newCrews);
-            }
-            return;
-          }
-
-          switch (e.source.droppableId) {
-            case "CADETS": {
-              // Copy
-              const destinationId = e.destination.droppableId;
-              const sourceItem = cadets.sort((a, b) => (a.name > b.name ? 1 : a.name < b.name ? -1 : 0))[
-                e.source.index
-              ];
-
-              const crewIndex = crews.findIndex((crew) => crew.name === destinationId);
-
-              if (crewIndex === -1) return;
-
-              const crew = crews[crewIndex];
-
-              if (crew.cadetIds.includes(sourceItem._id)) return;
-
-              const newCadets = Array.from(crew.cadetIds);
-              newCadets.splice(e.destination.index, 0, sourceItem._id);
-
-              const newCrews = [...crews];
-              newCrews[crewIndex] = {
-                ...newCrews[crewIndex],
-                cadetIds: newCadets
-              };
-
-              setCrews(newCrews);
-              break;
-            }
-            case e.destination.droppableId: {
-              // Reorder
-              const destination = e.destination.droppableId;
-
-              const crewIndex = crews.findIndex((crew) => crew.name === destination);
-
-              if (crewIndex === -1) return;
-
-              const crew = crews[crewIndex];
-
-              const newCadets = Array.from(crew.cadetIds);
-              const [removed] = newCadets.splice(e.source.index, 1);
-              newCadets.splice(e.destination.index, 0, removed);
-
-              const newCrews = [...crews];
-              newCrews[crewIndex] = {
-                ...newCrews[crewIndex],
-                cadetIds: newCadets
-              };
-
-              setCrews(newCrews);
-              break;
-            }
-            default: {
-              // Move
-              const sourceId = e.source.droppableId;
-              const destinationId = e.destination.droppableId;
-
-              const sourceCrewIndex = crews.findIndex((crew) => crew.name === sourceId);
-              const destinationCrewIndex = crews.findIndex((crew) => crew.name === destinationId);
-
-              if (sourceCrewIndex === -1 || destinationCrewIndex === -1) return;
-
-              const sourceCrew = crews[sourceCrewIndex];
-              const destinationCrew = crews[destinationCrewIndex];
-
-              const newSourceCadets = Array.from(sourceCrew.cadetIds);
-              const newDestinationCadets = Array.from(destinationCrew.cadetIds);
-
-              const [removed] = newSourceCadets.splice(e.source.index, 1);
-              newDestinationCadets.splice(e.destination.index, 0, removed);
-
-              const newCrews = [...crews];
-              newCrews[sourceCrewIndex] = {
-                ...sourceCrew,
-                cadetIds: newSourceCadets
-              };
-              newCrews[destinationCrewIndex] = {
-                ...destinationCrew,
-                cadetIds: newDestinationCadets
-              };
-
-              setCrews(newCrews);
-              break;
-            }
-          }
-        }}
-      >
+      <DragDropContext onDragEnd={handleDrop}>
         <div className={classes.content}>
           {crewsWithCadets.map((crew) => (
             <Paper key={crew.name} className={classes.crewPaper}>
@@ -272,7 +230,7 @@ const CrewPage: React.FC = () => {
                               )}
                             </Draggable>
                           ))
-                        : !snapshot.isDraggingOver && (
+                        : !snapshot.isUsingPlaceholder && (
                             <div style={{ flexGrow: 1 }}>
                               <ListItem button disabled>
                                 <ListItemText primary="Drop a cadet here" />
@@ -341,7 +299,7 @@ const CrewPage: React.FC = () => {
                         </Draggable>
                       ))}
 
-                    {provided.placeholder}
+                    <div style={{ display: "none" }}>{provided.placeholder}</div>
                   </div>
                 )}
               </Droppable>
