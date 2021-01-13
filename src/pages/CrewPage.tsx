@@ -16,7 +16,9 @@ import Paper from "@material-ui/core/Paper";
 import CardActionArea from "@material-ui/core/CardActionArea";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
+import Tooltip from "@material-ui/core/Tooltip";
 import AddIcon from "@material-ui/icons/Add";
+import CheckBoxIcon from "@material-ui/icons/CheckBox";
 
 import { ReduxState } from "../redux";
 import { Crew } from "../api/crews.d";
@@ -205,6 +207,12 @@ const CrewPage: React.FC = () => {
   const renderCadet = (cadet: UserWithoutPassword, divider = false) => (
     <ListItem button divider={divider}>
       <ListItemText primary={cadet.name} />
+
+      {cadet.certified && (
+        <Tooltip title="Cadet is certified">
+          <CheckBoxIcon color="secondary" />
+        </Tooltip>
+      )}
     </ListItem>
   );
 
@@ -254,10 +262,12 @@ const CrewPage: React.FC = () => {
                 </Droppable>
               </Paper>
 
-              <FormControlLabel
-                control={<Checkbox checked={crew.cadets.findIndex((cadet) => cadet.certified) >= 0} />}
-                label="Has a certified cadet"
-              />
+              <Tooltip title="Every crew needs to have a certified cadet">
+                <FormControlLabel
+                  control={<Checkbox checked={crew.cadets.findIndex((cadet) => cadet.certified) >= 0} />}
+                  label="Has a certified cadet"
+                />
+              </Tooltip>
             </Paper>
           ))}
 
@@ -297,7 +307,7 @@ const CrewPage: React.FC = () => {
                         {(provided, snapshot) => (
                           <React.Fragment>
                             <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                              {renderCadet(cadet)}
+                              <Tooltip title="Drag and drop onto a crew">{renderCadet(cadet)}</Tooltip>
                             </div>
 
                             {snapshot.isDragging && renderCadet(cadet)}
