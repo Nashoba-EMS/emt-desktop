@@ -1,6 +1,7 @@
 export interface CrewAssignment {
   _id: string;
   name: string;
+  crews: Crew[];
 }
 
 export interface Crew {

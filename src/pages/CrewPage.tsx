@@ -1,6 +1,7 @@
 import React from "react";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 import Drawer from "@material-ui/core/Drawer";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -34,9 +35,7 @@ const useStyles = makeStyles((theme) =>
     drawerPaper: {
       width: drawerWidth
     },
-    drawerContainer: {
-      overflow: "auto"
-    },
+    drawerContainer: {},
     drawerControls: {
       paddingTop: theme.spacing(1),
       paddingLeft: theme.spacing(2),
@@ -54,12 +53,11 @@ const useStyles = makeStyles((theme) =>
       marginRight: theme.spacing(2),
       marginBottom: theme.spacing(2),
       width: 240,
-      padding: theme.spacing(2)
+      padding: theme.spacing(2),
+      display: "flex",
+      flexDirection: "column"
     },
-    crewMember: {
-      paddingTop: theme.spacing(1),
-      paddingBottom: theme.spacing(1)
-    },
+    crewMember: {},
     crewPaperTransparent: {
       width: 240,
       padding: theme.spacing(2),
@@ -110,7 +108,7 @@ const CrewPage: React.FC = () => {
     },
     {
       name: "Crew B",
-      cadetIds: ["5ff3807528062396204b5c75"]
+      cadetIds: []
     },
     {
       name: "Crew C",
@@ -131,67 +129,188 @@ const CrewPage: React.FC = () => {
 
   return (
     <div className={classes.root}>
-      <div className={classes.content}>
-        {crewsWithCadets.map((crew) => (
-          <Paper key={crew.name} className={classes.crewPaper}>
-            <Typography variant="h6">{crew.name}</Typography>
+      <DragDropContext
+        onDragEnd={(e) => {
+          if (!e.destination) {
+            // Remove
+            if (e.source.droppableId !== "CADETS") {
+              const crewIndex = crews.findIndex((crew) => crew.name === e.source.droppableId);
 
-            {crew.cadets.map((cadet, index) => (
-              <React.Fragment key={cadet._id}>
-                <div className={classes.crewMember}>
-                  <Typography>{cadet.name}</Typography>
-                </div>
+              if (crewIndex === -1) return;
 
-                <Divider />
-              </React.Fragment>
-            ))}
-          </Paper>
-        ))}
+              const crew = crews[crewIndex];
 
-        <CardActionArea className={classes.crewPaperTransparent} onClick={() => console.log("TODO")}>
-          <AddIcon />
-          <Typography>New Crew</Typography>
-        </CardActionArea>
-      </div>
+              const newCadets = Array.from(crew.cadetIds);
+              newCadets.splice(e.source.index, 1);
 
-      <Drawer className={classes.drawer} variant="permanent" anchor="right" classes={{ paper: classes.drawerPaper }}>
-        <Toolbar />
+              const newCrews = [...crews];
+              newCrews[crewIndex] = {
+                ...newCrews[crewIndex],
+                cadetIds: newCadets
+              };
 
-        <div className={classes.drawerContainer}>
-          <div className={classes.drawerControls}>
-            <Typography variant="h6">Cadets</Typography>
-            <Typography className={classes.gray} variant="body2">
-              Drag and drop cadets onto a crew to assign them. You can choose what cohort to view below:
-            </Typography>
-          </div>
+              setCrews(newCrews);
+            }
+            return;
+          }
 
-          <div>
-            <Tabs variant="fullWidth" value={tabIndex} onChange={(e, v) => setTabIndex(v)}>
-              <Tab label="Both" style={{ minWidth: "auto" }} />
-              <Tab label="A" style={{ minWidth: "auto" }} />
-              <Tab label="B" style={{ minWidth: "auto" }} />
-            </Tabs>
+          switch (e.source.droppableId) {
+            case "CADETS": {
+              // Copy
+              if (!e.destination) return;
 
-            <Divider />
-          </div>
+              const destination = e.destination.droppableId;
+              const sourceItem = cadets.sort((a, b) => (a.name > b.name ? 1 : a.name < b.name ? -1 : 0))[
+                e.source.index
+              ];
 
-          <TabPanel value={tabIndex} index={0}>
-            <ListItem button>
-              <ListItemText primary="Cohort A and B" />
-            </ListItem>
-          </TabPanel>
-          <TabPanel value={tabIndex} index={1}>
-            <ListItem button>
-              <ListItemText primary="Cohort A" />
-            </ListItem>
-          </TabPanel>
-          <TabPanel value={tabIndex} index={2}>
-            <ListItem button>
-              <ListItemText primary="Cohort B" />
-            </ListItem>
-          </TabPanel>
+              const crewIndex = crews.findIndex((crew) => crew.name === destination);
+
+              if (crewIndex === -1) return;
+
+              const crew = crews[crewIndex];
+
+              if (crew.cadetIds.includes(sourceItem._id)) return;
+
+              const newCadets = Array.from(crew.cadetIds);
+              newCadets.splice(e.destination.index, 0, sourceItem._id);
+
+              const newCrews = [...crews];
+              newCrews[crewIndex] = {
+                ...newCrews[crewIndex],
+                cadetIds: newCadets
+              };
+
+              setCrews(newCrews);
+              break;
+            }
+            case e.destination.droppableId: {
+              // Reorder
+              break;
+            }
+            default: {
+              // Move
+              break;
+            }
+          }
+        }}
+      >
+        <div className={classes.content}>
+          {crewsWithCadets.map((crew) => (
+            <Paper key={crew.name} className={classes.crewPaper}>
+              <Typography variant="h6">{crew.name}</Typography>
+
+              <Paper variant="outlined" style={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
+                <Droppable key={crew.name} droppableId={crew.name}>
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      style={{
+                        flexGrow: 1,
+                        backgroundColor: snapshot.isDraggingOver ? "#F5F5F5" : "transparent"
+                      }}
+                    >
+                      {crew.cadets.length > 0 ? (
+                        crew.cadets.map((cadet, index) => (
+                          <Draggable
+                            key={`${crew.name}-${cadet._id}`}
+                            draggableId={`${crew.name}-${cadet._id}`}
+                            index={index}
+                          >
+                            {(provided, snapshot) => (
+                              <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                                <ListItem button>
+                                  <ListItemText primary={cadet.name} />
+                                </ListItem>
+
+                                <Divider />
+                              </div>
+                            )}
+                          </Draggable>
+                        ))
+                      ) : (
+                        <div style={{ flexGrow: 1 }} />
+                      )}
+
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </Paper>
+            </Paper>
+          ))}
+
+          <CardActionArea className={classes.crewPaperTransparent} onClick={() => console.log("TODO")}>
+            <AddIcon />
+            <Typography>New Crew</Typography>
+          </CardActionArea>
         </div>
-      </Drawer>
+
+        <Drawer className={classes.drawer} variant="permanent" anchor="right" classes={{ paper: classes.drawerPaper }}>
+          <Toolbar />
+
+          <div className={classes.drawerContainer}>
+            <div className={classes.drawerControls}>
+              <Typography variant="h6">Cadets</Typography>
+              <Typography className={classes.gray} variant="body2">
+                Drag and drop cadets onto a crew to assign them. You can choose what cohort to view below:
+              </Typography>
+            </div>
+
+            <div>
+              <Tabs variant="fullWidth" value={tabIndex} onChange={(e, v) => setTabIndex(v)}>
+                <Tab label="Both" style={{ minWidth: "auto" }} />
+                <Tab label="A" style={{ minWidth: "auto" }} />
+                <Tab label="B" style={{ minWidth: "auto" }} />
+              </Tabs>
+
+              <Divider />
+            </div>
+
+            <TabPanel value={tabIndex} index={0}>
+              <Droppable droppableId="CADETS" isDropDisabled={true}>
+                {(provided, snapshot) => (
+                  <div ref={provided.innerRef}>
+                    {cadets
+                      .sort((a, b) => (a.name > b.name ? 1 : a.name < b.name ? -1 : 0))
+                      .map((cadet, index) => (
+                        <Draggable key={cadet._id} draggableId={cadet._id} index={index}>
+                          {(provided, snapshot) => (
+                            <React.Fragment>
+                              <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                                <ListItem button>
+                                  <ListItemText primary={cadet.name} />
+                                </ListItem>
+                              </div>
+
+                              {snapshot.isDragging && (
+                                <ListItem button>
+                                  <ListItemText primary={cadet.name} />
+                                </ListItem>
+                              )}
+                            </React.Fragment>
+                          )}
+                        </Draggable>
+                      ))}
+
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </TabPanel>
+            <TabPanel value={tabIndex} index={1}>
+              <ListItem button>
+                <ListItemText primary="Cohort A" />
+              </ListItem>
+            </TabPanel>
+            <TabPanel value={tabIndex} index={2}>
+              <ListItem button>
+                <ListItemText primary="Cohort B" />
+              </ListItem>
+            </TabPanel>
+          </div>
+        </Drawer>
+      </DragDropContext>
     </div>
   );
 };
