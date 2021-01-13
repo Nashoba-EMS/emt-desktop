@@ -256,25 +256,29 @@ const CrewPage: React.FC = () => {
                         backgroundColor: snapshot.isDraggingOver ? "#F5F5F5" : "transparent"
                       }}
                     >
-                      {crew.cadets.length > 0 ? (
-                        crew.cadets.map((cadet, index) => (
-                          <Draggable
-                            key={`${crew.name}-${cadet._id}`}
-                            draggableId={`${crew.name}-${cadet._id}`}
-                            index={index}
-                          >
-                            {(provided, snapshot) => (
-                              <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                                <ListItem button divider>
-                                  <ListItemText primary={cadet.name} />
-                                </ListItem>
-                              </div>
-                            )}
-                          </Draggable>
-                        ))
-                      ) : (
-                        <div style={{ flexGrow: 1 }} />
-                      )}
+                      {crew.cadets.length > 0
+                        ? crew.cadets.map((cadet, index) => (
+                            <Draggable
+                              key={`${crew.name}-${cadet._id}`}
+                              draggableId={`${crew.name}-${cadet._id}`}
+                              index={index}
+                            >
+                              {(provided, snapshot) => (
+                                <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                                  <ListItem button divider>
+                                    <ListItemText primary={cadet.name} />
+                                  </ListItem>
+                                </div>
+                              )}
+                            </Draggable>
+                          ))
+                        : !snapshot.isDraggingOver && (
+                            <div style={{ flexGrow: 1 }}>
+                              <ListItem button disabled>
+                                <ListItemText primary="Drop a cadet here" />
+                              </ListItem>
+                            </div>
+                          )}
 
                       {provided.placeholder}
                     </div>
