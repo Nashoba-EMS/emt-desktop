@@ -136,6 +136,10 @@ const CadetPage: React.FC = () => {
     cadet?.certified,
     modifications.certified
   ]);
+  const visibleChief = React.useMemo(() => modifications.chief ?? cadet?.chief ?? false, [
+    cadet?.chief,
+    modifications.chief
+  ]);
   const visibleAdmin = React.useMemo(() => modifications.admin ?? cadet?.admin ?? false, [
     cadet?.admin,
     modifications.admin
@@ -316,6 +320,24 @@ const CadetPage: React.FC = () => {
                 label="Certified"
               />
               <FormHelperText>Passed certifications</FormHelperText>
+            </FormGroup>
+            <FormGroup className={classes.checkboxContainer}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={visibleChief}
+                    disabled={!user?.admin}
+                    onChange={(e) =>
+                      setModifications({
+                        ...modifications,
+                        chief: e.target.checked === cadet?.chief ? undefined : e.target.checked
+                      })
+                    }
+                  />
+                }
+                label="Chief"
+              />
+              <FormHelperText>Crew chief</FormHelperText>
             </FormGroup>
             <FormGroup className={classes.checkboxContainer}>
               <FormControlLabel

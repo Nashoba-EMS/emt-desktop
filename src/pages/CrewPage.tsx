@@ -19,6 +19,8 @@ import Checkbox from "@material-ui/core/Checkbox";
 import Tooltip from "@material-ui/core/Tooltip";
 import AddIcon from "@material-ui/icons/Add";
 import CheckBoxIcon from "@material-ui/icons/CheckBox";
+import VerifiedUserIcon from "@material-ui/icons/VerifiedUser";
+import PersonIcon from "@material-ui/icons/Person";
 
 import { ReduxState } from "../redux";
 import { Crew } from "../api/crews.d";
@@ -208,9 +210,14 @@ const CrewPage: React.FC = () => {
     <ListItem button divider={divider}>
       <ListItemText primary={cadet.name} />
 
+      {cadet.chief && (
+        <Tooltip title="Cadet is a chief">
+          <PersonIcon color="secondary" />
+        </Tooltip>
+      )}
       {cadet.certified && (
         <Tooltip title="Cadet is certified">
-          <CheckBoxIcon color="secondary" />
+          <VerifiedUserIcon color="secondary" />
         </Tooltip>
       )}
     </ListItem>
@@ -262,6 +269,12 @@ const CrewPage: React.FC = () => {
                 </Droppable>
               </Paper>
 
+              <Tooltip title="Every crew needs to have a crew chief">
+                <FormControlLabel
+                  control={<Checkbox checked={crew.cadets.findIndex((cadet) => cadet.chief) >= 0} />}
+                  label="Has a crew chief"
+                />
+              </Tooltip>
               <Tooltip title="Every crew needs to have a certified cadet">
                 <FormControlLabel
                   control={<Checkbox checked={crew.cadets.findIndex((cadet) => cadet.certified) >= 0} />}

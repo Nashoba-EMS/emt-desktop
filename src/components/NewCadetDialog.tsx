@@ -65,6 +65,7 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
     birthdate: "",
     eligible: false,
     certified: false,
+    chief: false,
     availability: []
   });
 
@@ -223,6 +224,18 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
                   label="Certified"
                 />
                 <FormHelperText>Certified means they have passed the certification requirements.</FormHelperText>
+              </Grid>
+              <Grid className={classes.centerField}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={userPayload.chief}
+                      onChange={(e) => setUserPayload({ ...userPayload, chief: e.target.checked })}
+                    />
+                  }
+                  label="Chief"
+                />
+                <FormHelperText>This cadet is a crew chief.</FormHelperText>
               </Grid>
               <Grid className={classes.rightField}>
                 <FormControlLabel

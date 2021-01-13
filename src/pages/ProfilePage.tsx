@@ -97,6 +97,10 @@ const ProfilePage: React.FC = () => {
     modifications.certified,
     user?.certified
   ]);
+  const visibleChief = React.useMemo(() => modifications.chief ?? user?.chief ?? false, [
+    modifications.chief,
+    user?.chief
+  ]);
   const visiblePassword = React.useMemo(() => modifications.password ?? "", [modifications.password]);
 
   const nameIsValid = React.useMemo(() => visibleName.length > 1 && visibleName.includes(" "), [visibleName]);
@@ -257,6 +261,24 @@ const ProfilePage: React.FC = () => {
                 label="Certified"
               />
               <FormHelperText>Passed certifications</FormHelperText>
+            </FormGroup>
+            <FormGroup className={classes.checkboxContainer}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={visibleChief}
+                    disabled={!user?.admin}
+                    onChange={(e) =>
+                      setModifications({
+                        ...modifications,
+                        chief: e.target.checked === user?.chief ? undefined : e.target.checked
+                      })
+                    }
+                  />
+                }
+                label="Chief"
+              />
+              <FormHelperText>Crew Chief</FormHelperText>
             </FormGroup>
             <FormGroup className={classes.checkboxContainer}>
               <FormControlLabel control={<Checkbox checked={user?.admin ?? false} disabled />} label="Admin" />

@@ -7,6 +7,7 @@ export interface User {
   birthdate: string;
   eligible: boolean;
   certified: boolean;
+  chief: boolean;
   availability: UserAvailability[];
 }
 
