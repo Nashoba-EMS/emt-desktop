@@ -136,6 +136,7 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
               </Typography>
             </Grid>
           </DialogContent>
+
           <DialogActions>
             <Button onClick={onClose} color="secondary" variant="contained">
               Done
@@ -250,27 +251,28 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
                 <FormHelperText>Admins can manage schedules and cadets.</FormHelperText>
               </Grid>
             </Grid>
-            <DialogActions>
-              <Button disabled={isCreatingUser} onClick={onClose} color="secondary">
-                Cancel
-              </Button>
-              <Button
-                disabled={!canSave || isCreatingUser}
-                onClick={dispatchCreateNewUser}
-                color="secondary"
-                variant="contained"
-                startIcon={
-                  isCreatingUser ? (
-                    <CircularProgress className={classes.spinner} color="inherit" size={16} />
-                  ) : (
-                    <SaveIcon />
-                  )
-                }
-              >
-                Save
-              </Button>
-            </DialogActions>
           </DialogContent>
+
+          <DialogActions>
+            <Button disabled={isCreatingUser} onClick={onClose} color="secondary">
+              Cancel
+            </Button>
+            <Button
+              disabled={!canSave || isCreatingUser}
+              onClick={dispatchCreateNewUser}
+              color="secondary"
+              variant="contained"
+              startIcon={
+                isCreatingUser ? (
+                  <CircularProgress className={classes.spinner} color="inherit" size={16} />
+                ) : (
+                  <SaveIcon />
+                )
+              }
+            >
+              Save
+            </Button>
+          </DialogActions>
         </React.Fragment>
       )}
     </Dialog>

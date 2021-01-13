@@ -17,8 +17,14 @@ import CardActionArea from "@material-ui/core/CardActionArea";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
 import Tooltip from "@material-ui/core/Tooltip";
+import TextField from "@material-ui/core/TextField";
+import Button from "@material-ui/core/Button";
+import Dialog from "@material-ui/core/Dialog";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogActions from "@material-ui/core/DialogActions";
 import AddIcon from "@material-ui/icons/Add";
-import CheckBoxIcon from "@material-ui/icons/CheckBox";
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser";
 import PersonIcon from "@material-ui/icons/Person";
 
@@ -110,6 +116,8 @@ const CrewPage: React.FC = () => {
   const token = useSelector((state: ReduxState) => state.users.token);
   const cadets = useSelector((state: ReduxState) => state.users.cadets);
 
+  const [showNewDialog, setShowNewDialog] = React.useState<boolean>(false);
+  const [newCrewName, setNewCrewName] = React.useState<string>("");
   const [tabIndex, setTabIndex] = React.useState<number>(0);
   const [crews, setCrews] = React.useState<Crew[]>([
     {
@@ -144,6 +152,13 @@ const CrewPage: React.FC = () => {
         crews: crews.filter((crew) => crew.cadetIds.includes(cadet._id)).map((crew) => crew.name)
       })),
     [cadets, crews]
+  );
+
+  const newCrewNameIsValid = React.useMemo(
+    () =>
+      newCrewName.trim().length > 0 &&
+      crews.findIndex((crew) => crew.name.toLowerCase() === newCrewName.toLowerCase()) === -1,
+    [crews, newCrewName]
   );
 
   const eligibleCadets = cadetsWithCrews
@@ -297,7 +312,13 @@ const CrewPage: React.FC = () => {
             </Paper>
           ))}
 
-          <CardActionArea className={classes.crewPaperTransparent} onClick={() => console.log("TODO")}>
+          <CardActionArea
+            className={classes.crewPaperTransparent}
+            onClick={() => {
+              setShowNewDialog(true);
+              setNewCrewName("");
+            }}
+          >
             <AddIcon />
             <Typography>New Crew</Typography>
           </CardActionArea>
@@ -362,6 +383,45 @@ const CrewPage: React.FC = () => {
           </div>
         </Drawer>
       </DragDropContext>
+
+      <Dialog open={showNewDialog} onClose={() => setShowNewDialog(false)}>
+        <DialogTitle>Add a new crew</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Each crew must pass certain requirements to be valid. A potential naming scheme could be Crew A, Crew B,
+            etc.
+          </DialogContentText>
+          <TextField
+            margin="dense"
+            variant="filled"
+            fullWidth
+            label="Name"
+            required
+            helperText="Pick a unique name to identify the crew"
+            error={!newCrewNameIsValid}
+            value={newCrewName}
+            onChange={(e) => setNewCrewName(e.target.value)}
+          />
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={() => setShowNewDialog(false)} color="secondary">
+            Cancel
+          </Button>
+          <Button
+            disabled={!newCrewNameIsValid}
+            onClick={() => {
+              setCrews([...crews, { name: newCrewName, cadetIds: [] }]);
+              setShowNewDialog(false);
+            }}
+            color="secondary"
+            variant="contained"
+            startIcon={<AddIcon />}
+          >
+            Add
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
