@@ -106,10 +106,6 @@ const CrewPage: React.FC = () => {
   const token = useSelector((state: ReduxState) => state.users.token);
   const cadets = useSelector((state: ReduxState) => state.users.cadets);
 
-  const eligibleCadets = cadets
-    .filter((cadet) => cadet.eligible)
-    .sort((a, b) => (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
-
   const [tabIndex, setTabIndex] = React.useState<number>(0);
   const [crews, setCrews] = React.useState<Crew[]>([
     {
@@ -136,6 +132,19 @@ const CrewPage: React.FC = () => {
       })),
     [cadets, crews]
   );
+
+  const cadetsWithCrews = React.useMemo(
+    () =>
+      cadets.map((cadet) => ({
+        ...cadet,
+        crews: crews.filter((crew) => crew.cadetIds.includes(cadet._id)).map((crew) => crew.name)
+      })),
+    [cadets, crews]
+  );
+
+  const eligibleCadets = cadetsWithCrews
+    .filter((cadet) => cadet.eligible)
+    .sort((a, b) => (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
 
   const handleDrop = (e: DropResult) => {
     const sourceId = e.source.droppableId;
@@ -206,9 +215,9 @@ const CrewPage: React.FC = () => {
     setCrews(newCrews);
   };
 
-  const renderCadet = (cadet: UserWithoutPassword, divider = false) => (
+  const renderCadet = (cadet: UserWithoutPassword, divider = false, needsCrew = false) => (
     <ListItem button divider={divider}>
-      <ListItemText primary={cadet.name} />
+      <ListItemText primary={cadet.name} secondary={needsCrew ? "Not assigned to a crew" : ""} />
 
       {cadet.chief && (
         <Tooltip title="Cadet is a chief">
@@ -320,7 +329,9 @@ const CrewPage: React.FC = () => {
                         {(provided, snapshot) => (
                           <React.Fragment>
                             <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                              <Tooltip title="Drag and drop onto a crew">{renderCadet(cadet)}</Tooltip>
+                              <Tooltip title="Drag and drop onto a crew">
+                                {renderCadet(cadet, false, cadet.crews.length === 0)}
+                              </Tooltip>
                             </div>
 
                             {snapshot.isDragging && renderCadet(cadet)}
