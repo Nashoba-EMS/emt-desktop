@@ -19,6 +19,7 @@ import Chip from "@material-ui/core/Chip";
 import Collapse from "@material-ui/core/Collapse";
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
+import Box from "@material-ui/core/Box";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import PersonIcon from "@material-ui/icons/Person";
 import FolderIcon from "@material-ui/icons/Folder";
@@ -280,6 +281,14 @@ const App: React.FC = () => {
           }
         />
       </Snackbar>
+
+      <Box
+        style={{ position: "fixed", width: "100%", height: "100%", zIndex: 10000, backgroundColor: "white" }}
+        display="none"
+        displayPrint="block"
+      >
+        Print Only (Hide on screen only)
+      </Box>
     </div>
   );
 };
