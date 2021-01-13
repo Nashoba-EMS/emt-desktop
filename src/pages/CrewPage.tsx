@@ -52,14 +52,14 @@ const useStyles = makeStyles((theme) =>
     crewPaper: {
       marginRight: theme.spacing(2),
       marginBottom: theme.spacing(2),
-      width: 240,
+      width: 320,
       padding: theme.spacing(2),
       display: "flex",
       flexDirection: "column"
     },
     crewMember: {},
     crewPaperTransparent: {
-      width: 240,
+      width: 320,
       padding: theme.spacing(2),
       marginBottom: theme.spacing(2),
       borderRadius: 6,
@@ -131,6 +131,7 @@ const CrewPage: React.FC = () => {
     <div className={classes.root}>
       <DragDropContext
         onDragEnd={(e) => {
+          console.log(e);
           if (!e.destination) {
             // Remove
             if (e.source.droppableId !== "CADETS") {
@@ -157,14 +158,12 @@ const CrewPage: React.FC = () => {
           switch (e.source.droppableId) {
             case "CADETS": {
               // Copy
-              if (!e.destination) return;
-
-              const destination = e.destination.droppableId;
+              const destinationId = e.destination.droppableId;
               const sourceItem = cadets.sort((a, b) => (a.name > b.name ? 1 : a.name < b.name ? -1 : 0))[
                 e.source.index
               ];
 
-              const crewIndex = crews.findIndex((crew) => crew.name === destination);
+              const crewIndex = crews.findIndex((crew) => crew.name === destinationId);
 
               if (crewIndex === -1) return;
 
@@ -186,10 +185,57 @@ const CrewPage: React.FC = () => {
             }
             case e.destination.droppableId: {
               // Reorder
+              const destination = e.destination.droppableId;
+
+              const crewIndex = crews.findIndex((crew) => crew.name === destination);
+
+              if (crewIndex === -1) return;
+
+              const crew = crews[crewIndex];
+
+              const newCadets = Array.from(crew.cadetIds);
+              const [removed] = newCadets.splice(e.source.index, 1);
+              newCadets.splice(e.destination.index, 0, removed);
+
+              const newCrews = [...crews];
+              newCrews[crewIndex] = {
+                ...newCrews[crewIndex],
+                cadetIds: newCadets
+              };
+
+              setCrews(newCrews);
               break;
             }
             default: {
               // Move
+              const sourceId = e.source.droppableId;
+              const destinationId = e.destination.droppableId;
+
+              const sourceCrewIndex = crews.findIndex((crew) => crew.name === sourceId);
+              const destinationCrewIndex = crews.findIndex((crew) => crew.name === destinationId);
+
+              if (sourceCrewIndex === -1 || destinationCrewIndex === -1) return;
+
+              const sourceCrew = crews[sourceCrewIndex];
+              const destinationCrew = crews[destinationCrewIndex];
+
+              const newSourceCadets = Array.from(sourceCrew.cadetIds);
+              const newDestinationCadets = Array.from(destinationCrew.cadetIds);
+
+              const [removed] = newSourceCadets.splice(e.source.index, 1);
+              newDestinationCadets.splice(e.destination.index, 0, removed);
+
+              const newCrews = [...crews];
+              newCrews[sourceCrewIndex] = {
+                ...sourceCrew,
+                cadetIds: newSourceCadets
+              };
+              newCrews[destinationCrewIndex] = {
+                ...destinationCrew,
+                cadetIds: newDestinationCadets
+              };
+
+              setCrews(newCrews);
               break;
             }
           }
@@ -219,11 +265,9 @@ const CrewPage: React.FC = () => {
                           >
                             {(provided, snapshot) => (
                               <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                                <ListItem button>
+                                <ListItem button divider>
                                   <ListItemText primary={cadet.name} />
                                 </ListItem>
-
-                                <Divider />
                               </div>
                             )}
                           </Draggable>
