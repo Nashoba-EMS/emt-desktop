@@ -14,6 +14,8 @@ import ListItemText from "@material-ui/core/ListItemText";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
 import CardActionArea from "@material-ui/core/CardActionArea";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Checkbox from "@material-ui/core/Checkbox";
 import AddIcon from "@material-ui/icons/Add";
 
 import { ReduxState } from "../redux";
@@ -100,6 +102,10 @@ const CrewPage: React.FC = () => {
   const token = useSelector((state: ReduxState) => state.users.token);
   const cadets = useSelector((state: ReduxState) => state.users.cadets);
 
+  const eligibleCadets = cadets
+    .filter((cadet) => cadet.eligible)
+    .sort((a, b) => (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
+
   const [tabIndex, setTabIndex] = React.useState<number>(0);
   const [crews, setCrews] = React.useState<Crew[]>([
     {
@@ -149,7 +155,7 @@ const CrewPage: React.FC = () => {
       switch (sourceId) {
         case "CADETS": {
           // Copy
-          const sourceItem = cadets.sort((a, b) => (a.name > b.name ? 1 : a.name < b.name ? -1 : 0))[e.source.index];
+          const sourceItem = eligibleCadets[e.source.index];
 
           // Prevent duplicates
           if (newDestinationCadets.includes(sourceItem._id)) return;
@@ -196,6 +202,12 @@ const CrewPage: React.FC = () => {
     setCrews(newCrews);
   };
 
+  const renderCadet = (cadet: UserWithoutPassword, divider = false) => (
+    <ListItem button divider={divider}>
+      <ListItemText primary={cadet.name} />
+    </ListItem>
+  );
+
   return (
     <div className={classes.root}>
       <DragDropContext onDragEnd={handleDrop}>
@@ -223,9 +235,7 @@ const CrewPage: React.FC = () => {
                             >
                               {(provided, snapshot) => (
                                 <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                                  <ListItem button divider>
-                                    <ListItemText primary={cadet.name} />
-                                  </ListItem>
+                                  {renderCadet(cadet, true)}
                                 </div>
                               )}
                             </Draggable>
@@ -243,6 +253,11 @@ const CrewPage: React.FC = () => {
                   )}
                 </Droppable>
               </Paper>
+
+              <FormControlLabel
+                control={<Checkbox checked={crew.cadets.findIndex((cadet) => cadet.certified) >= 0} />}
+                label="Has a certified cadet"
+              />
             </Paper>
           ))}
 
@@ -277,27 +292,19 @@ const CrewPage: React.FC = () => {
               <Droppable droppableId="CADETS" isDropDisabled={true}>
                 {(provided, snapshot) => (
                   <div ref={provided.innerRef}>
-                    {cadets
-                      .sort((a, b) => (a.name > b.name ? 1 : a.name < b.name ? -1 : 0))
-                      .map((cadet, index) => (
-                        <Draggable key={cadet._id} draggableId={cadet._id} index={index}>
-                          {(provided, snapshot) => (
-                            <React.Fragment>
-                              <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                                <ListItem button>
-                                  <ListItemText primary={cadet.name} />
-                                </ListItem>
-                              </div>
+                    {eligibleCadets.map((cadet, index) => (
+                      <Draggable key={cadet._id} draggableId={cadet._id} index={index}>
+                        {(provided, snapshot) => (
+                          <React.Fragment>
+                            <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                              {renderCadet(cadet)}
+                            </div>
 
-                              {snapshot.isDragging && (
-                                <ListItem button>
-                                  <ListItemText primary={cadet.name} />
-                                </ListItem>
-                              )}
-                            </React.Fragment>
-                          )}
-                        </Draggable>
-                      ))}
+                            {snapshot.isDragging && renderCadet(cadet)}
+                          </React.Fragment>
+                        )}
+                      </Draggable>
+                    ))}
 
                     <div style={{ display: "none" }}>{provided.placeholder}</div>
                   </div>
