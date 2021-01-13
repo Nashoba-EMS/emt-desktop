@@ -330,11 +330,11 @@ const CrewPage: React.FC = () => {
                           <React.Fragment>
                             <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
                               <Tooltip title="Drag and drop onto a crew">
-                                {renderCadet(cadet, false, cadet.crews.length === 0)}
+                                {renderCadet(cadet, false, !snapshot.isDragging && cadet.crews.length === 0)}
                               </Tooltip>
                             </div>
 
-                            {snapshot.isDragging && renderCadet(cadet)}
+                            {snapshot.isDragging && renderCadet(cadet, false, cadet.crews.length === 0)}
                           </React.Fragment>
                         )}
                       </Draggable>
