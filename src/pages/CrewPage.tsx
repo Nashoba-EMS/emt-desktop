@@ -1,7 +1,7 @@
 import React from "react";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { MuiThemeProvider, createMuiTheme, createStyles, makeStyles } from "@material-ui/core/styles";
+import { createStyles, makeStyles } from "@material-ui/core/styles";
 import Drawer from "@material-ui/core/Drawer";
 import Toolbar from "@material-ui/core/Toolbar";
 import Tabs from "@material-ui/core/Tabs";
@@ -10,10 +10,14 @@ import Box from "@material-ui/core/Box";
 import Divider from "@material-ui/core/Divider";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
-import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
-import Dialog from "@material-ui/core/Dialog";
-import PrintOutlinedIcon from "@material-ui/icons/PrintOutlined";
+import Paper from "@material-ui/core/Paper";
+import CardActionArea from "@material-ui/core/CardActionArea";
+import AddIcon from "@material-ui/icons/Add";
+
+import { ReduxState } from "../redux";
+import { Crew } from "../api/crews.d";
+import { UserWithoutPassword } from "../api/users.d";
 
 const drawerWidth = 256;
 
@@ -42,8 +46,33 @@ const useStyles = makeStyles((theme) =>
       color: theme.palette.grey[600]
     },
     content: {
-      flexGrow: 1,
-      padding: theme.spacing(3)
+      display: "flex",
+      flexDirection: "row",
+      flexWrap: "wrap"
+    },
+    crewPaper: {
+      marginRight: theme.spacing(2),
+      marginBottom: theme.spacing(2),
+      width: 240,
+      padding: theme.spacing(2)
+    },
+    crewMember: {
+      paddingTop: theme.spacing(1),
+      paddingBottom: theme.spacing(1)
+    },
+    crewPaperTransparent: {
+      width: 240,
+      padding: theme.spacing(2),
+      marginBottom: theme.spacing(2),
+      borderRadius: 6,
+      borderStyle: "dashed",
+      borderWidth: 2,
+      borderColor: theme.palette.grey[400],
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center",
+      color: theme.palette.grey[600]
     }
   })
 );
@@ -59,11 +88,7 @@ const TabPanel: React.FC<{ children?: React.ReactNode; index: any; value: any }>
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && (
-        <Box>
-          <Typography>{children}</Typography>
-        </Box>
-      )}
+      {value === index && <Box>{children}</Box>}
     </div>
   );
 };
@@ -73,12 +98,61 @@ const CrewPage: React.FC = () => {
 
   const { id } = useParams<{ id: string }>();
 
-  const [printView, setPrintView] = React.useState<boolean>(false);
+  const user = useSelector((state: ReduxState) => state.users.user);
+  const token = useSelector((state: ReduxState) => state.users.token);
+  const cadets = useSelector((state: ReduxState) => state.users.cadets);
+
   const [tabIndex, setTabIndex] = React.useState<number>(0);
+  const [crews, setCrews] = React.useState<Crew[]>([
+    {
+      name: "Crew A",
+      cadetIds: ["5ff3807528062396204b5c75", "5ffa33aea5c45460c1e75965"]
+    },
+    {
+      name: "Crew B",
+      cadetIds: ["5ff3807528062396204b5c75"]
+    },
+    {
+      name: "Crew C",
+      cadetIds: ["5ff3807528062396204b5c75", "5ffa33aea5c45460c1e75965"]
+    }
+  ]);
+
+  const crewsWithCadets = React.useMemo(
+    () =>
+      crews.map((crew) => ({
+        ...crew,
+        cadets: crew.cadetIds
+          .map((cadetId) => cadets.find((cadet) => cadet._id === cadetId))
+          .filter((cadet) => cadet !== undefined) as UserWithoutPassword[]
+      })),
+    [cadets, crews]
+  );
 
   return (
     <div className={classes.root}>
-      <div className={classes.content}></div>
+      <div className={classes.content}>
+        {crewsWithCadets.map((crew) => (
+          <Paper key={crew.name} className={classes.crewPaper}>
+            <Typography variant="h6">{crew.name}</Typography>
+
+            {crew.cadets.map((cadet, index) => (
+              <React.Fragment key={cadet._id}>
+                <div className={classes.crewMember}>
+                  <Typography>{cadet.name}</Typography>
+                </div>
+
+                <Divider />
+              </React.Fragment>
+            ))}
+          </Paper>
+        ))}
+
+        <CardActionArea className={classes.crewPaperTransparent} onClick={() => console.log("TODO")}>
+          <AddIcon />
+          <Typography>New Crew</Typography>
+        </CardActionArea>
+      </div>
 
       <Drawer className={classes.drawer} variant="permanent" anchor="right" classes={{ paper: classes.drawerPaper }}>
         <Toolbar />

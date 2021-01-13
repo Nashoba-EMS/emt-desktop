@@ -12,7 +12,8 @@ const styles = (theme: Theme) =>
         // MozOsxFontSmoothing: "grayscale", // Antialiasing.
         // Change from `box-sizing: content-box` so that `width`
         // is not affected by `padding` or `border`.
-        boxSizing: "border-box"
+        boxSizing: "border-box",
+        height: "100%"
       },
       "*, *::before, *::after": {
         boxSizing: "inherit"
@@ -21,6 +22,7 @@ const styles = (theme: Theme) =>
         fontWeight: "bolder"
       },
       body: {
+        height: "100%",
         margin: 0, // Remove the margin in all browsers.
         color: theme.palette.text.primary,
         ...theme.typography.body2,
@@ -34,6 +36,9 @@ const styles = (theme: Theme) =>
         "&::backdrop": {
           backgroundColor: theme.palette.background.default
         }
+      },
+      "#root": {
+        height: "100%"
       }
     }
   });

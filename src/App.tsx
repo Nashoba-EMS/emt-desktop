@@ -37,6 +37,7 @@ const drawerWidth = 256;
 const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
+      height: "100%",
       display: "flex"
     },
     appBar: {
@@ -168,7 +169,7 @@ const App: React.FC = () => {
             <ListItemIcon>
               <FolderIcon />
             </ListItemIcon>
-            <ListItemText primary="Crews" />
+            <ListItemText primary="Crew Assignments" />
             {crewsOpen ? <ExpandLess /> : <ExpandMore />}
           </ListItem>
           <Collapse in={crewsOpen} timeout="auto" unmountOnExit>
@@ -197,7 +198,7 @@ const App: React.FC = () => {
                   <ListItemIcon>
                     <AddCircleIcon color="secondary" />
                   </ListItemIcon>
-                  <ListItemText primary="New Crew" />
+                  <ListItemText primary="New Assignment" />
                 </ListItem>
               )}
             </List>
