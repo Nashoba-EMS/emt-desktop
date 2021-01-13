@@ -53,10 +53,12 @@ const useStyles = makeStyles((theme) =>
     content: {
       display: "flex",
       flexDirection: "row",
-      flexWrap: "wrap"
+      flexWrap: "wrap",
+      justifyContent: "space-evenly"
     },
     crewPaper: {
-      marginRight: theme.spacing(2),
+      marginLeft: theme.spacing(1),
+      marginRight: theme.spacing(1),
       marginBottom: theme.spacing(2),
       width: 320,
       padding: theme.spacing(2),
@@ -67,6 +69,8 @@ const useStyles = makeStyles((theme) =>
     crewPaperTransparent: {
       width: 320,
       padding: theme.spacing(2),
+      marginLeft: theme.spacing(1),
+      marginRight: theme.spacing(1),
       marginBottom: theme.spacing(2),
       borderRadius: 6,
       borderStyle: "dashed",
