@@ -16,7 +16,7 @@ const manage = <Response>(
     crewPayload?: Partial<CrewAssignment>;
   }
 ) =>
-  request<Response>(ENDPOINT.users.manage, {
+  request<Response>(ENDPOINT.crews.manage, {
     token,
     body: payload
   });
