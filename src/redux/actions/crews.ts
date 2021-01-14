@@ -72,14 +72,12 @@ const createCrewFailure = defaultFailure(CREATE_CREW_FAILURE);
 /**
  * Create a new crew
  */
-export const createCrew = (
-  token: string,
-  targetId: string,
-  crewPayload: Partial<CrewAssignment>
-): AsyncCrewsActionTypes => async (dispatch) => {
+export const createCrew = (token: string, crewPayload: Partial<CrewAssignment>): AsyncCrewsActionTypes => async (
+  dispatch
+) => {
   dispatch(createCrewStart());
 
-  const response = await CrewsApi.createCrew(token, { targetId, crewPayload });
+  const response = await CrewsApi.createCrew(token, { crewPayload });
 
   if (response.code === 200) {
     dispatch(createCrewSuccess(response));

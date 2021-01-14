@@ -37,7 +37,7 @@ export interface CreateCrewResponse extends ManageResponse {
 /**
  * Create a new crew
  */
-export const createCrew = (token: string, payload: { targetId: string; crewPayload: Partial<CrewAssignment> }) =>
+export const createCrew = (token: string, payload: { crewPayload: Partial<CrewAssignment> }) =>
   manage<CreateCrewResponse>(token, { action: "CREATE", ...payload });
 
 export interface UpdateCrewResponse extends ManageResponse {
