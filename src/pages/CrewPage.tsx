@@ -56,6 +56,9 @@ const useStyles = makeStyles((theme) =>
     gray: {
       color: theme.palette.grey[600]
     },
+    boldyPrimaryCadetText: {
+      fontWeight: "bold"
+    },
     content: {
       display: "flex",
       flexDirection: "row",
@@ -123,11 +126,17 @@ const CrewPage: React.FC = () => {
   const [tabIndex, setTabIndex] = React.useState<number>(0);
   const [crews, setCrews] = React.useState<Crew[]>([]);
 
+  /**
+   * The current viewed crew assignment
+   */
   const crewAssignment = React.useMemo(() => crewAssignments.find((crew) => crew._id === id) ?? null, [
     crewAssignments,
     id
   ]);
 
+  /**
+   * Add the cadets to each crew
+   */
   const crewsWithCadets = React.useMemo(
     () =>
       crews.map((crew) => ({
@@ -139,6 +148,9 @@ const CrewPage: React.FC = () => {
     [cadets, crews]
   );
 
+  /**
+   * Add the crews to each cadet
+   */
   const cadetsWithCrews = React.useMemo(
     () =>
       cadets.map((cadet) => ({
@@ -148,6 +160,9 @@ const CrewPage: React.FC = () => {
     [cadets, crews]
   );
 
+  /**
+   * The name of the new crew is nonzero and unique
+   */
   const newCrewNameIsValid = React.useMemo(
     () =>
       newCrewName.trim().length > 0 &&
@@ -155,10 +170,44 @@ const CrewPage: React.FC = () => {
     [crews, newCrewName]
   );
 
+  /**
+   * Cadets who can be added to crews
+   */
   const eligibleCadets = cadetsWithCrews
     .filter((cadet) => cadet.eligible)
     .sort((a, b) => (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
 
+  /**
+   * Remove a cadet from a crew with the given name
+   */
+  const removeFromCrew = (crewName: string, cadet: UserWithoutPassword) => {
+    const sourceCrewIndex = crews.findIndex((crew) => crew.name === crewName);
+
+    // No crew
+    if (sourceCrewIndex === -1) return;
+
+    const sourceCrew = crews[sourceCrewIndex];
+    const sourceIndex = sourceCrew.cadetIds.findIndex((cadetId) => cadetId === cadet._id);
+
+    // No cadet
+    if (sourceIndex === -1) return;
+
+    const newSourceCadets = Array.from(sourceCrew.cadetIds);
+    newSourceCadets.splice(sourceIndex, 1);
+
+    const newCrews = [...crews];
+
+    newCrews[sourceCrewIndex] = {
+      ...sourceCrew,
+      cadetIds: newSourceCadets
+    };
+
+    setCrews(newCrews);
+  };
+
+  /**
+   * Handle a cadet drag and drop event
+   */
   const handleDrop = (e: DropResult) => {
     const sourceId = e.source.droppableId;
     const destinationId = e.destination?.droppableId;
@@ -237,9 +286,19 @@ const CrewPage: React.FC = () => {
     }
   }, [crewAssignment]);
 
-  const renderCadet = (cadet: UserWithoutPassword, divider = false, needsCrew = false) => (
-    <ListItem button divider={divider}>
-      <ListItemText primary={cadet.name} secondary={needsCrew ? "Not assigned to a crew" : ""} />
+  const renderCadet = (cadet: UserWithoutPassword, source: string, divider = false, numberOfCrews = -1) => (
+    <ListItem button divider={divider} onDoubleClick={() => source && removeFromCrew(source, cadet)}>
+      <ListItemText
+        classes={{ primary: numberOfCrews === 0 ? classes.boldyPrimaryCadetText : undefined }}
+        primary={cadet.name}
+        secondary={
+          numberOfCrews === 0
+            ? "Not assigned to a crew"
+            : numberOfCrews > 0
+            ? `Assigned to ${numberOfCrews} crews`
+            : "Double click to remove"
+        }
+      />
 
       {cadet.chief && (
         <Tooltip title="Cadet is a chief">
@@ -281,7 +340,7 @@ const CrewPage: React.FC = () => {
                             >
                               {(provided, snapshot) => (
                                 <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                                  {renderCadet(cadet, true)}
+                                  {renderCadet(cadet, crew.name, true)}
                                 </div>
                               )}
                             </Draggable>
@@ -358,11 +417,11 @@ const CrewPage: React.FC = () => {
                           <React.Fragment>
                             <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
                               <Tooltip title="Drag and drop onto a crew">
-                                {renderCadet(cadet, false, !snapshot.isDragging && cadet.crews.length === 0)}
+                                {renderCadet(cadet, "CADETS", false, cadet.crews.length)}
                               </Tooltip>
                             </div>
 
-                            {snapshot.isDragging && renderCadet(cadet, false, cadet.crews.length === 0)}
+                            {snapshot.isDragging && renderCadet(cadet, "CADETS", false, cadet.crews.length)}
                           </React.Fragment>
                         )}
                       </Draggable>
