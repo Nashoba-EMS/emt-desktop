@@ -8,16 +8,24 @@ export interface Endpoint {
   method: Method;
 }
 
+/**
+ * Create an endpoint with proper typing
+ */
+const endpoint = (method: Method, url: string): Endpoint => ({
+  url,
+  method
+});
+
+/**
+ * Endpoint object for building requests
+ */
 export const ENDPOINT = {
   users: {
-    login: {
-      url: "users/login",
-      method: PostMethod
-    } as Endpoint,
-    manage: {
-      url: "users/manage",
-      method: PostMethod
-    } as Endpoint
+    login: endpoint(PostMethod, "users/login"),
+    manage: endpoint(PostMethod, "users/manage")
+  },
+  crews: {
+    manage: endpoint(PostMethod, "crews/manage")
   }
 };
 

@@ -46,7 +46,7 @@ const defaultSuccess = <Response>(type: UsersActionTypes["type"]) => (
 /**
  * Create a default failure action
  */
-const defaultFailure = <Response>(type: UsersActionTypes["type"]) => (response: FailureResponse): UsersActionTypes =>
+const defaultFailure = (type: UsersActionTypes["type"]) => (response: FailureResponse): UsersActionTypes =>
   ({
     type,
     ...response
