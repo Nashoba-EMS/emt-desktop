@@ -26,7 +26,7 @@ import FolderIcon from "@material-ui/icons/Folder";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 
 import { ReduxState } from "./redux";
-import { _users } from "./redux/actions";
+import { _crews, _users } from "./redux/actions";
 import ProfilePage from "./pages/ProfilePage";
 import CrewPage from "./pages/CrewPage";
 import CadetPage from "./pages/CadetPage";
@@ -72,6 +72,13 @@ const useStyles = makeStyles((theme) =>
     errorMessage: {
       background: theme.palette.error.main,
       color: theme.palette.error.contrastText
+    },
+    printBox: {
+      position: "fixed",
+      width: "100%",
+      height: "100%",
+      zIndex: 10000,
+      backgroundColor: "white"
     }
   })
 );
@@ -83,11 +90,19 @@ const App: React.FC = () => {
   const user = useSelector((state: ReduxState) => state.users.user);
   const token = useSelector((state: ReduxState) => state.users.token);
   const cadets = useSelector((state: ReduxState) => state.users.cadets);
+  const crewAssignments = useSelector((state: ReduxState) => state.crews.crewAssignments);
+
   const isGettingAllUsers = useSelector((state: ReduxState) => state.users.isGettingAllUsers);
   const getAllUsersErrorMessage = useSelector((state: ReduxState) => state.users.getAllUsersErrorMessage);
   const createUserErrorMessage = useSelector((state: ReduxState) => state.users.createUserErrorMessage);
   const updateUserErrorMessage = useSelector((state: ReduxState) => state.users.updateUserErrorMessage);
   const deleteUserErrorMessage = useSelector((state: ReduxState) => state.users.deleteUserErrorMessage);
+
+  const isGettingAllCrews = useSelector((state: ReduxState) => state.crews.isGettingAllCrews);
+  const getAllCrewsErrorMessage = useSelector((state: ReduxState) => state.crews.getAllCrewsErrorMessage);
+  const createCrewErrorMessage = useSelector((state: ReduxState) => state.crews.createCrewErrorMessage);
+  const updateCrewErrorMessage = useSelector((state: ReduxState) => state.crews.updateCrewErrorMessage);
+  const deleteCrewErrorMessage = useSelector((state: ReduxState) => state.crews.deleteCrewErrorMessage);
 
   const [errorMessage, setErrorMessage] = React.useState<string>("");
   const [crewsOpen, setCrewsOpen] = React.useState<boolean>(true);
@@ -98,6 +113,7 @@ const App: React.FC = () => {
   const dispatch = useDispatch();
   const dispatchLogout = React.useCallback(() => dispatch(_users.logout()), [dispatch]);
   const dispatchGetAllUsers = React.useCallback(() => dispatch(_users.getAllUsers(token)), [dispatch, token]);
+  const dispatchGetAllCrews = React.useCallback(() => dispatch(_crews.getAllCrews(token)), [dispatch, token]);
 
   /**
    * Refresh critical data
@@ -107,6 +123,12 @@ const App: React.FC = () => {
       dispatchGetAllUsers();
     }
   }, [dispatchGetAllUsers, token]);
+
+  React.useEffect(() => {
+    if (token) {
+      dispatchGetAllCrews();
+    }
+  }, [dispatchGetAllCrews, token]);
 
   /**
    * Display error message
@@ -126,6 +148,22 @@ const App: React.FC = () => {
   React.useEffect(() => {
     if (deleteUserErrorMessage) setErrorMessage(deleteUserErrorMessage);
   }, [deleteUserErrorMessage]);
+
+  React.useEffect(() => {
+    if (getAllCrewsErrorMessage) setErrorMessage(getAllCrewsErrorMessage);
+  }, [getAllCrewsErrorMessage]);
+
+  React.useEffect(() => {
+    if (createCrewErrorMessage) setErrorMessage(createCrewErrorMessage);
+  }, [createCrewErrorMessage]);
+
+  React.useEffect(() => {
+    if (updateCrewErrorMessage) setErrorMessage(updateCrewErrorMessage);
+  }, [updateCrewErrorMessage]);
+
+  React.useEffect(() => {
+    if (deleteCrewErrorMessage) setErrorMessage(deleteCrewErrorMessage);
+  }, [deleteCrewErrorMessage]);
 
   return (
     <div className={classes.root}>
@@ -174,27 +212,33 @@ const App: React.FC = () => {
           </ListItem>
           <Collapse in={crewsOpen} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItem
-                className={classes.nested}
-                button
-                component={Link}
-                to="/crew/test1"
-                selected={location.pathname === "/crew/test1"}
-              >
-                <ListItemText primary="Test 1" />
-              </ListItem>
-              <ListItem
-                className={classes.nested}
-                button
-                component={Link}
-                to="/crew/test2"
-                selected={location.pathname === "/crew/test2"}
-              >
-                <ListItemText primary="Test 2" />
-              </ListItem>
+              {crewAssignments
+                .sort((a, b) => (a.name > b.name ? 1 : a.name < b.name ? -1 : 0))
+                .map((crew) => {
+                  const path = `/crew/${crew.name}`;
+                  const selected = location.pathname === path;
+
+                  return (
+                    <ListItem
+                      key={crew._id}
+                      className={classes.nested}
+                      button
+                      component={Link}
+                      to={path}
+                      selected={selected}
+                    >
+                      <ListItemText primary={crew.name} />
+                    </ListItem>
+                  );
+                })}
 
               {user?.admin && (
-                <ListItem className={classes.nested} button>
+                <ListItem
+                  className={classes.nested}
+                  button
+                  disabled={isGettingAllCrews}
+                  onClick={() => setShowCreateNewCrew(true)}
+                >
                   <ListItemIcon>
                     <AddCircleIcon color="secondary" />
                   </ListItemIcon>
@@ -218,8 +262,8 @@ const App: React.FC = () => {
               {cadets
                 .sort((a, b) => (a.name > b.name ? 1 : a.name < b.name ? -1 : 0))
                 .map((cadet) => {
-                  const link = user?._id === cadet._id ? "/profile" : `/cadet/${cadet._id}`;
-                  const selected = link !== "/profile" && location.pathname === link;
+                  const path = user?._id === cadet._id ? "/profile" : `/cadet/${cadet._id}`;
+                  const selected = path !== "/profile" && location.pathname === path;
 
                   return (
                     <ListItem
@@ -227,7 +271,7 @@ const App: React.FC = () => {
                       className={classes.nested}
                       button
                       component={Link}
-                      to={link}
+                      to={path}
                       selected={selected}
                     >
                       <ListItemText primary={cadet.name} />
@@ -283,11 +327,7 @@ const App: React.FC = () => {
         />
       </Snackbar>
 
-      <Box
-        style={{ position: "fixed", width: "100%", height: "100%", zIndex: 10000, backgroundColor: "white" }}
-        display="none"
-        displayPrint="block"
-      >
+      <Box className={classes.printBox} display="none" displayPrint="block">
         Print Only (Hide on screen only)
       </Box>
     </div>
