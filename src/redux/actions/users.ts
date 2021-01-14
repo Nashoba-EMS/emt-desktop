@@ -1,4 +1,4 @@
-import { Users } from "../../api";
+import { UsersApi } from "../../api";
 import { FailureResponse, SuccessResponse } from "../../api/endpoints";
 import { User } from "../../api/users.d";
 import {
@@ -55,7 +55,7 @@ const defaultFailure = (type: UsersActionTypes["type"]) => (response: FailureRes
 /**
  * Finished loading from local storage
  */
-const loadSessionDone = (response?: SuccessResponse<Users.LoginResponse>): UsersActionTypes => ({
+const loadSessionDone = (response?: SuccessResponse<UsersApi.LoginResponse>): UsersActionTypes => ({
   type: LOAD_SESSION_DONE,
   ...response
 });
@@ -71,7 +71,7 @@ export const loadSession = (): AsyncUsersActionTypes => async (dispatch) => {
     return;
   }
 
-  const response = await Users.login(token);
+  const response = await UsersApi.login(token);
 
   if (response.code !== 200) {
     // Clear the invalid token
@@ -94,7 +94,7 @@ export const loginReset = (): UsersActionTypes => ({
 });
 
 const loginStart = defaultStart(LOGIN_START);
-const loginSuccess = defaultSuccess<Users.LoginResponse>(LOGIN_SUCCESS);
+const loginSuccess = defaultSuccess<UsersApi.LoginResponse>(LOGIN_SUCCESS);
 const loginFailure = defaultFailure(LOGIN_FAILURE);
 
 /**
@@ -103,7 +103,7 @@ const loginFailure = defaultFailure(LOGIN_FAILURE);
 export const login = (email: string, password: string): AsyncUsersActionTypes => async (dispatch) => {
   dispatch(loginStart());
 
-  const response = await Users.login(null, { email, password });
+  const response = await UsersApi.login(null, { email, password });
 
   if (response.code === 200) {
     // Store the info in storage to use next time
@@ -128,7 +128,7 @@ export const logout = (): UsersActionTypes => {
 };
 
 const getAllUsersStart = defaultStart(GET_ALL_USERS_START);
-const getAllUsersSuccess = defaultSuccess<Users.GetAllUsersResponse>(GET_ALL_USERS_SUCCESS);
+const getAllUsersSuccess = defaultSuccess<UsersApi.GetAllUsersResponse>(GET_ALL_USERS_SUCCESS);
 const getAllUsersFailure = defaultFailure(GET_ALL_USERS_FAILURE);
 
 /**
@@ -137,7 +137,7 @@ const getAllUsersFailure = defaultFailure(GET_ALL_USERS_FAILURE);
 export const getAllUsers = (token: string): AsyncUsersActionTypes => async (dispatch) => {
   dispatch(getAllUsersStart());
 
-  const response = await Users.getAllUsers(token);
+  const response = await UsersApi.getAllUsers(token);
 
   if (response.code === 200) {
     dispatch(getAllUsersSuccess(response));
@@ -147,7 +147,7 @@ export const getAllUsers = (token: string): AsyncUsersActionTypes => async (disp
 };
 
 const createUserStart = defaultStart(CREATE_USER_START);
-const createUserSuccess = defaultSuccess<Users.CreateUserResponse>(CREATE_USER_SUCCESS);
+const createUserSuccess = defaultSuccess<UsersApi.CreateUserResponse>(CREATE_USER_SUCCESS);
 const createUserFailure = defaultFailure(CREATE_USER_FAILURE);
 
 /**
@@ -160,7 +160,7 @@ export const createUser = (
 ): AsyncUsersActionTypes => async (dispatch) => {
   dispatch(createUserStart());
 
-  const response = await Users.createUser(token, { targetEmail, userPayload });
+  const response = await UsersApi.createUser(token, { targetEmail, userPayload });
 
   if (response.code === 200) {
     dispatch(createUserSuccess(response));
@@ -170,7 +170,7 @@ export const createUser = (
 };
 
 const updateUserStart = defaultStart(UPDATE_USER_START);
-const updateUserSuccess = defaultSuccess<Users.UpdateUserResponse>(UPDATE_USER_SUCCESS);
+const updateUserSuccess = defaultSuccess<UsersApi.UpdateUserResponse>(UPDATE_USER_SUCCESS);
 const updateUserFailure = defaultFailure(UPDATE_USER_FAILURE);
 
 /**
@@ -183,7 +183,7 @@ export const updateUser = (
 ): AsyncUsersActionTypes => async (dispatch) => {
   dispatch(updateUserStart());
 
-  const response = await Users.updateUser(token, { targetEmail, userPayload });
+  const response = await UsersApi.updateUser(token, { targetEmail, userPayload });
 
   if (response.code === 200) {
     dispatch(updateUserSuccess(response));
@@ -193,7 +193,7 @@ export const updateUser = (
 };
 
 const deleteUserStart = defaultStart(DELETE_USER_START);
-const deleteUserSuccess = defaultSuccess<Users.DeleteUserResponse>(DELETE_USER_SUCCESS);
+const deleteUserSuccess = defaultSuccess<UsersApi.DeleteUserResponse>(DELETE_USER_SUCCESS);
 const deleteUserFailure = defaultFailure(DELETE_USER_FAILURE);
 
 /**
@@ -202,7 +202,7 @@ const deleteUserFailure = defaultFailure(DELETE_USER_FAILURE);
 export const deleteUser = (token: string, targetEmail: string): AsyncUsersActionTypes => async (dispatch) => {
   dispatch(deleteUserStart());
 
-  const response = await Users.deleteUser(token, { targetEmail });
+  const response = await UsersApi.deleteUser(token, { targetEmail });
 
   if (response.code === 200) {
     dispatch(deleteUserSuccess(response));

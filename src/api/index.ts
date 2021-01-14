@@ -1,3 +1,4 @@
-import * as Users from "./users";
+import * as UsersApi from "./users";
+import * as CrewsApi from "./crews";
 
-export { Users };
+export { UsersApi, CrewsApi };
