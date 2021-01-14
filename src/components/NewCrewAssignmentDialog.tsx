@@ -14,6 +14,7 @@ import SaveIcon from "@material-ui/icons/Save";
 
 import { ReduxState } from "../redux";
 import { CrewAssignmentWithoutId } from "../api/crews.d";
+import { _crews } from "../redux/actions";
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -45,19 +46,41 @@ const NewCrewAssignmentDialog: React.FC<{ onClose(): void }> = ({ onClose }) => 
   const classes = useStyles();
 
   const token = useSelector((state: ReduxState) => state.users.token);
-  const isCreatingCrew = false;
+  const crewAssignments = useSelector((state: ReduxState) => state.crews.crewAssignments);
+  const isCreatingCrew = useSelector((state: ReduxState) => state.crews.isCreatingCrew);
 
   const [crewPayload, setCrewPayload] = React.useState<CrewAssignmentWithoutId>({
     name: "",
     crews: []
   });
+  const [startedCreation, setStartedCreation] = React.useState<boolean>(false);
 
-  const nameIsValid = React.useMemo(() => crewPayload.name.length > 1, [crewPayload.name]);
+  const nameIsValid = React.useMemo(
+    () =>
+      crewPayload.name.trim().length > 1 &&
+      crewAssignments.findIndex((crew) => crew.name.toLowerCase() === crewPayload.name.toLowerCase()) === -1,
+    [crewAssignments, crewPayload.name]
+  );
 
   const canSave = React.useMemo(() => nameIsValid, [nameIsValid]);
 
   const dispatch = useDispatch();
-  const dispatchCreateNewUser = React.useCallback(() => console.log("TODO"), []);
+  const dispatchCreateNewCrew = React.useCallback(() => dispatch(_crews.createCrew(token, crewPayload)), [
+    crewPayload,
+    dispatch,
+    token
+  ]);
+
+  /**
+   * Auto close upon finishing creating crew
+   */
+  React.useEffect(() => {
+    if (isCreatingCrew) {
+      setStartedCreation(true);
+    } else if (startedCreation) {
+      onClose();
+    }
+  }, [isCreatingCrew, onClose, startedCreation]);
 
   return (
     <Dialog open={true} onClose={() => !isCreatingCrew && onClose()}>
@@ -85,7 +108,7 @@ const NewCrewAssignmentDialog: React.FC<{ onClose(): void }> = ({ onClose }) => 
         </Button>
         <Button
           disabled={!canSave || isCreatingCrew}
-          onClick={dispatchCreateNewUser}
+          onClick={dispatchCreateNewCrew}
           color="secondary"
           variant="contained"
           startIcon={

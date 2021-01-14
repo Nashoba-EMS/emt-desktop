@@ -60,7 +60,9 @@ const LoginPage: React.FC = () => {
 
   const onClickSignIn = React.useCallback(
     (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+      // Prevent page refresh
       event.preventDefault();
+
       dispatchLogin();
     },
     [dispatchLogin]

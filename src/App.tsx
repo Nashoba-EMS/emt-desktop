@@ -30,7 +30,7 @@ import { _crews, _users } from "./redux/actions";
 import ProfilePage from "./pages/ProfilePage";
 import CrewPage from "./pages/CrewPage";
 import CadetPage from "./pages/CadetPage";
-import { NewCadetDialog } from "./components";
+import { NewCadetDialog, NewCrewAssignmentDialog } from "./components";
 
 const drawerWidth = 256;
 
@@ -215,7 +215,7 @@ const App: React.FC = () => {
               {crewAssignments
                 .sort((a, b) => (a.name > b.name ? 1 : a.name < b.name ? -1 : 0))
                 .map((crew) => {
-                  const path = `/crew/${crew.name}`;
+                  const path = `/crew/${crew._id}`;
                   const selected = location.pathname === path;
 
                   return (
@@ -309,6 +309,7 @@ const App: React.FC = () => {
       </main>
 
       {showCreateNewUser && <NewCadetDialog onClose={() => setShowCreateNewUser(false)} />}
+      {showCreateNewCrew && <NewCrewAssignmentDialog onClose={() => setShowCreateNewCrew(false)} />}
 
       <Snackbar
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}

@@ -74,6 +74,7 @@ const useStyles = makeStyles((theme) =>
     crewMember: {},
     crewPaperTransparent: {
       width: 320,
+      minHeight: 198,
       padding: theme.spacing(2),
       marginLeft: theme.spacing(1),
       marginRight: theme.spacing(1),
@@ -114,24 +115,17 @@ const CrewPage: React.FC = () => {
 
   const user = useSelector((state: ReduxState) => state.users.user);
   const token = useSelector((state: ReduxState) => state.users.token);
+  const crewAssignments = useSelector((state: ReduxState) => state.crews.crewAssignments);
   const cadets = useSelector((state: ReduxState) => state.users.cadets);
 
   const [showNewDialog, setShowNewDialog] = React.useState<boolean>(false);
   const [newCrewName, setNewCrewName] = React.useState<string>("");
   const [tabIndex, setTabIndex] = React.useState<number>(0);
-  const [crews, setCrews] = React.useState<Crew[]>([
-    {
-      name: "Crew A",
-      cadetIds: ["5ff3807528062396204b5c75", "5ffa33aea5c45460c1e75965"]
-    },
-    {
-      name: "Crew B",
-      cadetIds: []
-    },
-    {
-      name: "Crew C",
-      cadetIds: ["5ff3807528062396204b5c75", "5ffa33aea5c45460c1e75965"]
-    }
+  const [crews, setCrews] = React.useState<Crew[]>([]);
+
+  const crewAssignment = React.useMemo(() => crewAssignments.find((crew) => crew._id === id) ?? null, [
+    crewAssignments,
+    id
   ]);
 
   const crewsWithCadets = React.useMemo(
@@ -233,6 +227,15 @@ const CrewPage: React.FC = () => {
 
     setCrews(newCrews);
   };
+
+  /**
+   * Update the crew state with the current crew
+   */
+  React.useEffect(() => {
+    if (crewAssignment) {
+      setCrews(crewAssignment.crews);
+    }
+  }, [crewAssignment]);
 
   const renderCadet = (cadet: UserWithoutPassword, divider = false, needsCrew = false) => (
     <ListItem button divider={divider}>
@@ -338,8 +341,8 @@ const CrewPage: React.FC = () => {
             <div>
               <Tabs variant="fullWidth" value={tabIndex} onChange={(e, v) => setTabIndex(v)}>
                 <Tab label="Both" style={{ minWidth: "auto" }} />
-                <Tab label="A" style={{ minWidth: "auto" }} />
-                <Tab label="B" style={{ minWidth: "auto" }} />
+                <Tab label="A" style={{ minWidth: "auto" }} disabled />
+                <Tab label="B" style={{ minWidth: "auto" }} disabled />
               </Tabs>
 
               <Divider />
@@ -385,42 +388,49 @@ const CrewPage: React.FC = () => {
       </DragDropContext>
 
       <Dialog open={showNewDialog} onClose={() => setShowNewDialog(false)}>
-        <DialogTitle>Add a new crew</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Each crew must pass certain requirements to be valid. A potential naming scheme could be Crew A, Crew B,
-            etc.
-          </DialogContentText>
-          <TextField
-            margin="dense"
-            variant="filled"
-            fullWidth
-            label="Name"
-            required
-            helperText="Pick a unique name to identify the crew"
-            error={!newCrewNameIsValid}
-            value={newCrewName}
-            onChange={(e) => setNewCrewName(e.target.value)}
-          />
-        </DialogContent>
+        <form>
+          <DialogTitle>Add a new crew</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Each crew must pass certain requirements to be valid. A potential naming scheme could be Crew A, Crew B,
+              etc.
+            </DialogContentText>
+            <TextField
+              margin="dense"
+              variant="filled"
+              fullWidth
+              label="Name"
+              required
+              helperText="Pick a unique name to identify the crew"
+              autoFocus
+              error={!newCrewNameIsValid}
+              value={newCrewName}
+              onChange={(e) => setNewCrewName(e.target.value)}
+            />
+          </DialogContent>
 
-        <DialogActions>
-          <Button onClick={() => setShowNewDialog(false)} color="secondary">
-            Cancel
-          </Button>
-          <Button
-            disabled={!newCrewNameIsValid}
-            onClick={() => {
-              setCrews([...crews, { name: newCrewName, cadetIds: [] }]);
-              setShowNewDialog(false);
-            }}
-            color="secondary"
-            variant="contained"
-            startIcon={<AddIcon />}
-          >
-            Add
-          </Button>
-        </DialogActions>
+          <DialogActions>
+            <Button onClick={() => setShowNewDialog(false)} color="secondary">
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={!newCrewNameIsValid}
+              onClick={(e) => {
+                // Prevent page refresh
+                e.preventDefault();
+
+                setCrews([...crews, { name: newCrewName, cadetIds: [] }]);
+                setShowNewDialog(false);
+              }}
+              color="secondary"
+              variant="contained"
+              startIcon={<AddIcon />}
+            >
+              Add
+            </Button>
+          </DialogActions>
+        </form>
       </Dialog>
     </div>
   );
