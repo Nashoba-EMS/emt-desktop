@@ -20,6 +20,8 @@ import Tooltip from "@material-ui/core/Tooltip";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
+import Grid from "@material-ui/core/Grid";
+import CircularProgress from "@material-ui/core/CircularProgress";
 import Dialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -29,6 +31,7 @@ import AddIcon from "@material-ui/icons/Add";
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser";
 import PersonIcon from "@material-ui/icons/Person";
 import DeleteIcon from "@material-ui/icons/Delete";
+import SaveIcon from "@material-ui/icons/Save";
 
 import { ReduxState } from "../redux";
 import { Crew } from "../api/crews.d";
@@ -39,7 +42,9 @@ const drawerWidth = 256;
 const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
-      width: "100%",
+      width: "100%"
+    },
+    crewContainer: {
       display: "flex"
     },
     drawer: {
@@ -95,6 +100,16 @@ const useStyles = makeStyles((theme) =>
       justifyContent: "center",
       alignItems: "center",
       color: theme.palette.grey[600]
+    },
+    clearButton: {
+      marginRight: theme.spacing(1)
+    },
+    saveButton: {
+      marginRight: theme.spacing(2)
+    },
+    spinner: {
+      marginLeft: 2,
+      marginRight: 2
     }
   })
 );
@@ -137,6 +152,11 @@ const CrewPage: React.FC = () => {
   const crewAssignment = React.useMemo(() => crewAssignments.find((crew) => crew._id === id) ?? null, [
     crewAssignments,
     id
+  ]);
+
+  const isModified = React.useMemo(() => JSON.stringify(crews) !== JSON.stringify(crewAssignment?.crews ?? []), [
+    crewAssignment?.crews,
+    crews
   ]);
 
   /**
@@ -320,145 +340,184 @@ const CrewPage: React.FC = () => {
 
   return (
     <div className={classes.root}>
-      <DragDropContext onDragEnd={handleDrop}>
-        <div className={classes.content}>
-          {crewsWithCadets.map((crew) => (
-            <Paper key={crew.name} className={classes.crewPaper}>
-              <div className={classes.crewHeader}>
-                <Typography variant="h6">{crew.name}</Typography>
+      <div className={classes.crewContainer}>
+        <DragDropContext onDragEnd={handleDrop}>
+          <div className={classes.content}>
+            {crewsWithCadets.map((crew) => (
+              <Paper key={crew.name} className={classes.crewPaper}>
+                <div className={classes.crewHeader}>
+                  <Typography variant="h6">{crew.name}</Typography>
 
-                <IconButton
-                  disabled={isUpdatingCrew}
-                  onClick={() => setCrews(crews.filter((thisCrew) => thisCrew.name !== crew.name))}
-                >
-                  <DeleteIcon />
-                </IconButton>
+                  <IconButton
+                    disabled={isUpdatingCrew}
+                    onClick={() => setCrews(crews.filter((thisCrew) => thisCrew.name !== crew.name))}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </div>
+
+                <Paper variant="outlined" style={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
+                  <Droppable key={crew.name} droppableId={crew.name}>
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        style={{
+                          flexGrow: 1,
+                          backgroundColor: snapshot.isDraggingOver ? "#F5F5F5" : "transparent"
+                        }}
+                      >
+                        {crew.cadets.length > 0
+                          ? crew.cadets.map((cadet, index) => (
+                              <Draggable
+                                key={`${crew.name}-${cadet._id}`}
+                                draggableId={`${crew.name}-${cadet._id}`}
+                                index={index}
+                              >
+                                {(provided, snapshot) => (
+                                  <div
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    {...provided.dragHandleProps}
+                                  >
+                                    {renderCadet(cadet, crew.name, true)}
+                                  </div>
+                                )}
+                              </Draggable>
+                            ))
+                          : !snapshot.isUsingPlaceholder && (
+                              <div style={{ flexGrow: 1 }}>
+                                <ListItem button disabled>
+                                  <ListItemText primary="Drop a cadet here" />
+                                </ListItem>
+                              </div>
+                            )}
+
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                </Paper>
+
+                <Tooltip title="Every crew needs to have a crew chief">
+                  <FormControlLabel
+                    control={<Checkbox checked={crew.cadets.findIndex((cadet) => cadet.chief) >= 0} />}
+                    label="Has a crew chief"
+                  />
+                </Tooltip>
+                <Tooltip title="Every crew needs to have a certified cadet">
+                  <FormControlLabel
+                    control={<Checkbox checked={crew.cadets.findIndex((cadet) => cadet.certified) >= 0} />}
+                    label="Has a certified cadet"
+                  />
+                </Tooltip>
+              </Paper>
+            ))}
+
+            <CardActionArea
+              className={classes.crewPaperTransparent}
+              onClick={() => {
+                setShowNewDialog(true);
+                setNewCrewName("");
+              }}
+            >
+              <AddIcon />
+              <Typography>New Crew</Typography>
+            </CardActionArea>
+          </div>
+
+          <Drawer
+            className={classes.drawer}
+            variant="permanent"
+            anchor="right"
+            classes={{ paper: classes.drawerPaper }}
+          >
+            <Toolbar />
+
+            <div className={classes.drawerContainer}>
+              <div className={classes.drawerControls}>
+                <Typography variant="h6">Cadets</Typography>
+                <Typography className={classes.gray} variant="body2">
+                  Drag and drop cadets onto a crew to assign them. You can choose what cohort to view below:
+                </Typography>
               </div>
 
-              <Paper variant="outlined" style={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
-                <Droppable key={crew.name} droppableId={crew.name}>
-                  {(provided, snapshot) => (
-                    <div
-                      ref={provided.innerRef}
-                      style={{
-                        flexGrow: 1,
-                        backgroundColor: snapshot.isDraggingOver ? "#F5F5F5" : "transparent"
-                      }}
-                    >
-                      {crew.cadets.length > 0
-                        ? crew.cadets.map((cadet, index) => (
-                            <Draggable
-                              key={`${crew.name}-${cadet._id}`}
-                              draggableId={`${crew.name}-${cadet._id}`}
-                              index={index}
-                            >
-                              {(provided, snapshot) => (
-                                <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                                  {renderCadet(cadet, crew.name, true)}
-                                </div>
-                              )}
-                            </Draggable>
-                          ))
-                        : !snapshot.isUsingPlaceholder && (
-                            <div style={{ flexGrow: 1 }}>
-                              <ListItem button disabled>
-                                <ListItemText primary="Drop a cadet here" />
-                              </ListItem>
-                            </div>
-                          )}
+              <div>
+                <Tabs variant="fullWidth" value={tabIndex} onChange={(e, v) => setTabIndex(v)}>
+                  <Tab label="Both" style={{ minWidth: "auto" }} />
+                  <Tab label="A" style={{ minWidth: "auto" }} disabled />
+                  <Tab label="B" style={{ minWidth: "auto" }} disabled />
+                </Tabs>
 
-                      {provided.placeholder}
+                <Divider />
+              </div>
+
+              <TabPanel value={tabIndex} index={0}>
+                <Droppable droppableId="CADETS" isDropDisabled={true}>
+                  {(provided, snapshot) => (
+                    <div ref={provided.innerRef}>
+                      {eligibleCadets.map((cadet, index) => (
+                        <Draggable key={cadet._id} draggableId={cadet._id} index={index}>
+                          {(provided, snapshot) => (
+                            <React.Fragment>
+                              <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                                <Tooltip title="Drag and drop onto a crew">
+                                  {renderCadet(cadet, "CADETS", false, cadet.crews.length)}
+                                </Tooltip>
+                              </div>
+
+                              {snapshot.isDragging && renderCadet(cadet, "CADETS", false, cadet.crews.length)}
+                            </React.Fragment>
+                          )}
+                        </Draggable>
+                      ))}
+
+                      <div style={{ display: "none" }}>{provided.placeholder}</div>
                     </div>
                   )}
                 </Droppable>
-              </Paper>
-
-              <Tooltip title="Every crew needs to have a crew chief">
-                <FormControlLabel
-                  control={<Checkbox checked={crew.cadets.findIndex((cadet) => cadet.chief) >= 0} />}
-                  label="Has a crew chief"
-                />
-              </Tooltip>
-              <Tooltip title="Every crew needs to have a certified cadet">
-                <FormControlLabel
-                  control={<Checkbox checked={crew.cadets.findIndex((cadet) => cadet.certified) >= 0} />}
-                  label="Has a certified cadet"
-                />
-              </Tooltip>
-            </Paper>
-          ))}
-
-          <CardActionArea
-            className={classes.crewPaperTransparent}
-            onClick={() => {
-              setShowNewDialog(true);
-              setNewCrewName("");
-            }}
-          >
-            <AddIcon />
-            <Typography>New Crew</Typography>
-          </CardActionArea>
-        </div>
-
-        <Drawer className={classes.drawer} variant="permanent" anchor="right" classes={{ paper: classes.drawerPaper }}>
-          <Toolbar />
-
-          <div className={classes.drawerContainer}>
-            <div className={classes.drawerControls}>
-              <Typography variant="h6">Cadets</Typography>
-              <Typography className={classes.gray} variant="body2">
-                Drag and drop cadets onto a crew to assign them. You can choose what cohort to view below:
-              </Typography>
+              </TabPanel>
+              <TabPanel value={tabIndex} index={1}>
+                <ListItem button>
+                  <ListItemText primary="Cohort A" />
+                </ListItem>
+              </TabPanel>
+              <TabPanel value={tabIndex} index={2}>
+                <ListItem button>
+                  <ListItemText primary="Cohort B" />
+                </ListItem>
+              </TabPanel>
             </div>
+          </Drawer>
+        </DragDropContext>
+      </div>
 
-            <div>
-              <Tabs variant="fullWidth" value={tabIndex} onChange={(e, v) => setTabIndex(v)}>
-                <Tab label="Both" style={{ minWidth: "auto" }} />
-                <Tab label="A" style={{ minWidth: "auto" }} disabled />
-                <Tab label="B" style={{ minWidth: "auto" }} disabled />
-              </Tabs>
-
-              <Divider />
-            </div>
-
-            <TabPanel value={tabIndex} index={0}>
-              <Droppable droppableId="CADETS" isDropDisabled={true}>
-                {(provided, snapshot) => (
-                  <div ref={provided.innerRef}>
-                    {eligibleCadets.map((cadet, index) => (
-                      <Draggable key={cadet._id} draggableId={cadet._id} index={index}>
-                        {(provided, snapshot) => (
-                          <React.Fragment>
-                            <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                              <Tooltip title="Drag and drop onto a crew">
-                                {renderCadet(cadet, "CADETS", false, cadet.crews.length)}
-                              </Tooltip>
-                            </div>
-
-                            {snapshot.isDragging && renderCadet(cadet, "CADETS", false, cadet.crews.length)}
-                          </React.Fragment>
-                        )}
-                      </Draggable>
-                    ))}
-
-                    <div style={{ display: "none" }}>{provided.placeholder}</div>
-                  </div>
-                )}
-              </Droppable>
-            </TabPanel>
-            <TabPanel value={tabIndex} index={1}>
-              <ListItem button>
-                <ListItemText primary="Cohort A" />
-              </ListItem>
-            </TabPanel>
-            <TabPanel value={tabIndex} index={2}>
-              <ListItem button>
-                <ListItemText primary="Cohort B" />
-              </ListItem>
-            </TabPanel>
-          </div>
-        </Drawer>
-      </DragDropContext>
+      <Grid>
+        <Button
+          className={classes.clearButton}
+          color="secondary"
+          disabled={!isModified}
+          onClick={() => {
+            setCrews(crewAssignment?.crews ?? []);
+          }}
+        >
+          Clear Changes
+        </Button>
+        <Button
+          className={classes.saveButton}
+          variant="contained"
+          color="secondary"
+          startIcon={
+            isUpdatingCrew ? <CircularProgress className={classes.spinner} color="inherit" size={16} /> : <SaveIcon />
+          }
+          disabled={isUpdatingCrew}
+          onClick={() => console.log("TODO")}
+        >
+          Save Changes
+        </Button>
+        <IconButton onClick={() => console.log("TODO")}>
+          <DeleteIcon />
+        </IconButton>
+      </Grid>
 
       <Dialog open={showNewDialog} onClose={() => setShowNewDialog(false)}>
         <form>

@@ -419,7 +419,7 @@ const CadetPage: React.FC = () => {
             <Button
               className={classes.clearButton}
               color="secondary"
-              disabled={isEmpty(filteredModifications)}
+              disabled={isEmpty(filteredModifications) || isUpdatingUser}
               onClick={() => {
                 setRandomPassword("");
                 setModifications({});
@@ -438,12 +438,12 @@ const CadetPage: React.FC = () => {
                   <SaveIcon />
                 )
               }
-              disabled={!canSave}
+              disabled={!canSave || isUpdatingUser}
               onClick={dispatchUpdateUser}
             >
               Save Changes
             </Button>
-            <IconButton onClick={() => setShowDeleteDialog(true)}>
+            <IconButton disabled={isUpdatingUser} onClick={() => setShowDeleteDialog(true)}>
               <DeleteIcon />
             </IconButton>
 
