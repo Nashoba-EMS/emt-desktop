@@ -19,6 +19,7 @@ import Checkbox from "@material-ui/core/Checkbox";
 import Tooltip from "@material-ui/core/Tooltip";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
 import Dialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -27,6 +28,7 @@ import DialogActions from "@material-ui/core/DialogActions";
 import AddIcon from "@material-ui/icons/Add";
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser";
 import PersonIcon from "@material-ui/icons/Person";
+import DeleteIcon from "@material-ui/icons/Delete";
 
 import { ReduxState } from "../redux";
 import { Crew } from "../api/crews.d";
@@ -66,22 +68,24 @@ const useStyles = makeStyles((theme) =>
       justifyContent: "space-evenly"
     },
     crewPaper: {
-      marginLeft: theme.spacing(1),
-      marginRight: theme.spacing(1),
-      marginBottom: theme.spacing(2),
       width: 320,
+      margin: theme.spacing(1),
       padding: theme.spacing(2),
       display: "flex",
       flexDirection: "column"
     },
+    crewHeader: {
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center"
+    },
     crewMember: {},
     crewPaperTransparent: {
       width: 320,
-      minHeight: 198,
+      minHeight: 214,
       padding: theme.spacing(2),
-      marginLeft: theme.spacing(1),
-      marginRight: theme.spacing(1),
-      marginBottom: theme.spacing(2),
+      margin: theme.spacing(1),
       borderRadius: 6,
       borderStyle: "dashed",
       borderWidth: 2,
@@ -118,8 +122,9 @@ const CrewPage: React.FC = () => {
 
   const user = useSelector((state: ReduxState) => state.users.user);
   const token = useSelector((state: ReduxState) => state.users.token);
-  const crewAssignments = useSelector((state: ReduxState) => state.crews.crewAssignments);
   const cadets = useSelector((state: ReduxState) => state.users.cadets);
+  const crewAssignments = useSelector((state: ReduxState) => state.crews.crewAssignments);
+  const isUpdatingCrew = useSelector((state: ReduxState) => state.crews.isUpdatingCrew);
 
   const [showNewDialog, setShowNewDialog] = React.useState<boolean>(false);
   const [newCrewName, setNewCrewName] = React.useState<string>("");
@@ -319,7 +324,16 @@ const CrewPage: React.FC = () => {
         <div className={classes.content}>
           {crewsWithCadets.map((crew) => (
             <Paper key={crew.name} className={classes.crewPaper}>
-              <Typography variant="h6">{crew.name}</Typography>
+              <div className={classes.crewHeader}>
+                <Typography variant="h6">{crew.name}</Typography>
+
+                <IconButton
+                  disabled={isUpdatingCrew}
+                  onClick={() => setCrews(crews.filter((thisCrew) => thisCrew.name !== crew.name))}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </div>
 
               <Paper variant="outlined" style={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
                 <Droppable key={crew.name} droppableId={crew.name}>
