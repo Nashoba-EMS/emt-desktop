@@ -86,6 +86,11 @@ const useStyles = makeStyles((theme) =>
       justifyContent: "space-between",
       alignItems: "center"
     },
+    innerCrewPaper: {
+      flexGrow: 1,
+      display: "flex",
+      flexDirection: "column"
+    },
     crewMember: {},
     crewPaperTransparent: {
       width: 320,
@@ -332,7 +337,7 @@ const CrewPage: React.FC = () => {
   }, [crewAssignment]);
 
   const renderCadet = (cadet: UserWithoutPassword, source: string, divider = false, numberOfCrews = -1) => (
-    <ListItem button divider={divider} onDoubleClick={() => source && removeFromCrew(source, cadet)}>
+    <ListItem button divider={divider} onDoubleClick={() => user?.admin && source && removeFromCrew(source, cadet)}>
       <ListItemText
         classes={{ primary: numberOfCrews === 0 ? classes.boldyPrimaryCadetText : undefined }}
         primary={cadet.name}
@@ -341,7 +346,9 @@ const CrewPage: React.FC = () => {
             ? "Not assigned to a crew"
             : numberOfCrews > 0
             ? `Assigned to ${numberOfCrews} crews`
-            : "Double click to remove"
+            : user?.admin
+            ? "Double click to remove"
+            : ""
         }
       />
 
@@ -357,6 +364,28 @@ const CrewPage: React.FC = () => {
       )}
     </ListItem>
   );
+
+  if (!user?.admin) {
+    return (
+      <div className={classes.root}>
+        <div className={classes.crewContainer}>
+          <div className={classes.content}>
+            {crewsWithCadets.map((crew) => (
+              <Paper key={crew.name} className={classes.crewPaper}>
+                <div className={classes.crewHeader}>
+                  <Typography variant="h6">{crew.name}</Typography>
+                </div>
+
+                <Paper className={classes.innerCrewPaper} variant="outlined">
+                  {crew.cadets.map((cadet) => renderCadet(cadet, crew.name, true))}
+                </Paper>
+              </Paper>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={classes.root}>
@@ -376,7 +405,7 @@ const CrewPage: React.FC = () => {
                   </IconButton>
                 </div>
 
-                <Paper variant="outlined" style={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
+                <Paper className={classes.innerCrewPaper} variant="outlined">
                   <Droppable key={crew.name} droppableId={crew.name}>
                     {(provided, snapshot) => (
                       <div
