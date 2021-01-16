@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams } from "react-router";
+import { useHistory, useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
@@ -135,6 +135,7 @@ const CrewPage: React.FC = () => {
   const classes = useStyles();
 
   const { id } = useParams<{ id: string }>();
+  const history = useHistory();
 
   const user = useSelector((state: ReduxState) => state.users.user);
   const token = useSelector((state: ReduxState) => state.users.token);
@@ -537,6 +538,32 @@ const CrewPage: React.FC = () => {
           <DeleteIcon />
         </IconButton>
       </Grid>
+
+      <Dialog open={showDeleteDialog} onClose={() => setShowDeleteDialog(false)}>
+        <DialogTitle>Delete {crewAssignment?.name}?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Once deleted, you can create a new crew assignment with this name, but will have to start from scratch. Are
+            you sure you want to continue?
+          </DialogContentText>
+        </DialogContent>
+
+        <DialogActions>
+          <Button color="secondary" onClick={() => setShowDeleteDialog(false)}>
+            Cancel
+          </Button>
+          <Button
+            color="secondary"
+            variant="contained"
+            onClick={() => {
+              dispatchDeleteCrew();
+              history.push("/profile");
+            }}
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Dialog open={showNewDialog} onClose={() => setShowNewDialog(false)}>
         <form>
