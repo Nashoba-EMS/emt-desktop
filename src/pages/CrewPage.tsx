@@ -34,6 +34,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import SaveIcon from "@material-ui/icons/Save";
 
 import { ReduxState } from "../redux";
+import { _crews } from "../redux/actions";
 import { Crew } from "../api/crews.d";
 import { UserWithoutPassword } from "../api/users.d";
 
@@ -142,6 +143,7 @@ const CrewPage: React.FC = () => {
   const isUpdatingCrew = useSelector((state: ReduxState) => state.crews.isUpdatingCrew);
 
   const [showNewDialog, setShowNewDialog] = React.useState<boolean>(false);
+  const [showDeleteDialog, setShowDeleteDialog] = React.useState<boolean>(false);
   const [newCrewName, setNewCrewName] = React.useState<string>("");
   const [tabIndex, setTabIndex] = React.useState<number>(0);
   const [crews, setCrews] = React.useState<Crew[]>([]);
@@ -201,6 +203,23 @@ const CrewPage: React.FC = () => {
   const eligibleCadets = cadetsWithCrews
     .filter((cadet) => cadet.eligible)
     .sort((a, b) => (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
+
+  const dispatch = useDispatch();
+  const dispatchUpdateCrew = React.useCallback(
+    () =>
+      dispatch(
+        _crews.updateCrew(token, crewAssignment?._id ?? "", {
+          name: crewAssignment?.name ?? "",
+          crews
+        })
+      ),
+    [crewAssignment?._id, crewAssignment?.name, crews, dispatch, token]
+  );
+  const dispatchDeleteCrew = React.useCallback(() => dispatch(_crews.deleteCrew(token, crewAssignment?._id ?? "")), [
+    crewAssignment?._id,
+    dispatch,
+    token
+  ]);
 
   /**
    * Remove a cadet from a crew with the given name
@@ -509,12 +528,12 @@ const CrewPage: React.FC = () => {
           startIcon={
             isUpdatingCrew ? <CircularProgress className={classes.spinner} color="inherit" size={16} /> : <SaveIcon />
           }
-          disabled={isUpdatingCrew}
-          onClick={() => console.log("TODO")}
+          disabled={!isModified || isUpdatingCrew}
+          onClick={dispatchUpdateCrew}
         >
           Save Changes
         </Button>
-        <IconButton onClick={() => console.log("TODO")}>
+        <IconButton disabled={isUpdatingCrew} onClick={() => setShowDeleteDialog(true)}>
           <DeleteIcon />
         </IconButton>
       </Grid>
