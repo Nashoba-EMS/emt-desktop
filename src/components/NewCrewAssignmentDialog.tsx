@@ -15,6 +15,7 @@ import SaveIcon from "@material-ui/icons/Save";
 import { ReduxState } from "../redux";
 import { CrewAssignmentWithoutId } from "../api/crews.d";
 import { _crews } from "../redux/actions";
+import { ButtonBase } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -84,40 +85,49 @@ const NewCrewAssignmentDialog: React.FC<{ onClose(): void }> = ({ onClose }) => 
 
   return (
     <Dialog open={true} onClose={() => !isCreatingCrew && onClose()}>
-      <DialogTitle>Add a new crew assignment</DialogTitle>
-      <DialogContent>
-        <DialogContentText>A crew assignment lists which cadets are on each crew.</DialogContentText>
-        <Grid container direction="row" alignItems="flex-start">
-          <TextField
-            className={classes.leftField}
-            margin="dense"
-            variant="filled"
-            label="Name"
-            required
-            helperText="Pick a unique name to identify the crew assignment"
-            error={!nameIsValid}
-            value={crewPayload.name}
-            onChange={(e) => setCrewPayload({ ...crewPayload, name: e.target.value })}
-          />
-        </Grid>
-      </DialogContent>
+      <form>
+        <DialogTitle>Add a new crew assignment</DialogTitle>
+        <DialogContent>
+          <DialogContentText>A crew assignment lists which cadets are on each crew.</DialogContentText>
+          <Grid container direction="row" alignItems="flex-start">
+            <TextField
+              className={classes.leftField}
+              margin="dense"
+              variant="filled"
+              label="Name"
+              required
+              helperText="Pick a unique name to identify the crew assignment"
+              autoFocus
+              error={!nameIsValid}
+              value={crewPayload.name}
+              onChange={(e) => setCrewPayload({ ...crewPayload, name: e.target.value })}
+            />
+          </Grid>
+        </DialogContent>
 
-      <DialogActions>
-        <Button disabled={isCreatingCrew} onClick={onClose} color="secondary">
-          Cancel
-        </Button>
-        <Button
-          disabled={!canSave || isCreatingCrew}
-          onClick={dispatchCreateNewCrew}
-          color="secondary"
-          variant="contained"
-          startIcon={
-            isCreatingCrew ? <CircularProgress className={classes.spinner} color="inherit" size={16} /> : <SaveIcon />
-          }
-        >
-          Save
-        </Button>
-      </DialogActions>
+        <DialogActions>
+          <Button disabled={isCreatingCrew} onClick={onClose} color="secondary">
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            color="secondary"
+            variant="contained"
+            startIcon={
+              isCreatingCrew ? <CircularProgress className={classes.spinner} color="inherit" size={16} /> : <SaveIcon />
+            }
+            disabled={!canSave || isCreatingCrew}
+            onClick={(event) => {
+              // Prevent page refresh
+              event.preventDefault();
+
+              dispatchCreateNewCrew();
+            }}
+          >
+            Save
+          </Button>
+        </DialogActions>
+      </form>
     </Dialog>
   );
 };

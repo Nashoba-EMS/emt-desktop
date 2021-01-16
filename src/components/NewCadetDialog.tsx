@@ -159,6 +159,7 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
                 label="Name"
                 required
                 helperText="This should be their full name"
+                autoFocus
                 error={!nameIsValid}
                 value={userPayload.name}
                 onChange={(e) => setUserPayload({ ...userPayload, name: e.target.value })}
@@ -258,8 +259,6 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
               Cancel
             </Button>
             <Button
-              disabled={!canSave || isCreatingUser}
-              onClick={dispatchCreateNewUser}
               color="secondary"
               variant="contained"
               startIcon={
@@ -269,6 +268,8 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
                   <SaveIcon />
                 )
               }
+              disabled={!canSave || isCreatingUser}
+              onClick={dispatchCreateNewUser}
             >
               Save
             </Button>
