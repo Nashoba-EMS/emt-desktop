@@ -345,7 +345,7 @@ const CrewPage: React.FC = () => {
           numberOfCrews === 0
             ? "Not assigned to a crew"
             : numberOfCrews > 0
-            ? `Assigned to ${numberOfCrews} crews`
+            ? `Assigned to ${numberOfCrews} crew${numberOfCrews === 1 ? "" : "s"}`
             : user?.admin
             ? "Double click to remove"
             : ""
