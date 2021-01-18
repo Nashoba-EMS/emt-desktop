@@ -362,6 +362,7 @@ const ProfilePage: React.FC = () => {
                 setModifications({
                   ...modifications,
                   password: e.target.value === "" ? undefined : e.target.value,
+                  // Reset the admin password
                   adminPassword: e.target.value === "" ? undefined : ""
                 })
               }

@@ -465,6 +465,7 @@ const CadetPage: React.FC = () => {
                     setModifications({
                       ...modifications,
                       password: e.target.value === "" ? undefined : e.target.value,
+                      // Update the admin password
                       adminPassword: e.target.value === "" ? undefined : e.target.value
                     });
                   }}
