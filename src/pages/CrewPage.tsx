@@ -7,7 +7,6 @@ import Drawer from "@material-ui/core/Drawer";
 import Toolbar from "@material-ui/core/Toolbar";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
-import Box from "@material-ui/core/Box";
 import Divider from "@material-ui/core/Divider";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
@@ -120,22 +119,6 @@ const useStyles = makeStyles((theme) =>
   })
 );
 
-const TabPanel: React.FC<{ children?: React.ReactNode; index: any; value: any }> = (props) => {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box>{children}</Box>}
-    </div>
-  );
-};
-
 const CrewPage: React.FC = () => {
   const classes = useStyles();
 
@@ -207,7 +190,14 @@ const CrewPage: React.FC = () => {
    * Cadets who can be added to crews
    */
   const eligibleCadets = cadetsWithCrews
-    .filter((cadet) => cadet.eligible)
+    .filter(
+      (cadet) =>
+        cadet.eligible &&
+        (tabIndex === 0 ||
+          (tabIndex === 1 && cadet.cohort === "A") ||
+          (tabIndex === 2 && cadet.cohort === "B") ||
+          (tabIndex === 3 && cadet.cohort === "R"))
+    )
     .sort((a, b) => (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
 
   const dispatch = useDispatch();
@@ -493,48 +483,37 @@ const CrewPage: React.FC = () => {
               <div>
                 <Tabs variant="fullWidth" value={tabIndex} onChange={(e, v) => setTabIndex(v)}>
                   <Tab label="Both" style={{ minWidth: "auto" }} />
-                  <Tab label="A" style={{ minWidth: "auto" }} disabled />
-                  <Tab label="B" style={{ minWidth: "auto" }} disabled />
+                  <Tab label="A" style={{ minWidth: "auto" }} />
+                  <Tab label="B" style={{ minWidth: "auto" }} />
+                  <Tab label="R" style={{ minWidth: "auto" }} />
                 </Tabs>
 
                 <Divider />
               </div>
 
-              <TabPanel value={tabIndex} index={0}>
-                <Droppable droppableId="CADETS" isDropDisabled={true}>
-                  {(provided, snapshot) => (
-                    <div ref={provided.innerRef}>
-                      {eligibleCadets.map((cadet, index) => (
-                        <Draggable key={cadet._id} draggableId={cadet._id} index={index}>
-                          {(provided, snapshot) => (
-                            <React.Fragment>
-                              <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                                <Tooltip title="Drag and drop onto a crew">
-                                  {renderCadet(cadet, "CADETS", false, cadet.crews.length)}
-                                </Tooltip>
-                              </div>
+              <Droppable droppableId="CADETS" isDropDisabled={true}>
+                {(provided, snapshot) => (
+                  <div ref={provided.innerRef}>
+                    {eligibleCadets.map((cadet, index) => (
+                      <Draggable key={cadet._id} draggableId={cadet._id} index={index}>
+                        {(provided, snapshot) => (
+                          <React.Fragment>
+                            <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                              <Tooltip title="Drag and drop onto a crew">
+                                {renderCadet(cadet, "CADETS", false, cadet.crews.length)}
+                              </Tooltip>
+                            </div>
 
-                              {snapshot.isDragging && renderCadet(cadet, "CADETS", false, cadet.crews.length)}
-                            </React.Fragment>
-                          )}
-                        </Draggable>
-                      ))}
+                            {snapshot.isDragging && renderCadet(cadet, "CADETS", false, cadet.crews.length)}
+                          </React.Fragment>
+                        )}
+                      </Draggable>
+                    ))}
 
-                      <div style={{ display: "none" }}>{provided.placeholder}</div>
-                    </div>
-                  )}
-                </Droppable>
-              </TabPanel>
-              <TabPanel value={tabIndex} index={1}>
-                <ListItem button>
-                  <ListItemText primary="Cohort A" />
-                </ListItem>
-              </TabPanel>
-              <TabPanel value={tabIndex} index={2}>
-                <ListItem button>
-                  <ListItemText primary="Cohort B" />
-                </ListItem>
-              </TabPanel>
+                    <div style={{ display: "none" }}>{provided.placeholder}</div>
+                  </div>
+                )}
+              </Droppable>
             </div>
           </Drawer>
         </DragDropContext>
