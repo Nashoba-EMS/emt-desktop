@@ -10,6 +10,10 @@ import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import Checkbox from "@material-ui/core/Checkbox";
+import FormControl from "@material-ui/core/FormControl";
+import InputLabel from "@material-ui/core/InputLabel";
+import Select from "@material-ui/core/Select";
+import MenuItem from "@material-ui/core/MenuItem";
 import Button from "@material-ui/core/Button";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import SaveIcon from "@material-ui/icons/Save";
@@ -52,6 +56,10 @@ const useStyles = makeStyles((theme) =>
       alignItems: "center"
     },
     control: {
+      marginRight: theme.spacing(2)
+    },
+    selectControl: {
+      minWidth: 194,
       marginRight: theme.spacing(2)
     },
     checkboxContainer: {
@@ -100,6 +108,10 @@ const ProfilePage: React.FC = () => {
   const visibleChief = React.useMemo(() => modifications.chief ?? user?.chief ?? false, [
     modifications.chief,
     user?.chief
+  ]);
+  const visibleCohort = React.useMemo(() => modifications.cohort ?? user?.cohort ?? "", [
+    modifications.cohort,
+    user?.cohort
   ]);
   const visiblePassword = React.useMemo(() => modifications.password ?? "", [modifications.password]);
 
@@ -284,6 +296,41 @@ const ProfilePage: React.FC = () => {
               <FormControlLabel control={<Checkbox checked={user?.admin ?? false} disabled />} label="Admin" />
               <FormHelperText>Has admin controls</FormHelperText>
             </FormGroup>
+          </Grid>
+        </Paper>
+
+        <Paper className={classes.paperAuthorized}>
+          <div className={classes.heading}>
+            <Typography className={classes.headingText} variant="h6">
+              Nashoba Cohort
+            </Typography>
+          </div>
+          <Typography className={classes.subheading} variant="subtitle2">
+            This cohort is used to determine your availability for crew assignments. Please select which cohort you are
+            in for classes, A, B, remote, etc.
+          </Typography>
+
+          <Grid className={classes.controls}>
+            <FormControl className={classes.selectControl} variant="outlined">
+              <InputLabel>Cohort</InputLabel>
+              <Select
+                label="Cohort"
+                value={visibleCohort}
+                onChange={(e) =>
+                  setModifications({
+                    ...modifications,
+                    cohort: e.target.value === user?.cohort ? undefined : (e.target.value as "" | "A" | "B" | "R")
+                  })
+                }
+              >
+                <MenuItem value="">
+                  <em>Select One</em>
+                </MenuItem>
+                <MenuItem value="A">In Person: A</MenuItem>
+                <MenuItem value="B">In Person: B</MenuItem>
+                <MenuItem value="R">Remote</MenuItem>
+              </Select>
+            </FormControl>
           </Grid>
         </Paper>
 

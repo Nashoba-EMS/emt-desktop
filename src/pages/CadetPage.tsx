@@ -11,6 +11,10 @@ import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import Checkbox from "@material-ui/core/Checkbox";
+import FormControl from "@material-ui/core/FormControl";
+import InputLabel from "@material-ui/core/InputLabel";
+import Select from "@material-ui/core/Select";
+import MenuItem from "@material-ui/core/MenuItem";
 import Button from "@material-ui/core/Button";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import IconButton from "@material-ui/core/IconButton";
@@ -61,6 +65,10 @@ const useStyles = makeStyles((theme) =>
       alignItems: "center"
     },
     control: {
+      marginRight: theme.spacing(2)
+    },
+    selectControl: {
+      minWidth: 194,
       marginRight: theme.spacing(2)
     },
     checkboxContainer: {
@@ -143,6 +151,10 @@ const CadetPage: React.FC = () => {
   const visibleAdmin = React.useMemo(() => modifications.admin ?? cadet?.admin ?? false, [
     cadet?.admin,
     modifications.admin
+  ]);
+  const visibleCohort = React.useMemo(() => modifications.cohort ?? cadet?.cohort ?? "", [
+    cadet?.cohort,
+    modifications.cohort
   ]);
   const visiblePassword = React.useMemo(() => modifications.password ?? "", [modifications.password]);
 
@@ -357,6 +369,56 @@ const CadetPage: React.FC = () => {
               />
               <FormHelperText>Has admin controls</FormHelperText>
             </FormGroup>
+          </Grid>
+        </Paper>
+
+        <Paper className={classes.paperAuthorized}>
+          <div className={classes.heading}>
+            <Typography className={classes.headingText} variant="h6">
+              Nashoba Cohort
+            </Typography>
+          </div>
+          <Typography className={classes.subheading} variant="subtitle2">
+            This cohort is used to determine your availability for crew assignments. Please select which cohort you are
+            in for classes, A, B, remote, etc.
+          </Typography>
+
+          <Grid className={classes.controls}>
+            {user?.admin === true ? (
+              <FormControl className={classes.selectControl} variant="outlined">
+                <InputLabel>Cohort</InputLabel>
+                <Select
+                  label="Cohort"
+                  value={visibleCohort}
+                  onChange={(e) =>
+                    setModifications({
+                      ...modifications,
+                      cohort: e.target.value === cadet?.cohort ? undefined : (e.target.value as "" | "A" | "B" | "R")
+                    })
+                  }
+                >
+                  <MenuItem value="">
+                    <em>Select One</em>
+                  </MenuItem>
+                  <MenuItem value="A">In Person: A</MenuItem>
+                  <MenuItem value="B">In Person: B</MenuItem>
+                  <MenuItem value="R">Remote</MenuItem>
+                </Select>
+              </FormControl>
+            ) : (
+              <div className={classes.keyValuePair}>
+                <Typography className={classes.label}>Cohort</Typography>
+                <Typography className={classes.value}>
+                  {visibleCohort === "A"
+                    ? "In Person: A"
+                    : visibleCohort === "B"
+                    ? "In Person: B"
+                    : visibleCohort === "R"
+                    ? "Remote"
+                    : "Not Provided"}
+                </Typography>
+              </div>
+            )}
           </Grid>
         </Paper>
 

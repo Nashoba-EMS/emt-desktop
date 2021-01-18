@@ -8,6 +8,10 @@ import Button from "@material-ui/core/Button";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import Checkbox from "@material-ui/core/Checkbox";
+import FormControl from "@material-ui/core/FormControl";
+import InputLabel from "@material-ui/core/InputLabel";
+import Select from "@material-ui/core/Select";
+import MenuItem from "@material-ui/core/MenuItem";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -43,6 +47,10 @@ const useStyles = makeStyles((theme) =>
     spinner: {
       marginLeft: 2,
       marginRight: 2
+    },
+    selectControl: {
+      minWidth: 194,
+      marginRight: theme.spacing(2)
     }
   })
 );
@@ -66,6 +74,7 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
     eligible: false,
     certified: false,
     chief: false,
+    cohort: "",
     availability: []
   });
 
@@ -201,6 +210,29 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
                 value={userPayload.password}
                 onChange={(e) => setUserPayload({ ...userPayload, password: e.target.value })}
               />
+            </Grid>
+            <Grid container direction="row" alignItems="flex-start">
+              <FormControl className={classes.selectControl} variant="filled">
+                <InputLabel>Cohort</InputLabel>
+                <Select
+                  label="Cohort"
+                  value={userPayload.cohort}
+                  onChange={(e) =>
+                    setUserPayload({
+                      ...userPayload,
+                      cohort: e.target.value as "" | "A" | "B" | "R"
+                    })
+                  }
+                >
+                  <MenuItem value="">
+                    <em>Select One</em>
+                  </MenuItem>
+                  <MenuItem value="A">In Person: A</MenuItem>
+                  <MenuItem value="B">In Person: B</MenuItem>
+                  <MenuItem value="R">Remote</MenuItem>
+                </Select>
+                <FormHelperText>Used to help assign crews</FormHelperText>
+              </FormControl>
             </Grid>
             <Grid container direction="row" alignItems="flex-start">
               <Grid className={classes.leftField}>

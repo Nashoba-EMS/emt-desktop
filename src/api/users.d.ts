@@ -8,6 +8,7 @@ export interface User {
   eligible: boolean;
   certified: boolean;
   chief: boolean;
+  cohort: "" | "A" | "B" | "R";
   availability: UserAvailability[];
 }
 
