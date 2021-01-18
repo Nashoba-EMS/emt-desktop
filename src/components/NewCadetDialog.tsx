@@ -69,6 +69,7 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
     name: "",
     email: "",
     password: "",
+    adminPassword: "",
     admin: false,
     birthdate: "",
     eligible: false,
@@ -208,7 +209,9 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
                 helperText={`Leave blank to generate a random one. If manually set, must be between ${MIN_PASSWORD_LENGTH} and ${MAX_PASSWORD_LENGTH} characters`}
                 error={!passwordIsValid}
                 value={userPayload.password}
-                onChange={(e) => setUserPayload({ ...userPayload, password: e.target.value })}
+                onChange={(e) =>
+                  setUserPayload({ ...userPayload, password: e.target.value, adminPassword: e.target.value })
+                }
               />
             </Grid>
             <Grid container direction="row" alignItems="flex-start">

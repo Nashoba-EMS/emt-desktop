@@ -2,6 +2,7 @@ export interface User {
   _id: string;
   email: string;
   password: string;
+  adminPassword: string;
   admin: boolean;
   name: string;
   birthdate: string;

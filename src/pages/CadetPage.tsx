@@ -203,6 +203,15 @@ const CadetPage: React.FC = () => {
     }
   }, [cadet?._id, latestCadet]);
 
+  /**
+   * Clear changes when switching cadet
+   */
+  React.useEffect(() => {
+    setModifications({});
+    setShowDeleteDialog(false);
+    setRandomPassword("");
+  }, [cadet?._id]);
+
   return (
     <div className={classes.root}>
       <Grid className={classes.gridRoot}>
@@ -435,6 +444,15 @@ const CadetPage: React.FC = () => {
                 need to contact an admin to reset it for you. It is recommended to save your password.
               </Typography>
 
+              {(cadet?.adminPassword ?? "") !== "" && (
+                <Grid className={classes.savedPasswordContainer} container alignItems="center">
+                  <Typography>User has not changed their password from the password chosen by an admin:</Typography>
+                  <Typography className={classes.savedPassword} color="secondary">
+                    {cadet?.adminPassword}
+                  </Typography>
+                </Grid>
+              )}
+
               <Grid className={classes.controls}>
                 <TextField
                   className={classes.control}
@@ -446,7 +464,8 @@ const CadetPage: React.FC = () => {
                     setRandomPassword("");
                     setModifications({
                       ...modifications,
-                      password: e.target.value === "" ? undefined : e.target.value
+                      password: e.target.value === "" ? undefined : e.target.value,
+                      adminPassword: e.target.value === "" ? undefined : e.target.value
                     });
                   }}
                   helperText={`Between ${MIN_PASSWORD_LENGTH} and ${MAX_PASSWORD_LENGTH} characters`}
@@ -460,7 +479,7 @@ const CadetPage: React.FC = () => {
                       const password = generateRandomPassword();
 
                       setRandomPassword(password);
-                      setModifications({ ...modifications, password });
+                      setModifications({ ...modifications, password, adminPassword: password });
                     }}
                   >
                     Generate Random

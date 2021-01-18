@@ -345,6 +345,12 @@ const ProfilePage: React.FC = () => {
             to contact an admin to reset it for you. It is recommended to save your password.
           </Typography>
 
+          {(user?.adminPassword ?? "") !== "" && (
+            <Typography variant="subtitle2" color="error">
+              You are still using the password chosen by the admin! Please change your password below:
+            </Typography>
+          )}
+
           <Grid className={classes.controls}>
             <TextField
               className={classes.control}
@@ -353,7 +359,11 @@ const ProfilePage: React.FC = () => {
               error={!passwordIsValid}
               value={visiblePassword}
               onChange={(e) =>
-                setModifications({ ...modifications, password: e.target.value === "" ? undefined : e.target.value })
+                setModifications({
+                  ...modifications,
+                  password: e.target.value === "" ? undefined : e.target.value,
+                  adminPassword: e.target.value === "" ? undefined : ""
+                })
               }
               helperText={`Between ${MIN_PASSWORD_LENGTH} and ${MAX_PASSWORD_LENGTH} characters`}
             />
