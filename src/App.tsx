@@ -30,6 +30,7 @@ import { _crews, _users } from "./redux/actions";
 import ProfilePage from "./pages/ProfilePage";
 import CrewPage from "./pages/CrewPage";
 import CadetPage from "./pages/CadetPage";
+import PrintCrewPage from "./pages/PrintCrewPage";
 import { NewCadetDialog, NewCrewAssignmentDialog } from "./components";
 
 const drawerWidth = 256;
@@ -86,6 +87,7 @@ const useStyles = makeStyles((theme) =>
 const App: React.FC = () => {
   const classes = useStyles();
   const location = useLocation();
+  const visibleCrewId = location.pathname.includes("/crew/") ? location.pathname.split("/crew/")[1] : undefined;
 
   const user = useSelector((state: ReduxState) => state.users.user);
   const token = useSelector((state: ReduxState) => state.users.token);
@@ -328,9 +330,11 @@ const App: React.FC = () => {
         />
       </Snackbar>
 
-      <Box className={classes.printBox} display="none" displayPrint="block">
-        Print Only (Hide on screen only)
-      </Box>
+      {visibleCrewId !== undefined && (
+        <Box className={classes.printBox} display="none" displayPrint="block">
+          <PrintCrewPage id={visibleCrewId} />
+        </Box>
+      )}
     </div>
   );
 };

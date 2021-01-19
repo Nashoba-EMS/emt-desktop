@@ -327,7 +327,12 @@ const CrewPage: React.FC = () => {
   }, [crewAssignment]);
 
   const renderCadet = (cadet: UserWithoutPassword, source: string, divider = false, numberOfCrews = -1) => (
-    <ListItem button divider={divider} onDoubleClick={() => user?.admin && source && removeFromCrew(source, cadet)}>
+    <ListItem
+      key={cadet._id}
+      button
+      divider={divider}
+      onDoubleClick={() => user?.admin && source && removeFromCrew(source, cadet)}
+    >
       <ListItemText
         classes={{ primary: numberOfCrews === 0 ? classes.boldyPrimaryCadetText : undefined }}
         primary={cadet.name}
