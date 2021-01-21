@@ -71,7 +71,7 @@ const LoginPage: React.FC = () => {
   return (
     <React.Fragment>
       <Grid container spacing={0} direction="row" alignItems="center" justify="center" style={{ minHeight: "100vh" }}>
-        <Grid item xs={3}>
+        <Grid item xs={8} sm={6} md={4}>
           <Paper className={classes.loginForm} variant="outlined">
             <form>
               <Typography variant="h6">Nashoba EMS Scheduler</Typography>
