@@ -31,6 +31,7 @@ import VerifiedUserIcon from "@material-ui/icons/VerifiedUser";
 import PersonIcon from "@material-ui/icons/Person";
 import DeleteIcon from "@material-ui/icons/Delete";
 import SaveIcon from "@material-ui/icons/Save";
+import FileCopyIcon from "@material-ui/icons/FileCopy";
 
 import { ReduxState } from "../redux";
 import { _crews } from "../redux/actions";
@@ -240,7 +241,16 @@ const CrewPage: React.FC = () => {
     dispatch,
     token
   ]);
-  const dispatchCloneCrew = React.useCallback(() => console.log("TODO"), []);
+  const dispatchCloneCrew = React.useCallback(
+    () =>
+      dispatch(
+        _crews.createCrew(token, {
+          name: `${crewAssignment?.name ?? ""} (copy)`,
+          crews: crewAssignment?.crews ?? []
+        })
+      ),
+    [crewAssignment?.crews, crewAssignment?.name, dispatch, token]
+  );
 
   /**
    * Remove a cadet from a crew with the given name
@@ -718,6 +728,40 @@ const CrewPage: React.FC = () => {
               }}
             >
               Save
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+
+      <Dialog open={showCloneDialog} onClose={() => setShowCloneDialog(false)}>
+        <form>
+          <DialogTitle>Clone Crew Assignment</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Cloning a crew assignment will create a new crew assignment with the same crews. This is useful if you are
+              making the next crew assignment based off the current one. The cloned crew assignment will appear in the
+              list on the left once it is created.
+            </DialogContentText>
+          </DialogContent>
+
+          <DialogActions>
+            <Button onClick={() => setShowCloneDialog(false)} color="secondary">
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              color="secondary"
+              variant="contained"
+              startIcon={<FileCopyIcon />}
+              onClick={(event) => {
+                // Prevent page refresh
+                event.preventDefault();
+
+                dispatchCloneCrew();
+                setShowCloneDialog(false);
+              }}
+            >
+              Clone
             </Button>
           </DialogActions>
         </form>
