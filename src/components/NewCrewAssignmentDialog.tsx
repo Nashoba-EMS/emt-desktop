@@ -32,6 +32,9 @@ const useStyles = makeStyles((theme) =>
       flex: 1,
       marginLeft: theme.spacing(1)
     },
+    flexField: {
+      flex: 1
+    },
     boldText: {
       marginLeft: theme.spacing(1),
       fontWeight: "bold"
@@ -88,10 +91,13 @@ const NewCrewAssignmentDialog: React.FC<{ onClose(): void }> = ({ onClose }) => 
       <form>
         <DialogTitle>Add a new crew assignment</DialogTitle>
         <DialogContent>
-          <DialogContentText>A crew assignment lists which cadets are on each crew.</DialogContentText>
+          <DialogContentText>
+            A crew assignment lists which cadets are on each crew. It is recommended to pick a name that is meaningful
+            and unique.
+          </DialogContentText>
           <Grid container direction="row" alignItems="flex-start">
             <TextField
-              className={classes.leftField}
+              className={classes.flexField}
               margin="dense"
               variant="filled"
               label="Name"

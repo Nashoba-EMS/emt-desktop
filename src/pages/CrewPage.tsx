@@ -115,6 +115,9 @@ const useStyles = makeStyles((theme) =>
     spinner: {
       marginLeft: 2,
       marginRight: 2
+    },
+    flexField: {
+      flex: 1
     }
   })
 );
@@ -133,6 +136,9 @@ const CrewPage: React.FC = () => {
 
   const [showNewDialog, setShowNewDialog] = React.useState<boolean>(false);
   const [showDeleteDialog, setShowDeleteDialog] = React.useState<boolean>(false);
+  const [showRenameDialog, setShowRenameDialog] = React.useState<boolean>(false);
+  const [showCloneDialog, setShowCloneDialog] = React.useState<boolean>(false);
+  const [newAssignmentName, setNewAssignmentName] = React.useState<string>("");
   const [newCrewName, setNewCrewName] = React.useState<string>("");
   const [tabIndex, setTabIndex] = React.useState<number>(0);
   const [crews, setCrews] = React.useState<Crew[]>([]);
@@ -200,22 +206,41 @@ const CrewPage: React.FC = () => {
     )
     .sort((a, b) => (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
 
+  /**
+   * Check that the new assignment name is valid
+   */
+  const newAssignmentNameIsValid = React.useMemo(
+    () =>
+      newAssignmentName.trim().length > 1 &&
+      crewAssignments.findIndex((crew) => crew.name.toLowerCase() === newAssignmentName.toLowerCase()) === -1,
+    [crewAssignments, newAssignmentName]
+  );
+
   const dispatch = useDispatch();
   const dispatchUpdateCrew = React.useCallback(
     () =>
       dispatch(
         _crews.updateCrew(token, crewAssignment?._id ?? "", {
-          name: crewAssignment?.name ?? "",
           crews
         })
       ),
-    [crewAssignment?._id, crewAssignment?.name, crews, dispatch, token]
+    [crewAssignment?._id, crews, dispatch, token]
+  );
+  const dispatchRenameCrewAssignment = React.useCallback(
+    () =>
+      dispatch(
+        _crews.updateCrew(token, crewAssignment?._id ?? "", {
+          name: newAssignmentName
+        })
+      ),
+    [crewAssignment?._id, dispatch, newAssignmentName, token]
   );
   const dispatchDeleteCrew = React.useCallback(() => dispatch(_crews.deleteCrew(token, crewAssignment?._id ?? "")), [
     crewAssignment?._id,
     dispatch,
     token
   ]);
+  const dispatchCloneCrew = React.useCallback(() => console.log("TODO"), []);
 
   /**
    * Remove a cadet from a crew with the given name
@@ -479,7 +504,36 @@ const CrewPage: React.FC = () => {
 
             <div className={classes.drawerContainer}>
               <div className={classes.drawerControls}>
-                <Typography variant="h6">Cadets</Typography>
+                <Typography variant="h6">{crewAssignment?.name}</Typography>
+                <Typography className={classes.gray} variant="body2">
+                  You can save the assignments as a PDF by using the print dialog or cadets can view the assignments
+                  through the website.
+                </Typography>
+
+                <Grid container direction="row" alignItems="center" justify="space-between">
+                  <Button
+                    color="secondary"
+                    disabled={isUpdatingCrew}
+                    onClick={() => {
+                      setShowRenameDialog(true);
+                      setNewAssignmentName("");
+                    }}
+                  >
+                    Rename
+                  </Button>
+                  <Button color="secondary" disabled={isUpdatingCrew} onClick={() => setShowCloneDialog(true)}>
+                    Clone
+                  </Button>
+                  <Button color="secondary" disabled={isUpdatingCrew} onClick={() => window.print()}>
+                    Print
+                  </Button>
+                </Grid>
+              </div>
+
+              <Divider />
+
+              <div className={classes.drawerControls}>
+                <Typography variant="h6">Eligible Cadets</Typography>
                 <Typography className={classes.gray} variant="body2">
                   Drag and drop cadets onto a crew to assign them. You can choose what cohort to view below:
                 </Typography>
@@ -619,6 +673,51 @@ const CrewPage: React.FC = () => {
               startIcon={<AddIcon />}
             >
               Add
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+
+      <Dialog open={showRenameDialog} onClose={() => setShowRenameDialog(false)}>
+        <form>
+          <DialogTitle>Rename Crew Assignment</DialogTitle>
+          <DialogContent>
+            <DialogContentText>It is recommended to pick a name that is meaningful and unique.</DialogContentText>
+            <Grid container direction="row" alignItems="flex-start">
+              <TextField
+                className={classes.flexField}
+                margin="dense"
+                variant="filled"
+                label="Name"
+                required
+                helperText="Pick a unique name to identify the crew assignment"
+                autoFocus
+                error={!newAssignmentNameIsValid}
+                value={newAssignmentName}
+                onChange={(e) => setNewAssignmentName(e.target.value)}
+              />
+            </Grid>
+          </DialogContent>
+
+          <DialogActions>
+            <Button onClick={() => setShowRenameDialog(false)} color="secondary">
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              color="secondary"
+              variant="contained"
+              startIcon={<SaveIcon />}
+              disabled={!newAssignmentNameIsValid}
+              onClick={(event) => {
+                // Prevent page refresh
+                event.preventDefault();
+
+                dispatchRenameCrewAssignment();
+                setShowRenameDialog(false);
+              }}
+            >
+              Save
             </Button>
           </DialogActions>
         </form>
