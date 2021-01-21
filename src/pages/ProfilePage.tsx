@@ -162,6 +162,7 @@ const ProfilePage: React.FC = () => {
   React.useEffect(() => {
     if (latestCadet?._id === user?._id) {
       setModifications({});
+      setConfirmPassword("");
     }
   }, [latestCadet, user?._id]);
 
@@ -355,6 +356,7 @@ const ProfilePage: React.FC = () => {
             <TextField
               className={classes.control}
               variant="outlined"
+              type="password"
               label="New Password"
               error={!passwordIsValid}
               value={visiblePassword}
@@ -371,6 +373,7 @@ const ProfilePage: React.FC = () => {
             <TextField
               className={classes.control}
               variant="outlined"
+              type="password"
               label="Confirm New Password"
               error={!confirmPasswordIsValid}
               value={confirmPassword}
