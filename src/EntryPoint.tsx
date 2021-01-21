@@ -25,7 +25,7 @@ const EntryPoint: React.FC = () => {
       if (!authenticated) {
         history.push("/login");
       } else if (location.pathname === "/login") {
-        history.push("/login");
+        history.push("/");
       }
     }
   }, [authenticated, dispatchLoadUser, history, loadedUser, location.pathname]);
