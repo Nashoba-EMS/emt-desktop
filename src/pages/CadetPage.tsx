@@ -483,7 +483,7 @@ const CadetPage: React.FC = () => {
                       setModifications({ ...modifications, password, adminPassword: password });
                     }}
                   >
-                    Generate Random
+                    Suggest Random
                   </Button>
 
                   {randomPassword !== "" && (
