@@ -147,11 +147,38 @@ const CrewPage: React.FC = () => {
   /**
    * The current viewed crew assignment
    */
-  const crewAssignment = React.useMemo(() => crewAssignments.find((crew) => crew._id === id) ?? null, [
+  const rawCrewAssignment = React.useMemo(() => crewAssignments.find((crew) => crew._id === id) ?? null, [
     crewAssignments,
     id
   ]);
+  /**
+   * Remove missing candidates
+   */
+  const crewAssignment = React.useMemo(
+    () =>
+      rawCrewAssignment !== null
+        ? {
+            ...rawCrewAssignment,
+            crews: rawCrewAssignment.crews.map((crew) => ({
+              ...crew,
+              cadetIds: crew.cadetIds.filter((cadetId) => cadets.findIndex((cadet) => cadet._id === cadetId) >= 0)
+            }))
+          }
+        : null,
+    [cadets, rawCrewAssignment]
+  );
 
+  /**
+   * Detect crew assignments with invalid cadets
+   */
+  const neededCleaning = React.useMemo(
+    () => JSON.stringify(rawCrewAssignment?.crews ?? []) !== JSON.stringify(crewAssignment?.crews ?? []),
+    [crewAssignment?.crews, rawCrewAssignment?.crews]
+  );
+
+  /**
+   * Check if there have been any changes to save
+   */
   const isModified = React.useMemo(() => JSON.stringify(crews) !== JSON.stringify(crewAssignment?.crews ?? []), [
     crewAssignment?.crews,
     crews
@@ -606,7 +633,7 @@ const CrewPage: React.FC = () => {
           startIcon={
             isUpdatingCrew ? <CircularProgress className={classes.spinner} color="inherit" size={16} /> : <SaveIcon />
           }
-          disabled={!isModified || isUpdatingCrew}
+          disabled={!(isModified || neededCleaning) || isUpdatingCrew}
           onClick={dispatchUpdateCrew}
         >
           Save Changes
