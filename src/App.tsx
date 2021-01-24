@@ -98,6 +98,7 @@ const App: React.FC = () => {
   const token = useSelector((state: ReduxState) => state.users.token);
   const cadets = useSelector((state: ReduxState) => state.users.cadets);
   const crewAssignments = useSelector((state: ReduxState) => state.crews.crewAssignments);
+  const schedules = useSelector((state: ReduxState) => state.schedules.schedules);
 
   const isGettingAllUsers = useSelector((state: ReduxState) => state.users.isGettingAllUsers);
   const getAllUsersErrorMessage = useSelector((state: ReduxState) => state.users.getAllUsersErrorMessage);
@@ -119,6 +120,7 @@ const App: React.FC = () => {
 
   const [errorMessage, setErrorMessage] = React.useState<string>("");
   const [crewsOpen, setCrewsOpen] = React.useState<boolean>(true);
+  const [schedulesOpen, setSchedulesOpen] = React.useState<boolean>(true);
   const [cadetsOpen, setCadetsOpen] = React.useState<boolean>(true);
   const [showCreateNewCrew, setShowCreateNewCrew] = React.useState<boolean>(false);
   const [showCreateNewSchedule, setShowCreateNewSchedule] = React.useState<boolean>(false);
@@ -242,6 +244,58 @@ const App: React.FC = () => {
             <ListItemText primary="Profile" />
             {user?.admin && <Chip label="Admin" color="secondary" size="small" />}
           </ListItem>
+
+          <Divider />
+
+          <ListItem button onClick={() => setSchedulesOpen(!schedulesOpen)}>
+            <ListItemIcon>
+              <FolderIcon />
+            </ListItemIcon>
+            <ListItemText primary="Schedules" />
+            {schedulesOpen ? <ExpandLess /> : <ExpandMore />}
+          </ListItem>
+          <Collapse in={schedulesOpen} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              {schedules
+                .sort((a, b) => (a.name > b.name ? 1 : a.name < b.name ? -1 : 0))
+                .map((schedule) => {
+                  const path = `/schedule/${schedule._id}`;
+                  const selected = location.pathname === path;
+
+                  return (
+                    <ListItem
+                      key={schedule._id}
+                      className={classes.nested}
+                      button
+                      component={Link}
+                      to={path}
+                      selected={selected}
+                    >
+                      <ListItemText
+                        primary={schedule.name}
+                        secondary={`${schedule.startDate} to ${schedule.endDate}`}
+                      />
+                    </ListItem>
+                  );
+                })}
+
+              {user?.admin && (
+                <ListItem
+                  className={classes.nested}
+                  button
+                  disabled={isGettingAllSchedules}
+                  onClick={() => setShowCreateNewSchedule(true)}
+                >
+                  <ListItemIcon>
+                    <AddCircleIcon color="secondary" />
+                  </ListItemIcon>
+                  <ListItemText primary="New Schedule" />
+                </ListItem>
+              )}
+            </List>
+          </Collapse>
+
+          <Divider />
 
           <ListItem button onClick={() => setCrewsOpen(!crewsOpen)}>
             <ListItemIcon>
