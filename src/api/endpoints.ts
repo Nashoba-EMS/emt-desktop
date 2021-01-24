@@ -26,6 +26,9 @@ export const ENDPOINT = {
   },
   crews: {
     manage: endpoint(PostMethod, "crews/manage")
+  },
+  schedules: {
+    manage: endpoint(PostMethod, "schedules/manage")
   }
 };
 

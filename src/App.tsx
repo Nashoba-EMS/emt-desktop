@@ -26,12 +26,14 @@ import FolderIcon from "@material-ui/icons/Folder";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 
 import { ReduxState } from "./redux";
-import { _crews, _users } from "./redux/actions";
+import { _crews, _schedules, _users } from "./redux/actions";
 import ProfilePage from "./pages/ProfilePage";
 import CrewPage from "./pages/CrewPage";
+import SchedulePage from "./pages/SchedulePage";
 import CadetPage from "./pages/CadetPage";
 import PrintCrewPage from "./pages/PrintCrewPage";
-import { NewCadetDialog, NewCrewAssignmentDialog } from "./components";
+import PrintSchedulePage from "./pages/PrintSchedulePage";
+import { NewCadetDialog, NewCrewAssignmentDialog, NewScheduleDialog } from "./components";
 
 const drawerWidth = 256;
 
@@ -88,6 +90,9 @@ const App: React.FC = () => {
   const classes = useStyles();
   const location = useLocation();
   const visibleCrewId = location.pathname.includes("/crew/") ? location.pathname.split("/crew/")[1] : undefined;
+  const visibleScheduleId = location.pathname.includes("/schedule/")
+    ? location.pathname.split("/schedule/")[1]
+    : undefined;
 
   const user = useSelector((state: ReduxState) => state.users.user);
   const token = useSelector((state: ReduxState) => state.users.token);
@@ -106,10 +111,17 @@ const App: React.FC = () => {
   const updateCrewErrorMessage = useSelector((state: ReduxState) => state.crews.updateCrewErrorMessage);
   const deleteCrewErrorMessage = useSelector((state: ReduxState) => state.crews.deleteCrewErrorMessage);
 
+  const isGettingAllSchedules = useSelector((state: ReduxState) => state.schedules.isGettingAllSchedules);
+  const getAllSchedulesErrorMessage = useSelector((state: ReduxState) => state.schedules.getAllSchedulesErrorMessage);
+  const createScheduleErrorMessage = useSelector((state: ReduxState) => state.schedules.createScheduleErrorMessage);
+  const updateScheduleErrorMessage = useSelector((state: ReduxState) => state.schedules.updateScheduleErrorMessage);
+  const deleteScheduleErrorMessage = useSelector((state: ReduxState) => state.schedules.deleteScheduleErrorMessage);
+
   const [errorMessage, setErrorMessage] = React.useState<string>("");
   const [crewsOpen, setCrewsOpen] = React.useState<boolean>(true);
   const [cadetsOpen, setCadetsOpen] = React.useState<boolean>(true);
   const [showCreateNewCrew, setShowCreateNewCrew] = React.useState<boolean>(false);
+  const [showCreateNewSchedule, setShowCreateNewSchedule] = React.useState<boolean>(false);
   const [showCreateNewUser, setShowCreateNewUser] = React.useState<boolean>(false);
 
   const dispatch = useDispatch();
@@ -166,6 +178,22 @@ const App: React.FC = () => {
   React.useEffect(() => {
     if (deleteCrewErrorMessage) setErrorMessage(deleteCrewErrorMessage);
   }, [deleteCrewErrorMessage]);
+
+  React.useEffect(() => {
+    if (getAllSchedulesErrorMessage) setErrorMessage(getAllSchedulesErrorMessage);
+  }, [getAllSchedulesErrorMessage]);
+
+  React.useEffect(() => {
+    if (createScheduleErrorMessage) setErrorMessage(createScheduleErrorMessage);
+  }, [createScheduleErrorMessage]);
+
+  React.useEffect(() => {
+    if (updateScheduleErrorMessage) setErrorMessage(updateScheduleErrorMessage);
+  }, [updateScheduleErrorMessage]);
+
+  React.useEffect(() => {
+    if (deleteScheduleErrorMessage) setErrorMessage(deleteScheduleErrorMessage);
+  }, [deleteScheduleErrorMessage]);
 
   return (
     <div className={classes.root}>
@@ -306,12 +334,14 @@ const App: React.FC = () => {
           <Redirect exact from="/" to="/profile" />
           <Route path="/profile" component={ProfilePage} />
           <Route path="/crew/:id" component={CrewPage} />
+          <Route path="/schedule/:id" component={SchedulePage} />
           <Route path="/cadet/:id" component={CadetPage} />
         </Switch>
       </main>
 
       {showCreateNewUser && <NewCadetDialog onClose={() => setShowCreateNewUser(false)} />}
       {showCreateNewCrew && <NewCrewAssignmentDialog onClose={() => setShowCreateNewCrew(false)} />}
+      {showCreateNewSchedule && <NewScheduleDialog onClose={() => setShowCreateNewSchedule(false)} />}
 
       <Snackbar
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
@@ -333,6 +363,12 @@ const App: React.FC = () => {
       {visibleCrewId !== undefined && (
         <Box className={classes.printBox} display="none" displayPrint="block">
           <PrintCrewPage id={visibleCrewId} />
+        </Box>
+      )}
+
+      {visibleScheduleId !== undefined && (
+        <Box className={classes.printBox} display="none" displayPrint="block">
+          <PrintSchedulePage id={visibleScheduleId} />
         </Box>
       )}
     </div>
