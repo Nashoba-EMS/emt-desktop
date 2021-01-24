@@ -128,6 +128,10 @@ const App: React.FC = () => {
   const dispatchLogout = React.useCallback(() => dispatch(_users.logout()), [dispatch]);
   const dispatchGetAllUsers = React.useCallback(() => dispatch(_users.getAllUsers(token)), [dispatch, token]);
   const dispatchGetAllCrews = React.useCallback(() => dispatch(_crews.getAllCrews(token)), [dispatch, token]);
+  const dispatchGetAllSchedules = React.useCallback(() => dispatch(_schedules.getAllSchedules(token)), [
+    dispatch,
+    token
+  ]);
 
   /**
    * Refresh critical data
@@ -143,6 +147,12 @@ const App: React.FC = () => {
       dispatchGetAllCrews();
     }
   }, [dispatchGetAllCrews, token]);
+
+  React.useEffect(() => {
+    if (token) {
+      dispatchGetAllSchedules();
+    }
+  }, [dispatchGetAllSchedules, token]);
 
   /**
    * Display error message
