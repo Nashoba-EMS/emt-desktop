@@ -33,7 +33,7 @@ import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "../constants/users";
 import { _users } from "../redux/actions";
 import { isEmpty } from "../utils/empty";
 import { getAge } from "../utils/datetime";
-import { generateRandomPassword } from "../utils/password";
+import { generateRandomAlphanumeric } from "../utils/password";
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -477,7 +477,7 @@ const CadetPage: React.FC = () => {
                     variant="contained"
                     color="secondary"
                     onClick={() => {
-                      const password = generateRandomPassword();
+                      const password = generateRandomAlphanumeric();
 
                       setRandomPassword(password);
                       setModifications({ ...modifications, password, adminPassword: password });
