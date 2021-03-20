@@ -97,6 +97,10 @@ const ProfilePage: React.FC = () => {
     modifications.birthdate,
     user?.birthdate
   ]);
+  const visibleGender = React.useMemo(() => modifications.gender ?? user?.gender ?? "", [
+    modifications.gender,
+    user?.gender
+  ]);
   const visibleEligible = React.useMemo(() => modifications.eligible ?? user?.eligible ?? false, [
     modifications.eligible,
     user?.eligible
@@ -186,7 +190,10 @@ const ProfilePage: React.FC = () => {
               error={!nameIsValid}
               value={visibleName}
               onChange={(e) =>
-                setModifications({ ...modifications, name: e.target.value === user?.name ? undefined : e.target.value })
+                setModifications((prevModifications) => ({
+                  ...prevModifications,
+                  name: e.target.value === user?.name ? undefined : e.target.value
+                }))
               }
             />
             <TextField
@@ -197,10 +204,10 @@ const ProfilePage: React.FC = () => {
               error={!emailIsValid}
               value={visibleEmail}
               onChange={(e) =>
-                setModifications({
-                  ...modifications,
+                setModifications((prevModifications) => ({
+                  ...prevModifications,
                   email: e.target.value.toLowerCase() === user?.email ? undefined : e.target.value.toLowerCase()
-                })
+                }))
               }
             />
           </Grid>
@@ -228,10 +235,10 @@ const ProfilePage: React.FC = () => {
               error={!birthdateIsValid}
               value={visibleBirthdate}
               onChange={(e) =>
-                setModifications({
-                  ...modifications,
+                setModifications((prevModifications) => ({
+                  ...prevModifications,
                   birthdate: e.target.value === user?.birthdate ? undefined : e.target.value
-                })
+                }))
               }
               helperText="Format: YYYY-MM-DD"
             />
@@ -239,6 +246,29 @@ const ProfilePage: React.FC = () => {
               <FormControlLabel control={<Checkbox checked={age >= 18} disabled />} label="Over 18" />
               <FormHelperText>Based on birthdate</FormHelperText>
             </FormGroup>
+            {user?.admin && (
+              <FormControl className={classes.control} variant="outlined">
+                <InputLabel>Gender</InputLabel>
+                <Select
+                  label="Cohort"
+                  value={visibleGender}
+                  onChange={(e) =>
+                    setModifications((prevModifications) => ({
+                      ...prevModifications,
+                      gender: e.target.value === user?.gender ? undefined : (e.target.value as User["gender"])
+                    }))
+                  }
+                >
+                  <MenuItem value="" disabled>
+                    <em>Select One</em>
+                  </MenuItem>
+                  <MenuItem value="M">Male</MenuItem>
+                  <MenuItem value="F">Female</MenuItem>
+                  <MenuItem value="O">Other</MenuItem>
+                </Select>
+                <FormHelperText>Used to balance crews</FormHelperText>
+              </FormControl>
+            )}
             <FormGroup className={classes.checkboxContainer}>
               <FormControlLabel
                 control={
@@ -246,10 +276,10 @@ const ProfilePage: React.FC = () => {
                     checked={visibleEligible}
                     disabled={!user?.admin}
                     onChange={(e) =>
-                      setModifications({
-                        ...modifications,
+                      setModifications((prevModifications) => ({
+                        ...prevModifications,
                         eligible: e.target.checked === user?.eligible ? undefined : e.target.checked
-                      })
+                      }))
                     }
                   />
                 }
@@ -264,10 +294,10 @@ const ProfilePage: React.FC = () => {
                     checked={visibleCertified}
                     disabled={!user?.admin}
                     onChange={(e) =>
-                      setModifications({
-                        ...modifications,
+                      setModifications((prevModifications) => ({
+                        ...prevModifications,
                         certified: e.target.checked === user?.certified ? undefined : e.target.checked
-                      })
+                      }))
                     }
                   />
                 }
@@ -282,10 +312,10 @@ const ProfilePage: React.FC = () => {
                     checked={visibleChief}
                     disabled={!user?.admin}
                     onChange={(e) =>
-                      setModifications({
-                        ...modifications,
+                      setModifications((prevModifications) => ({
+                        ...prevModifications,
                         chief: e.target.checked === user?.chief ? undefined : e.target.checked
-                      })
+                      }))
                     }
                   />
                 }
@@ -318,13 +348,13 @@ const ProfilePage: React.FC = () => {
                 label="Cohort"
                 value={visibleCohort}
                 onChange={(e) =>
-                  setModifications({
-                    ...modifications,
-                    cohort: e.target.value === user?.cohort ? undefined : (e.target.value as "" | "A" | "B" | "R")
-                  })
+                  setModifications((prevModifications) => ({
+                    ...prevModifications,
+                    cohort: e.target.value === user?.cohort ? undefined : (e.target.value as User["cohort"])
+                  }))
                 }
               >
-                <MenuItem value="">
+                <MenuItem value="" disabled>
                   <em>Select One</em>
                 </MenuItem>
                 <MenuItem value="A">In Person: A</MenuItem>
@@ -361,12 +391,12 @@ const ProfilePage: React.FC = () => {
               error={!passwordIsValid}
               value={visiblePassword}
               onChange={(e) =>
-                setModifications({
-                  ...modifications,
+                setModifications((prevModifications) => ({
+                  ...prevModifications,
                   password: e.target.value === "" ? undefined : e.target.value,
                   // Reset the admin password
                   adminPassword: e.target.value === "" ? undefined : ""
-                })
+                }))
               }
               helperText={`Between ${MIN_PASSWORD_LENGTH} and ${MAX_PASSWORD_LENGTH} characters`}
             />

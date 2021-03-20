@@ -21,7 +21,7 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import SaveIcon from "@material-ui/icons/Save";
 
 import { ReduxState } from "../redux";
-import { UserOptionalPassword, UserWithoutId } from "../api/users.d";
+import { User, UserOptionalPassword, UserWithoutId } from "../api/users.d";
 import { _users } from "../redux/actions";
 import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "../constants/users";
 
@@ -72,6 +72,7 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
     adminPassword: "",
     admin: false,
     birthdate: "",
+    gender: "",
     eligible: false,
     certified: false,
     chief: false,
@@ -89,6 +90,7 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
   const birthdateIsValid = React.useMemo(() => userPayload.birthdate.match(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/), [
     userPayload.birthdate
   ]);
+  const genderIsValid = React.useMemo(() => userPayload.gender !== "", [userPayload.gender]);
   const passwordIsValid = React.useMemo(
     () =>
       userPayload.password === "" ||
@@ -96,12 +98,10 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
     [userPayload.password]
   );
 
-  const canSave = React.useMemo(() => nameIsValid && emailIsValid && birthdateIsValid && passwordIsValid, [
-    birthdateIsValid,
-    emailIsValid,
-    nameIsValid,
-    passwordIsValid
-  ]);
+  const canSave = React.useMemo(
+    () => nameIsValid && emailIsValid && birthdateIsValid && genderIsValid && passwordIsValid,
+    [birthdateIsValid, emailIsValid, genderIsValid, nameIsValid, passwordIsValid]
+  );
 
   const dispatch = useDispatch();
   const dispatchCreateNewUser = React.useCallback(
@@ -168,11 +168,16 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
                 variant="filled"
                 label="Name"
                 required
-                helperText="This should be their full name"
+                helperText="This should be their first and last name"
                 autoFocus
                 error={!nameIsValid}
                 value={userPayload.name}
-                onChange={(e) => setUserPayload({ ...userPayload, name: e.target.value })}
+                onChange={(e) =>
+                  setUserPayload((prevUserPayload) => ({
+                    ...prevUserPayload,
+                    name: e.target.value
+                  }))
+                }
               />
               <TextField
                 className={classes.rightField}
@@ -184,7 +189,12 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
                 helperText="Must use the format: YYYY-MM-DD"
                 error={!birthdateIsValid}
                 value={userPayload.birthdate}
-                onChange={(e) => setUserPayload({ ...userPayload, birthdate: e.target.value })}
+                onChange={(e) =>
+                  setUserPayload((prevUserPayload) => ({
+                    ...prevUserPayload,
+                    birthdate: e.target.value
+                  }))
+                }
               />
             </Grid>
             <Grid container direction="row" alignItems="flex-start">
@@ -198,7 +208,12 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
                 helperText="Recommended to pick school email for consistency"
                 error={!emailIsValid}
                 value={userPayload.email}
-                onChange={(e) => setUserPayload({ ...userPayload, email: e.target.value.toLowerCase() })}
+                onChange={(e) =>
+                  setUserPayload((prevUserPayload) => ({
+                    ...prevUserPayload,
+                    email: e.target.value.toLowerCase()
+                  }))
+                }
               />
               <TextField
                 className={classes.rightField}
@@ -210,24 +225,49 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
                 error={!passwordIsValid}
                 value={userPayload.password}
                 onChange={(e) =>
-                  setUserPayload({ ...userPayload, password: e.target.value, adminPassword: e.target.value })
+                  setUserPayload((prevUserPayload) => ({
+                    ...prevUserPayload,
+                    password: e.target.value,
+                    adminPassword: e.target.value
+                  }))
                 }
               />
             </Grid>
             <Grid container direction="row" alignItems="flex-start">
-              <FormControl className={classes.selectControl} variant="filled">
+              <FormControl className={classes.leftField} variant="filled" error={!genderIsValid}>
+                <InputLabel>Gender</InputLabel>
+                <Select
+                  label="Cohort"
+                  value={userPayload.gender}
+                  onChange={(e) =>
+                    setUserPayload((prevUserPayload) => ({
+                      ...prevUserPayload,
+                      gender: e.target.value as User["gender"]
+                    }))
+                  }
+                >
+                  <MenuItem value="" disabled>
+                    <em>Select One</em>
+                  </MenuItem>
+                  <MenuItem value="M">Male</MenuItem>
+                  <MenuItem value="F">Female</MenuItem>
+                  <MenuItem value="O">Other</MenuItem>
+                </Select>
+                <FormHelperText>Used to balance crews</FormHelperText>
+              </FormControl>
+              <FormControl className={classes.rightField} variant="filled">
                 <InputLabel>Cohort</InputLabel>
                 <Select
                   label="Cohort"
                   value={userPayload.cohort}
                   onChange={(e) =>
-                    setUserPayload({
-                      ...userPayload,
-                      cohort: e.target.value as "" | "A" | "B" | "R"
-                    })
+                    setUserPayload((prevUserPayload) => ({
+                      ...prevUserPayload,
+                      cohort: e.target.value as User["cohort"]
+                    }))
                   }
                 >
-                  <MenuItem value="">
+                  <MenuItem value="" disabled>
                     <em>Select One</em>
                   </MenuItem>
                   <MenuItem value="A">In Person: A</MenuItem>
@@ -243,7 +283,12 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
                   control={
                     <Checkbox
                       checked={userPayload.eligible}
-                      onChange={(e) => setUserPayload({ ...userPayload, eligible: e.target.checked })}
+                      onChange={(e) =>
+                        setUserPayload((prevUserPayload) => ({
+                          ...prevUserPayload,
+                          eligible: e.target.checked
+                        }))
+                      }
                     />
                   }
                   label="Eligible"
@@ -255,7 +300,12 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
                   control={
                     <Checkbox
                       checked={userPayload.certified}
-                      onChange={(e) => setUserPayload({ ...userPayload, certified: e.target.checked })}
+                      onChange={(e) =>
+                        setUserPayload((prevUserPayload) => ({
+                          ...prevUserPayload,
+                          certified: e.target.checked
+                        }))
+                      }
                     />
                   }
                   label="Certified"
@@ -267,7 +317,12 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
                   control={
                     <Checkbox
                       checked={userPayload.chief}
-                      onChange={(e) => setUserPayload({ ...userPayload, chief: e.target.checked })}
+                      onChange={(e) =>
+                        setUserPayload((prevUserPayload) => ({
+                          ...prevUserPayload,
+                          chief: e.target.checked
+                        }))
+                      }
                     />
                   }
                   label="Chief"
@@ -279,7 +334,12 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
                   control={
                     <Checkbox
                       checked={userPayload.admin}
-                      onChange={(e) => setUserPayload({ ...userPayload, admin: e.target.checked })}
+                      onChange={(e) =>
+                        setUserPayload((prevUserPayload) => ({
+                          ...prevUserPayload,
+                          admin: e.target.checked
+                        }))
+                      }
                     />
                   }
                   label="Admin"

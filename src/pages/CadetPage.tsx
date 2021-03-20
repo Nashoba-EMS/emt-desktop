@@ -136,6 +136,10 @@ const CadetPage: React.FC = () => {
     cadet?.birthdate,
     modifications.birthdate
   ]);
+  const visibleGender = React.useMemo(() => modifications.gender ?? cadet?.gender ?? "", [
+    cadet?.gender,
+    modifications.gender
+  ]);
   const visibleEligible = React.useMemo(() => modifications.eligible ?? cadet?.eligible ?? false, [
     cadet?.eligible,
     modifications.eligible
@@ -232,10 +236,10 @@ const CadetPage: React.FC = () => {
                 error={!nameIsValid}
                 value={visibleName}
                 onChange={(e) =>
-                  setModifications({
-                    ...modifications,
+                  setModifications((prevModifications) => ({
+                    ...prevModifications,
                     name: e.target.value === cadet?.name ? undefined : e.target.value
-                  })
+                  }))
                 }
               />
             ) : (
@@ -252,10 +256,10 @@ const CadetPage: React.FC = () => {
                 error={!emailIsValid}
                 value={visibleEmail}
                 onChange={(e) =>
-                  setModifications({
-                    ...modifications,
+                  setModifications((prevModifications) => ({
+                    ...prevModifications,
                     email: e.target.value.toLowerCase() === cadet?.email ? undefined : e.target.value.toLowerCase()
-                  })
+                  }))
                 }
               />
             ) : (
@@ -281,7 +285,7 @@ const CadetPage: React.FC = () => {
           </Typography>
 
           <Grid className={classes.controls}>
-            {user?.admin === true ? (
+            {user?.admin ? (
               <TextField
                 className={classes.control}
                 variant="outlined"
@@ -289,10 +293,10 @@ const CadetPage: React.FC = () => {
                 error={!birthdateIsValid}
                 value={visibleBirthdate}
                 onChange={(e) =>
-                  setModifications({
-                    ...modifications,
+                  setModifications((prevModifications) => ({
+                    ...prevModifications,
                     birthdate: e.target.value === cadet?.birthdate ? undefined : e.target.value
-                  })
+                  }))
                 }
                 helperText="Format: YYYY-MM-DD"
               />
@@ -306,6 +310,29 @@ const CadetPage: React.FC = () => {
               <FormControlLabel control={<Checkbox checked={age >= 18} disabled />} label="Over 18" />
               <FormHelperText>Based on birthdate</FormHelperText>
             </FormGroup>
+            {user?.admin && (
+              <FormControl className={classes.control} variant="outlined">
+                <InputLabel>Gender</InputLabel>
+                <Select
+                  label="Cohort"
+                  value={visibleGender}
+                  onChange={(e) =>
+                    setModifications((prevModifications) => ({
+                      ...prevModifications,
+                      gender: e.target.value === cadet?.gender ? undefined : (e.target.value as User["gender"])
+                    }))
+                  }
+                >
+                  <MenuItem value="" disabled>
+                    <em>Select One</em>
+                  </MenuItem>
+                  <MenuItem value="M">Male</MenuItem>
+                  <MenuItem value="F">Female</MenuItem>
+                  <MenuItem value="O">Other</MenuItem>
+                </Select>
+                <FormHelperText>Used to balance crews</FormHelperText>
+              </FormControl>
+            )}
             <FormGroup className={classes.checkboxContainer}>
               <FormControlLabel
                 control={
@@ -313,10 +340,10 @@ const CadetPage: React.FC = () => {
                     checked={visibleEligible}
                     disabled={!user?.admin}
                     onChange={(e) =>
-                      setModifications({
-                        ...modifications,
+                      setModifications((prevModifications) => ({
+                        ...prevModifications,
                         eligible: e.target.checked === cadet?.eligible ? undefined : e.target.checked
-                      })
+                      }))
                     }
                   />
                 }
@@ -331,10 +358,10 @@ const CadetPage: React.FC = () => {
                     checked={visibleCertified}
                     disabled={!user?.admin}
                     onChange={(e) =>
-                      setModifications({
-                        ...modifications,
+                      setModifications((prevModifications) => ({
+                        ...prevModifications,
                         certified: e.target.checked === cadet?.certified ? undefined : e.target.checked
-                      })
+                      }))
                     }
                   />
                 }
@@ -349,10 +376,10 @@ const CadetPage: React.FC = () => {
                     checked={visibleChief}
                     disabled={!user?.admin}
                     onChange={(e) =>
-                      setModifications({
-                        ...modifications,
+                      setModifications((prevModifications) => ({
+                        ...prevModifications,
                         chief: e.target.checked === cadet?.chief ? undefined : e.target.checked
-                      })
+                      }))
                     }
                   />
                 }
@@ -367,10 +394,10 @@ const CadetPage: React.FC = () => {
                     checked={visibleAdmin}
                     disabled={!user?.admin}
                     onChange={(e) =>
-                      setModifications({
-                        ...modifications,
+                      setModifications((prevModifications) => ({
+                        ...prevModifications,
                         admin: e.target.checked === cadet?.admin ? undefined : e.target.checked
-                      })
+                      }))
                     }
                   />
                 }
@@ -400,13 +427,13 @@ const CadetPage: React.FC = () => {
                   label="Cohort"
                   value={visibleCohort}
                   onChange={(e) =>
-                    setModifications({
-                      ...modifications,
-                      cohort: e.target.value === cadet?.cohort ? undefined : (e.target.value as "" | "A" | "B" | "R")
-                    })
+                    setModifications((prevModifications) => ({
+                      ...prevModifications,
+                      cohort: e.target.value === cadet?.cohort ? undefined : (e.target.value as User["cohort"])
+                    }))
                   }
                 >
-                  <MenuItem value="">
+                  <MenuItem value="" disabled>
                     <em>Select One</em>
                   </MenuItem>
                   <MenuItem value="A">In Person: A</MenuItem>
@@ -462,12 +489,12 @@ const CadetPage: React.FC = () => {
                   value={visiblePassword}
                   onChange={(e) => {
                     setRandomPassword("");
-                    setModifications({
-                      ...modifications,
+                    setModifications((prevModifications) => ({
+                      ...prevModifications,
                       password: e.target.value === "" ? undefined : e.target.value,
                       // Update the admin password
                       adminPassword: e.target.value === "" ? undefined : e.target.value
-                    });
+                    }));
                   }}
                   helperText={`Between ${MIN_PASSWORD_LENGTH} and ${MAX_PASSWORD_LENGTH} characters`}
                 />
@@ -480,7 +507,11 @@ const CadetPage: React.FC = () => {
                       const password = generateRandomAlphanumeric();
 
                       setRandomPassword(password);
-                      setModifications({ ...modifications, password, adminPassword: password });
+                      setModifications((prevModifications) => ({
+                        ...prevModifications,
+                        password,
+                        adminPassword: password
+                      }));
                     }}
                   >
                     Suggest Random

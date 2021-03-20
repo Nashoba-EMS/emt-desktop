@@ -6,6 +6,7 @@ export interface User {
   admin: boolean;
   name: string;
   birthdate: string;
+  gender: "" | "M" | "F" | "O";
   eligible: boolean;
   certified: boolean;
   chief: boolean;
