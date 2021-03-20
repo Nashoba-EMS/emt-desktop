@@ -1,6 +1,8 @@
 import React from "react";
+import moment from "moment";
 import { useDispatch, useSelector } from "react-redux";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
+import { KeyboardDatePicker } from "@material-ui/pickers";
 import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
 import Chip from "@material-ui/core/Chip";
@@ -53,7 +55,7 @@ const useStyles = makeStyles((theme) =>
       marginTop: theme.spacing(2),
       display: "flex",
       flexDirection: "row",
-      alignItems: "center"
+      alignItems: "flex-start"
     },
     control: {
       marginRight: theme.spacing(2)
@@ -149,6 +151,10 @@ const ProfilePage: React.FC = () => {
     [birthdateIsValid, confirmPasswordIsValid, emailIsValid, filteredModifications, nameIsValid, passwordIsValid]
   );
 
+  const birthdateAsMoment = React.useMemo(() => (visibleBirthdate !== "" ? moment(visibleBirthdate) : null), [
+    visibleBirthdate
+  ]);
+
   const age = React.useMemo(() => (birthdateIsValid ? getAge(visibleBirthdate) : 0), [
     birthdateIsValid,
     visibleBirthdate
@@ -227,20 +233,26 @@ const ProfilePage: React.FC = () => {
           </Typography>
 
           <Grid className={classes.controls}>
-            <TextField
+            <KeyboardDatePicker
               className={classes.control}
-              variant="outlined"
-              label="Birth Date"
+              disableToolbar
               disabled={!user?.admin}
+              variant="inline"
+              inputVariant="outlined"
+              format="MM/DD/YYYY"
+              id="birthdate-picker"
+              label="Birth Date"
+              helperText="Format: MM/DD/YYYY"
               error={!birthdateIsValid}
-              value={visibleBirthdate}
-              onChange={(e) =>
+              value={birthdateAsMoment}
+              onChange={(date) => {
+                const newBirthdate = date?.isValid() ? date.format("YYYY-MM-DD") : "";
+
                 setModifications((prevModifications) => ({
                   ...prevModifications,
-                  birthdate: e.target.value === user?.birthdate ? undefined : e.target.value
-                }))
-              }
-              helperText="Format: YYYY-MM-DD"
+                  birthdate: newBirthdate === user?.birthdate ? undefined : newBirthdate
+                }));
+              }}
             />
             <FormGroup className={classes.checkboxContainer}>
               <FormControlLabel control={<Checkbox checked={age >= 18} disabled />} label="Over 18" />

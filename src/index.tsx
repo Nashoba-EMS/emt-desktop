@@ -2,6 +2,8 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter } from "react-router-dom";
 import { MuiThemeProvider } from "@material-ui/core/styles";
+import { MuiPickersUtilsProvider } from "@material-ui/pickers";
+import MomentUtils from "@date-io/moment";
 import { Provider } from "react-redux";
 
 import themes from "./themes";
@@ -12,12 +14,14 @@ import EntryPoint from "./EntryPoint";
 
 ReactDOM.render(
   <MuiThemeProvider theme={themes}>
-    <CssBaseline />
-    <Provider store={store}>
-      <BrowserRouter>
-        <EntryPoint />
-      </BrowserRouter>
-    </Provider>
+    <MuiPickersUtilsProvider utils={MomentUtils}>
+      <CssBaseline />
+      <Provider store={store}>
+        <BrowserRouter>
+          <EntryPoint />
+        </BrowserRouter>
+      </Provider>
+    </MuiPickersUtilsProvider>
   </MuiThemeProvider>,
   document.getElementById("root")
 );

@@ -1,6 +1,8 @@
 import React from "react";
+import moment from "moment";
 import { useSelector, useDispatch } from "react-redux";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
+import { KeyboardDatePicker } from "@material-ui/pickers";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
 import TextField from "@material-ui/core/TextField";
@@ -98,6 +100,10 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
     [userPayload.password]
   );
 
+  const birthdateAsMoment = React.useMemo(() => (userPayload.birthdate !== "" ? moment(userPayload.birthdate) : null), [
+    userPayload.birthdate
+  ]);
+
   const canSave = React.useMemo(
     () => nameIsValid && emailIsValid && birthdateIsValid && genderIsValid && passwordIsValid,
     [birthdateIsValid, emailIsValid, genderIsValid, nameIsValid, passwordIsValid]
@@ -179,22 +185,24 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
                   }))
                 }
               />
-              <TextField
+              <KeyboardDatePicker
                 className={classes.rightField}
+                disableToolbar
+                variant="inline"
+                inputVariant="filled"
+                format="MM/DD/YYYY"
                 margin="dense"
-                variant="filled"
-                fullWidth
-                label="Birthdate"
-                required
-                helperText="Must use the format: YYYY-MM-DD"
+                id="birthdate-picker"
+                label="Birth Date"
+                helperText="Format: MM/DD/YYYY"
                 error={!birthdateIsValid}
-                value={userPayload.birthdate}
-                onChange={(e) =>
+                value={birthdateAsMoment}
+                onChange={(date) => {
                   setUserPayload((prevUserPayload) => ({
                     ...prevUserPayload,
-                    birthdate: e.target.value
-                  }))
-                }
+                    birthdate: date?.isValid() ? date.format("YYYY-MM-DD") : ""
+                  }));
+                }}
               />
             </Grid>
             <Grid container direction="row" alignItems="flex-start">

@@ -1,7 +1,9 @@
 import React from "react";
+import moment from "moment";
 import { useHistory, useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
+import { KeyboardDatePicker } from "@material-ui/pickers";
 import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
 import Chip from "@material-ui/core/Chip";
@@ -62,7 +64,7 @@ const useStyles = makeStyles((theme) =>
       marginTop: theme.spacing(2),
       display: "flex",
       flexDirection: "row",
-      alignItems: "center"
+      alignItems: "flex-start"
     },
     control: {
       marginRight: theme.spacing(2)
@@ -182,6 +184,10 @@ const CadetPage: React.FC = () => {
     [birthdateIsValid, emailIsValid, filteredModifications, nameIsValid, passwordIsValid]
   );
 
+  const birthdateAsMoment = React.useMemo(() => (visibleBirthdate !== "" ? moment(visibleBirthdate) : null), [
+    visibleBirthdate
+  ]);
+
   const age = React.useMemo(() => (birthdateIsValid ? getAge(visibleBirthdate) : 0), [
     birthdateIsValid,
     visibleBirthdate
@@ -286,19 +292,25 @@ const CadetPage: React.FC = () => {
 
           <Grid className={classes.controls}>
             {user?.admin ? (
-              <TextField
+              <KeyboardDatePicker
                 className={classes.control}
-                variant="outlined"
+                disableToolbar
+                variant="inline"
+                inputVariant="outlined"
+                format="MM/DD/YYYY"
+                id="birthdate-picker"
                 label="Birth Date"
+                helperText="Format: MM/DD/YYYY"
                 error={!birthdateIsValid}
-                value={visibleBirthdate}
-                onChange={(e) =>
+                value={birthdateAsMoment}
+                onChange={(date) => {
+                  const newBirthdate = date?.isValid() ? date.format("YYYY-MM-DD") : "";
+
                   setModifications((prevModifications) => ({
                     ...prevModifications,
-                    birthdate: e.target.value === cadet?.birthdate ? undefined : e.target.value
-                  }))
-                }
-                helperText="Format: YYYY-MM-DD"
+                    birthdate: newBirthdate === cadet?.birthdate ? undefined : newBirthdate
+                  }));
+                }}
               />
             ) : (
               <div className={classes.keyValuePair}>
