@@ -192,7 +192,7 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
                 inputVariant="filled"
                 format="MM/DD/YYYY"
                 margin="dense"
-                id="birthdate-picker"
+                id="new-cadet-birthdate-picker"
                 label="Birth Date"
                 helperText="Format: MM/DD/YYYY"
                 error={!birthdateIsValid}

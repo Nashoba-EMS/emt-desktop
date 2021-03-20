@@ -240,7 +240,7 @@ const ProfilePage: React.FC = () => {
               variant="inline"
               inputVariant="outlined"
               format="MM/DD/YYYY"
-              id="birthdate-picker"
+              id="profile-birthdate-picker"
               label="Birth Date"
               helperText="Format: MM/DD/YYYY"
               error={!birthdateIsValid}

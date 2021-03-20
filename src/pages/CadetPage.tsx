@@ -298,7 +298,7 @@ const CadetPage: React.FC = () => {
                 variant="inline"
                 inputVariant="outlined"
                 format="MM/DD/YYYY"
-                id="birthdate-picker"
+                id="cadet-birthdate-picker"
                 label="Birth Date"
                 helperText="Format: MM/DD/YYYY"
                 error={!birthdateIsValid}
