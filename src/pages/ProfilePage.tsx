@@ -399,6 +399,7 @@ const ProfilePage: React.FC = () => {
               className={classes.control}
               variant="outlined"
               type="password"
+              autoComplete="new-password"
               label="New Password"
               error={!passwordIsValid}
               value={visiblePassword}
@@ -416,6 +417,7 @@ const ProfilePage: React.FC = () => {
               className={classes.control}
               variant="outlined"
               type="password"
+              autoComplete="new-password"
               label="Confirm New Password"
               error={!confirmPasswordIsValid}
               value={confirmPassword}
