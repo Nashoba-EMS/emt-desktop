@@ -30,6 +30,7 @@ import { _crews, _schedules, _users } from "./redux/actions";
 import ProfilePage from "./pages/ProfilePage";
 import CrewPage from "./pages/CrewPage";
 import SchedulePage from "./pages/SchedulePage";
+import AvailabilityPage from "./pages/AvailabilityPage";
 import CadetPage from "./pages/CadetPage";
 import PrintCrewPage from "./pages/PrintCrewPage";
 import PrintSchedulePage from "./pages/PrintSchedulePage";
@@ -67,6 +68,13 @@ const useStyles = makeStyles((theme) =>
     },
     nested: {
       paddingLeft: theme.spacing(4)
+    },
+    nestedWithRows: {
+      paddingLeft: theme.spacing(4),
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "flex-start",
+      alignItems: "flex-start"
     },
     content: {
       flexGrow: 1,
@@ -277,7 +285,7 @@ const App: React.FC = () => {
                   return (
                     <ListItem
                       key={schedule._id}
-                      className={classes.nested}
+                      className={classes.nestedWithRows}
                       button
                       component={Link}
                       to={path}
@@ -287,6 +295,12 @@ const App: React.FC = () => {
                         primary={schedule.name}
                         secondary={`${schedule.startDate} to ${schedule.endDate}`}
                       />
+
+                      {schedule.editable && (
+                        <Button size="small" color="secondary">
+                          Edit My Availability
+                        </Button>
+                      )}
                     </ListItem>
                   );
                 })}
@@ -411,6 +425,7 @@ const App: React.FC = () => {
           <Route path="/profile" component={ProfilePage} />
           <Route path="/crew/:id" component={CrewPage} />
           <Route path="/schedule/:id" component={SchedulePage} />
+          <Route path="/availability/:id" component={AvailabilityPage} />
           <Route path="/cadet/:id" component={CadetPage} />
         </Switch>
       </main>

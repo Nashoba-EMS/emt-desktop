@@ -5,6 +5,9 @@ import { KeyboardDatePicker } from "@material-ui/pickers";
 import Grid from "@material-ui/core/Grid";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import FormHelperText from "@material-ui/core/FormHelperText";
+import Checkbox from "@material-ui/core/Checkbox";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -54,6 +57,7 @@ const NewScheduleDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
     name: "",
     startDate: "",
     endDate: "",
+    editable: true,
     assignments: []
   });
   const [startedCreation, setStartedCreation] = React.useState<boolean>(false);
@@ -111,7 +115,7 @@ const NewScheduleDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
           </DialogContentText>
           <Grid container direction="row" alignItems="flex-start">
             <TextField
-              className={classes.flexField}
+              className={classes.leftField}
               margin="dense"
               variant="filled"
               label="Name"
@@ -127,6 +131,24 @@ const NewScheduleDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
                 }))
               }
             />
+
+            <Grid className={classes.rightField}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={schedulePayload.editable}
+                    onChange={(e) =>
+                      setSchedulePayload((prevSchedulePayload) => ({
+                        ...prevSchedulePayload,
+                        editable: e.target.checked
+                      }))
+                    }
+                  />
+                }
+                label="Editable"
+              />
+              <FormHelperText>Check this box to allow users to input their availability.</FormHelperText>
+            </Grid>
           </Grid>
           <Grid container direction="row" alignItems="flex-start">
             <KeyboardDatePicker
