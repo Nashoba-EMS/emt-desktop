@@ -1,6 +1,6 @@
-import { SchedulesApi } from "../../api";
+import { AvailabilityApi, SchedulesApi } from "../../api";
 import { FailureResponse, SuccessResponse } from "../../api/endpoints";
-import { Schedule } from "../../api/schedules.d";
+import { Schedule, ScheduleAvailability } from "../../api/schedules.d";
 import {
   SchedulesActionTypes,
   AsyncSchedulesActionTypes,
@@ -15,7 +15,13 @@ import {
   UPDATE_SCHEDULE_FAILURE,
   DELETE_SCHEDULE_START,
   DELETE_SCHEDULE_SUCCESS,
-  DELETE_SCHEDULE_FAILURE
+  DELETE_SCHEDULE_FAILURE,
+  GET_AVAILABILITY_START,
+  GET_AVAILABILITY_SUCCESS,
+  GET_AVAILABILITY_FAILURE,
+  CREATE_AVAILABILITY_START,
+  CREATE_AVAILABILITY_SUCCESS,
+  CREATE_AVAILABILITY_FAILURE
 } from "../types/schedules";
 
 /**
@@ -125,5 +131,52 @@ export const deleteSchedule = (token: string, targetId: string): AsyncSchedulesA
     dispatch(deleteScheduleSuccess(response));
   } else {
     dispatch(deleteScheduleFailure(response));
+  }
+};
+
+const getAvailabilityStart = defaultStart(GET_AVAILABILITY_START);
+const getAvailabilitySuccess = defaultSuccess<AvailabilityApi.GetAvailabilityForResponse>(GET_AVAILABILITY_SUCCESS);
+const getAvailabilityFailure = defaultFailure(GET_AVAILABILITY_FAILURE);
+
+/**
+ * Get availability for a given schedule or user
+ */
+export const getAvailability = (
+  token: string,
+  searchOptions: AvailabilityApi.AvailabilitySearchOptions
+): AsyncSchedulesActionTypes => async (dispatch) => {
+  dispatch(getAvailabilityStart());
+
+  const response = await AvailabilityApi.getAvailabilityFor(token, searchOptions);
+
+  if (response.code === 200) {
+    dispatch(getAvailabilitySuccess(response));
+  } else {
+    dispatch(getAvailabilityFailure(response));
+  }
+};
+
+const createAvailabilityStart = defaultStart(CREATE_AVAILABILITY_START);
+const createAvailabilitySuccess = defaultSuccess<AvailabilityApi.CreateAvailabilityResponse>(
+  CREATE_AVAILABILITY_SUCCESS
+);
+const createAvailabilityFailure = defaultFailure(CREATE_AVAILABILITY_FAILURE);
+
+/**
+ * Create availability for a given schedule and user
+ */
+export const createAvailability = (
+  token: string,
+  searchOptions: Required<AvailabilityApi.AvailabilitySearchOptions>,
+  availabilityPayload: Partial<ScheduleAvailability>
+): AsyncSchedulesActionTypes => async (dispatch) => {
+  dispatch(createAvailabilityStart());
+
+  const response = await AvailabilityApi.createAvailability(token, { ...searchOptions, availabilityPayload });
+
+  if (response.code === 200) {
+    dispatch(createAvailabilitySuccess(response));
+  } else {
+    dispatch(createAvailabilityFailure(response));
   }
 };

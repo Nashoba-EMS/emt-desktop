@@ -1,5 +1,6 @@
 import { Action } from "redux";
 import { ThunkAction } from "redux-thunk";
+import { CreateAvailabilityResponse, GetAvailabilityForResponse } from "../../api/availability";
 import { FailureResponse, SuccessResponse } from "../../api/endpoints";
 import {
   CreateScheduleResponse,
@@ -20,6 +21,12 @@ export const UPDATE_SCHEDULE_FAILURE = "UPDATE_SCHEDULE_FAILURE";
 export const DELETE_SCHEDULE_START = "DELETE_SCHEDULE_START";
 export const DELETE_SCHEDULE_SUCCESS = "DELETE_SCHEDULE_SUCCESS";
 export const DELETE_SCHEDULE_FAILURE = "DELETE_SCHEDULE_FAILURE";
+export const GET_AVAILABILITY_START = "GET_AVAILABILITY_START";
+export const GET_AVAILABILITY_SUCCESS = "GET_AVAILABILITY_SUCCESS";
+export const GET_AVAILABILITY_FAILURE = "GET_AVAILABILITY_FAILURE";
+export const CREATE_AVAILABILITY_START = "CREATE_AVAILABILITY_START";
+export const CREATE_AVAILABILITY_SUCCESS = "CREATE_AVAILABILITY_SUCCESS";
+export const CREATE_AVAILABILITY_FAILURE = "CREATE_AVAILABILITY_FAILURE";
 
 interface GetAllSchedulesStartAction {
   type: typeof GET_ALL_SCHEDULES_START;
@@ -69,6 +76,30 @@ type DeleteScheduleFailureAction = {
   type: typeof DELETE_SCHEDULE_FAILURE;
 } & FailureResponse;
 
+type GetAvailabilityStartAction = {
+  type: typeof GET_AVAILABILITY_START;
+};
+
+type GetAvailabilitySuccessAction = {
+  type: typeof GET_AVAILABILITY_SUCCESS;
+} & SuccessResponse<GetAvailabilityForResponse>;
+
+type GetAvailabilityFailureAction = {
+  type: typeof GET_AVAILABILITY_FAILURE;
+} & FailureResponse;
+
+type CreateAvailabilityStartAction = {
+  type: typeof CREATE_AVAILABILITY_START;
+};
+
+type CreateAvailabilitySuccessAction = {
+  type: typeof CREATE_AVAILABILITY_SUCCESS;
+} & SuccessResponse<CreateAvailabilityResponse>;
+
+type CreateAvailabilityFailureAction = {
+  type: typeof CREATE_AVAILABILITY_FAILURE;
+} & FailureResponse;
+
 export type SchedulesActionTypes =
   | GetAllSchedulesStartAction
   | GetAllSchedulesSuccessAction
@@ -81,6 +112,12 @@ export type SchedulesActionTypes =
   | UpdateScheduleFailureAction
   | DeleteScheduleStartAction
   | DeleteScheduleSuccessAction
-  | DeleteScheduleFailureAction;
+  | DeleteScheduleFailureAction
+  | GetAvailabilityStartAction
+  | GetAvailabilitySuccessAction
+  | GetAvailabilityFailureAction
+  | CreateAvailabilityStartAction
+  | CreateAvailabilitySuccessAction
+  | CreateAvailabilityFailureAction;
 
 export type AsyncSchedulesActionTypes = ThunkAction<void, any, unknown, Action<string>>;

@@ -1,4 +1,4 @@
-import { Schedule } from "../api/schedules.d";
+import { Schedule, ScheduleAvailability } from "../api/schedules.d";
 import {
   SchedulesActionTypes,
   GET_ALL_SCHEDULES_START,
@@ -11,7 +11,13 @@ import {
   UPDATE_SCHEDULE_SUCCESS,
   UPDATE_SCHEDULE_FAILURE,
   DELETE_SCHEDULE_START,
-  DELETE_SCHEDULE_SUCCESS
+  DELETE_SCHEDULE_SUCCESS,
+  GET_AVAILABILITY_START,
+  GET_AVAILABILITY_SUCCESS,
+  GET_AVAILABILITY_FAILURE,
+  CREATE_AVAILABILITY_START,
+  CREATE_AVAILABILITY_SUCCESS,
+  CREATE_AVAILABILITY_FAILURE
 } from "./types/schedules";
 
 export interface SchedulesState {
@@ -23,8 +29,15 @@ export interface SchedulesState {
   updateScheduleErrorMessage: string;
   isDeletingSchedule: boolean;
   deleteScheduleErrorMessage: string;
+  isGettingAvailability: boolean;
+  getAvailabilityErrorMessage: string;
+  isCreatingAvailability: boolean;
+  createAvailabilityErrorMessage: string;
+  isUpdatingAvailability: boolean;
+  updateAvailabilityErrorMessage: string;
 
   schedules: Schedule[];
+  availability: ScheduleAvailability[];
 }
 
 const initialState: SchedulesState = {
@@ -36,8 +49,15 @@ const initialState: SchedulesState = {
   updateScheduleErrorMessage: "",
   isDeletingSchedule: false,
   deleteScheduleErrorMessage: "",
+  isGettingAvailability: false,
+  getAvailabilityErrorMessage: "",
+  isCreatingAvailability: false,
+  createAvailabilityErrorMessage: "",
+  isUpdatingAvailability: false,
+  updateAvailabilityErrorMessage: "",
 
-  schedules: []
+  schedules: [],
+  availability: []
 };
 
 const reducer = (state = initialState, action: SchedulesActionTypes): SchedulesState => {
@@ -110,6 +130,49 @@ const reducer = (state = initialState, action: SchedulesActionTypes): SchedulesS
         ...state,
         isDeletingSchedule: false,
         schedules: state.schedules.filter((schedule) => schedule._id !== action.body.schedule._id)
+      };
+    case GET_AVAILABILITY_START:
+      return {
+        ...state,
+        isGettingAvailability: true,
+        getAvailabilityErrorMessage: ""
+      };
+    case GET_AVAILABILITY_SUCCESS:
+      return {
+        ...state,
+        isGettingAvailability: false,
+        availability: action.body.availability
+      };
+    case GET_AVAILABILITY_FAILURE:
+      return {
+        ...state,
+        isGettingAvailability: false,
+        getAvailabilityErrorMessage: action.body.error.message
+      };
+    case CREATE_AVAILABILITY_START:
+      return {
+        ...state,
+        isCreatingAvailability: true,
+        createScheduleErrorMessage: ""
+      };
+    case CREATE_AVAILABILITY_SUCCESS:
+      return {
+        ...state,
+        isCreatingAvailability: false,
+        availability: [
+          ...state.availability.filter(
+            (availability) =>
+              availability.schedule_id !== action.body.availability.schedule_id ||
+              availability.user_id !== action.body.availability.user_id
+          ),
+          action.body.availability
+        ]
+      };
+    case CREATE_AVAILABILITY_FAILURE:
+      return {
+        ...state,
+        isCreatingAvailability: false,
+        createAvailabilityErrorMessage: action.body.error.message
       };
     default:
       return state;
