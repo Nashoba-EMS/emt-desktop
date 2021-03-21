@@ -78,8 +78,7 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
     eligible: false,
     certified: false,
     chief: false,
-    cohort: "",
-    availability: []
+    cohort: ""
   });
 
   const nameIsValid = React.useMemo(() => userPayload.name.length > 1 && userPayload.name.includes(" "), [

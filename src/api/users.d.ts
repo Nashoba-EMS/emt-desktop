@@ -11,13 +11,8 @@ export interface User {
   certified: boolean;
   chief: boolean;
   cohort: "" | "A" | "B" | "R";
-  availability: UserAvailability[];
 }
 
 export type UserWithoutId = Omit<User, "_id">;
 export type UserWithoutPassword = Omit<User, "password">;
 export type UserOptionalPassword = UserWithoutPassword & { password?: string };
-
-export interface UserAvailability {
-  date: string;
-}
