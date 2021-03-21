@@ -1,11 +1,12 @@
 import React from "react";
-import { Link, Redirect, Route, Switch, useLocation } from "react-router-dom";
+import { Link, Redirect, Route, Switch, useHistory, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Snackbar from "@material-ui/core/Snackbar";
 import SnackbarContent from "@material-ui/core/SnackbarContent";
+import Tooltip from "@material-ui/core/Tooltip";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
@@ -15,6 +16,7 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
+import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
 import Chip from "@material-ui/core/Chip";
 import Collapse from "@material-ui/core/Collapse";
 import ExpandLess from "@material-ui/icons/ExpandLess";
@@ -24,6 +26,7 @@ import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import PersonIcon from "@material-ui/icons/Person";
 import FolderIcon from "@material-ui/icons/Folder";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
+import EditIcon from "@material-ui/icons/Edit";
 
 import { ReduxState } from "./redux";
 import { _crews, _schedules, _users } from "./redux/actions";
@@ -96,6 +99,7 @@ const useStyles = makeStyles((theme) =>
 
 const App: React.FC = () => {
   const classes = useStyles();
+  const history = useHistory();
   const location = useLocation();
   const visibleCrewId = location.pathname.includes("/crew/") ? location.pathname.split("/crew/")[1] : undefined;
   const visibleScheduleId = location.pathname.includes("/schedule/")
@@ -295,11 +299,14 @@ const App: React.FC = () => {
                         primary={schedule.name}
                         secondary={`${schedule.startDate} to ${schedule.endDate}`}
                       />
-
                       {schedule.editable && (
-                        <Button size="small" color="secondary">
-                          Edit My Availability
-                        </Button>
+                        <ListItemSecondaryAction>
+                          <Tooltip title="Edit your availability">
+                            <IconButton edge="end" onClick={() => history.push(`/availability/${schedule._id}`)}>
+                              <EditIcon color="secondary" />
+                            </IconButton>
+                          </Tooltip>
+                        </ListItemSecondaryAction>
                       )}
                     </ListItem>
                   );
