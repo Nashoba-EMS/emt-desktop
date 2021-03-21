@@ -141,7 +141,14 @@ const reducer = (state = initialState, action: SchedulesActionTypes): SchedulesS
       return {
         ...state,
         isGettingAvailability: false,
-        availability: action.body.availability
+        availability: [
+          ...state.availability.filter(
+            (availability) =>
+              (action.searchOptions.schedule_id && availability.schedule_id !== action.searchOptions.schedule_id) ||
+              (action.searchOptions.user_id && availability.user_id !== action.searchOptions.user_id)
+          ),
+          ...action.body.availability
+        ]
       };
     case GET_AVAILABILITY_FAILURE:
       return {

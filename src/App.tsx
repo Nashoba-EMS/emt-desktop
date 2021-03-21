@@ -431,8 +431,8 @@ const App: React.FC = () => {
           <Redirect exact from="/" to="/profile" />
           <Route path="/profile" component={ProfilePage} />
           <Route path="/crew/:id" component={CrewPage} />
-          <Route path="/schedule/:id" component={SchedulePage} />
-          <Route path="/availability/:id" component={AvailabilityPage} />
+          <Route path="/schedule/:schedule_id" component={SchedulePage} />
+          <Route path="/availability/:schedule_id" component={AvailabilityPage} />
           <Route path="/cadet/:id" component={CadetPage} />
         </Switch>
       </main>

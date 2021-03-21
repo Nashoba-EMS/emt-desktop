@@ -1,6 +1,10 @@
 import { Action } from "redux";
 import { ThunkAction } from "redux-thunk";
-import { CreateAvailabilityResponse, GetAvailabilityForResponse } from "../../api/availability";
+import {
+  AvailabilitySearchOptions,
+  CreateAvailabilityResponse,
+  GetAvailabilityForResponse
+} from "../../api/availability";
 import { FailureResponse, SuccessResponse } from "../../api/endpoints";
 import {
   CreateScheduleResponse,
@@ -82,6 +86,7 @@ type GetAvailabilityStartAction = {
 
 type GetAvailabilitySuccessAction = {
   type: typeof GET_AVAILABILITY_SUCCESS;
+  searchOptions: AvailabilitySearchOptions;
 } & SuccessResponse<GetAvailabilityForResponse>;
 
 type GetAvailabilityFailureAction = {

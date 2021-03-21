@@ -135,7 +135,14 @@ export const deleteSchedule = (token: string, targetId: string): AsyncSchedulesA
 };
 
 const getAvailabilityStart = defaultStart(GET_AVAILABILITY_START);
-const getAvailabilitySuccess = defaultSuccess<AvailabilityApi.GetAvailabilityForResponse>(GET_AVAILABILITY_SUCCESS);
+const getAvailabilitySuccess = (
+  searchOptions: AvailabilityApi.AvailabilitySearchOptions,
+  response: SuccessResponse<AvailabilityApi.GetAvailabilityForResponse>
+): SchedulesActionTypes => ({
+  type: GET_AVAILABILITY_SUCCESS,
+  searchOptions,
+  ...response
+});
 const getAvailabilityFailure = defaultFailure(GET_AVAILABILITY_FAILURE);
 
 /**
@@ -150,7 +157,7 @@ export const getAvailability = (
   const response = await AvailabilityApi.getAvailabilityFor(token, searchOptions);
 
   if (response.code === 200) {
-    dispatch(getAvailabilitySuccess(response));
+    dispatch(getAvailabilitySuccess(searchOptions, response));
   } else {
     dispatch(getAvailabilityFailure(response));
   }
