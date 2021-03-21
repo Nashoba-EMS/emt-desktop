@@ -6,7 +6,7 @@ interface ManageResponse {
 }
 
 /**
- * CRUD operations on the crew database
+ * CRUD operations on the crew collection
  */
 const manage = <Response>(
   token: string,

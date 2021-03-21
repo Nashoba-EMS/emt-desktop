@@ -20,7 +20,7 @@ interface ManageResponse {
 }
 
 /**
- * CRUD operations on the user database
+ * CRUD operations on the user collection
  */
 const manage = <Response>(
   token: string,

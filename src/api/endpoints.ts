@@ -29,6 +29,9 @@ export const ENDPOINT = {
   },
   schedules: {
     manage: endpoint(PostMethod, "schedules/manage")
+  },
+  availability: {
+    manage: endpoint(PostMethod, "availability/manage")
   }
 };
 
@@ -40,7 +43,7 @@ export type SuccessResponse<Body> = {
 };
 
 export type FailureResponse = {
-  code: 0 | 400 | 401 | 404;
+  code: 0 | 400 | 401 | 404 | 500;
   body: {
     error: {
       message: string;

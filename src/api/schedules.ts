@@ -6,7 +6,7 @@ interface ManageResponse {
 }
 
 /**
- * CRUD operations on the schedule database
+ * CRUD operations on the schedule collection
  */
 const manage = <Response>(
   token: string,
