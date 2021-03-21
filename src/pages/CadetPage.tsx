@@ -516,7 +516,7 @@ const CadetPage: React.FC = () => {
                     variant="contained"
                     color="secondary"
                     onClick={() => {
-                      const password = generateRandomAlphanumeric();
+                      const password = generateRandomAlphanumeric(); // lgtm [js/insecure-randomness]
 
                       setRandomPassword(password);
                       setModifications((prevModifications) => ({
