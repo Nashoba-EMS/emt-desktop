@@ -1,4 +1,5 @@
 import React from "react";
+import moment from "moment";
 import { useSelector, useDispatch } from "react-redux";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 import { KeyboardDatePicker } from "@material-ui/pickers";
@@ -20,7 +21,6 @@ import { ReduxState } from "../redux";
 import { ScheduleWithoutId } from "../api/schedules.d";
 import { _schedules } from "../redux/actions";
 import { isDateStringValid } from "../utils/datetime";
-import moment from "moment";
 
 const useStyles = makeStyles((theme) =>
   createStyles({
