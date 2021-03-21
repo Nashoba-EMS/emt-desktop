@@ -10,6 +10,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 
 import { ReduxState } from "../redux";
 import { _schedules } from "../redux/actions";
+import { ScheduleAvailabilityWithoutId } from "../api/schedules.d";
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -31,6 +32,20 @@ const AvailabilityPage: React.FC = () => {
   const token = useSelector((state: ReduxState) => state.users.token);
   const availability = useSelector((state: ReduxState) => state.schedules.availability);
 
+  const userAvailability = React.useMemo(
+    () =>
+      availability.find(
+        (_availability) => _availability.schedule_id === schedule_id && _availability.user_id === user?._id
+      ),
+    [availability, schedule_id, user?._id]
+  );
+
+  const [newAvailability, setNewAvailability] = React.useState<ScheduleAvailabilityWithoutId>({
+    schedule_id,
+    user_id: user?._id ?? "",
+    days: []
+  });
+
   const dispatch = useDispatch();
   const dispatchGetAvailabilityForScheduleAndUser = React.useCallback(
     () => dispatch(_schedules.getAvailability(token, { schedule_id, user_id: user?._id })),
@@ -46,6 +61,12 @@ const AvailabilityPage: React.FC = () => {
     }
   }, [dispatchGetAvailabilityForScheduleAndUser, token]);
 
+  React.useEffect(() => {
+    if (userAvailability) {
+      setNewAvailability(userAvailability);
+    }
+  }, [userAvailability]);
+
   // TODO: render either a first and last day indicator
   // or disable days outside of the range
 
@@ -58,22 +79,28 @@ const AvailabilityPage: React.FC = () => {
           views={["month"]}
           selectable
           showAllEvents
-          events={[
-            {
+          events={newAvailability.days.map((day) => {
+            const date = moment(day).toDate();
+
+            return {
               title: "Available",
-              start: new Date(),
-              end: new Date(),
+              start: date,
+              end: date,
               allDay: true
-            }
-          ]}
+            };
+          })}
           tooltipAccessor={() => "Click to toggle availability"}
           onSelectEvent={(event) => console.log(event)}
           onSelectSlot={(slot) => console.log(slot)}
-          eventPropGetter={(event) => ({
-            style: {
-              backgroundColor: event.title === "Available" ? "#90C290" : "#A07178"
-            }
-          })}
+          eventPropGetter={(event) =>
+            event.title === "Available"
+              ? {}
+              : {
+                  style: {
+                    backgroundColor: "#F48FB1"
+                  }
+                }
+          }
           style={{ width: "100%", height: 800 }}
         />
       </div>
