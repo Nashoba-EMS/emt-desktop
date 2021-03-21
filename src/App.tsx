@@ -117,6 +117,10 @@ const App: React.FC = () => {
   const createScheduleErrorMessage = useSelector((state: ReduxState) => state.schedules.createScheduleErrorMessage);
   const updateScheduleErrorMessage = useSelector((state: ReduxState) => state.schedules.updateScheduleErrorMessage);
   const deleteScheduleErrorMessage = useSelector((state: ReduxState) => state.schedules.deleteScheduleErrorMessage);
+  const getAvailabilityErrorMessage = useSelector((state: ReduxState) => state.schedules.getAvailabilityErrorMessage);
+  const createAvailabilityErrorMessage = useSelector(
+    (state: ReduxState) => state.schedules.createAvailabilityErrorMessage
+  );
 
   const [errorMessage, setErrorMessage] = React.useState<string>("");
   const [crewsOpen, setCrewsOpen] = React.useState<boolean>(true);
@@ -207,6 +211,14 @@ const App: React.FC = () => {
     if (deleteScheduleErrorMessage) setErrorMessage(deleteScheduleErrorMessage);
   }, [deleteScheduleErrorMessage]);
 
+  React.useEffect(() => {
+    if (getAvailabilityErrorMessage) setErrorMessage(getAvailabilityErrorMessage);
+  }, [getAvailabilityErrorMessage]);
+
+  React.useEffect(() => {
+    if (createAvailabilityErrorMessage) setErrorMessage(createAvailabilityErrorMessage);
+  }, [createAvailabilityErrorMessage]);
+
   return (
     <div className={classes.root}>
       <AppBar className={classes.appBar} position="fixed">
@@ -257,7 +269,7 @@ const App: React.FC = () => {
           <Collapse in={schedulesOpen} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
               {schedules
-                .sort((a, b) => (a.name > b.name ? 1 : a.name < b.name ? -1 : 0))
+                .sort((a, b) => (a.startDate > b.startDate ? 1 : a.startDate < b.startDate ? -1 : 0))
                 .map((schedule) => {
                   const path = `/schedule/${schedule._id}`;
                   const selected = location.pathname === path;

@@ -26,6 +26,7 @@ import { ReduxState } from "../redux";
 import { User, UserOptionalPassword, UserWithoutId } from "../api/users.d";
 import { _users } from "../redux/actions";
 import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "../constants/users";
+import { isDateStringValid } from "../utils/datetime";
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -88,9 +89,7 @@ const NewCadetDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
     () => userPayload.email.includes("@") && userPayload.email.includes(".") && userPayload.email.length >= 5,
     [userPayload.email]
   );
-  const birthdateIsValid = React.useMemo(() => userPayload.birthdate.match(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/), [
-    userPayload.birthdate
-  ]);
+  const birthdateIsValid = React.useMemo(() => isDateStringValid(userPayload.birthdate), [userPayload.birthdate]);
   const genderIsValid = React.useMemo(() => userPayload.gender !== "", [userPayload.gender]);
   const passwordIsValid = React.useMemo(
     () =>

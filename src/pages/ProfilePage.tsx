@@ -26,7 +26,7 @@ import { _users } from "../redux/actions";
 import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "../constants/users";
 import { filterUndefined } from "../utils/filter";
 import { isEmpty } from "../utils/empty";
-import { getAge } from "../utils/datetime";
+import { getAge, isDateStringValid } from "../utils/datetime";
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -126,9 +126,7 @@ const ProfilePage: React.FC = () => {
     () => visibleEmail.includes("@") && visibleEmail.includes(".") && visibleEmail.length >= 5,
     [visibleEmail]
   );
-  const birthdateIsValid = React.useMemo(() => visibleBirthdate.match(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/), [
-    visibleBirthdate
-  ]);
+  const birthdateIsValid = React.useMemo(() => isDateStringValid(visibleBirthdate), [visibleBirthdate]);
   const passwordIsValid = React.useMemo(
     () =>
       modifications.password === undefined ||
