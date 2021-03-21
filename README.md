@@ -1,6 +1,6 @@
 # emt-desktop
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/7945b3db-d54f-4596-9413-8cca06d4448f/deploy-status)](https://app.netlify.com/sites/nashoba-ems-scheduler/deploys) [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/jtaylorchang/emt-desktop.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/jtaylorchang/emt-desktop/context:javascript) [![Lines of Code](https://tokei.rs/b1/github/jtaylorchang/emt-desktop)](https://github.com/jtaylorchang/emt-desktop)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/7945b3db-d54f-4596-9413-8cca06d4448f/deploy-status)](https://app.netlify.com/sites/nashoba-ems-scheduler/deploys) [![Validation](https://github.com/Nashoba-EMS/emt-desktop/actions/workflows/validation.yml/badge.svg)](https://github.com/Nashoba-EMS/emt-desktop/actions/workflows/validation.yml) [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/jtaylorchang/emt-desktop.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/jtaylorchang/emt-desktop/context:javascript) [![Lines of Code](https://tokei.rs/b1/github/jtaylorchang/emt-desktop)](https://github.com/jtaylorchang/emt-desktop)
 
 ## Setup
 
