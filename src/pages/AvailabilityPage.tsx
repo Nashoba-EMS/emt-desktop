@@ -2,7 +2,7 @@ import React from "react";
 import moment from "moment";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { Calendar, momentLocalizer, Views } from "react-big-calendar";
+import { Calendar, momentLocalizer } from "react-big-calendar";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
@@ -12,7 +12,6 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 
 import { ReduxState } from "../redux";
 import { _schedules } from "../redux/actions";
-import { ScheduleAvailabilityWithoutId } from "../api/schedules.d";
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -156,12 +155,20 @@ const AvailabilityPage: React.FC = () => {
     []
   );
 
-  const handleDayClick = React.useCallback((value: { start: string | Date }) => {
-    const date = moment(value.start).format("YYYY-MM-DD");
-    setNewAvailability((prevAvailability) =>
-      prevAvailability.includes(date) ? prevAvailability.filter((_date) => _date !== date) : [...prevAvailability, date]
-    );
-  }, []);
+  const handleDayClick = React.useCallback(
+    (value: { start: string | Date }) => {
+      const date = moment(value.start).format("YYYY-MM-DD");
+
+      if (isDayValid(date)) {
+        setNewAvailability((prevAvailability) =>
+          prevAvailability.includes(date)
+            ? prevAvailability.filter((_date) => _date !== date)
+            : [...prevAvailability, date]
+        );
+      }
+    },
+    [isDayValid]
+  );
 
   const tooltipAccessor = React.useCallback(() => "Click on a day to toggle your availability", []);
 
@@ -175,10 +182,8 @@ const AvailabilityPage: React.FC = () => {
   }, [dispatchGetAvailabilityForScheduleAndUser, token]);
 
   React.useEffect(() => {
-    if (userAvailability) {
-      setNewAvailability(userAvailability.days);
-    }
-  }, [userAvailability]);
+    setNewAvailability(userAvailability?.days.filter((day) => isDayValid(day)) ?? []);
+  }, [isDayValid, userAvailability]);
 
   React.useEffect(() => {
     setVisibleDate(scheduleStartDate);
