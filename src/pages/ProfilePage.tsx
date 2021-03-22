@@ -439,7 +439,7 @@ const ProfilePage: React.FC = () => {
           startIcon={
             isUpdatingUser ? <CircularProgress className={classes.spinner} color="inherit" size={16} /> : <SaveIcon />
           }
-          disabled={!canSave}
+          disabled={!canSave || isUpdatingUser}
           onClick={dispatchUpdateUser}
         >
           Save Changes
