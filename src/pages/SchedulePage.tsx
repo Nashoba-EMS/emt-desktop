@@ -17,11 +17,15 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 
 import { ReduxState } from "../redux";
 import { _schedules } from "../redux/actions";
+import { Tab, Tabs } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
       width: "100%"
+    },
+    paperTabs: {
+      marginBottom: theme.spacing(2)
     },
     paper: {
       padding: theme.spacing(2),
@@ -62,6 +66,7 @@ const SchedulePage: React.FC = () => {
   const isGettingAvailability = useSelector((state: ReduxState) => state.schedules.isGettingAvailability);
 
   const [visibleDate, setVisibleDate] = React.useState<Date>(new Date());
+  const [tabIndex, setTabIndex] = React.useState<number>(0);
 
   const schedule = React.useMemo(() => schedules.find((schedule) => schedule._id === schedule_id), [
     schedule_id,
@@ -185,41 +190,76 @@ const SchedulePage: React.FC = () => {
 
   return (
     <div className={classes.root}>
-      <Grid container direction="row" alignItems="center">
-        <Typography variant="h6">Everyone's availability for {schedule?.name}</Typography>
-        {schedule?.editable ? (
-          <Tooltip title="This schedule is still accepting responses">
-            <LockOpenIcon fontSize="small" color="secondary" />
-          </Tooltip>
-        ) : (
-          <Tooltip title="This schedule is not accepting responses">
-            <LockIcon fontSize="small" color="secondary" />
-          </Tooltip>
-        )}
-      </Grid>
-      <Typography variant="body2">
-        If a cadet's availability is missing, you should remind them they need to add their availability before you can
-        generate a schedule. If a cadet has no availability listed below, they will not be included in the generated
-        schedule.
-      </Typography>
-
-      <Paper className={classes.paper}>
-        <div className={classes.calendarContainer}>
-          <Calendar
-            localizer={localizer}
-            defaultView="month"
-            views={["month"]}
-            selectable
-            showAllEvents
-            date={visibleDate}
-            onNavigate={(newDate) => setVisibleDate(newDate)}
-            events={events}
-            dayPropGetter={dayPropGetter}
-            eventPropGetter={eventPropGetter}
-            style={{ width: "100%", height: 800 }}
-          />
-        </div>
+      <Paper className={classes.paperTabs}>
+        <Tabs variant="fullWidth" value={tabIndex} onChange={(e, v) => setTabIndex(v)}>
+          <Tab label="View Availability" />
+          <Tab label="View/Manage Schedule" />
+        </Tabs>
       </Paper>
+
+      {tabIndex === 0 && (
+        <React.Fragment>
+          <Grid container direction="row" alignItems="center">
+            <Typography variant="h6">Everyone's availability for {schedule?.name}</Typography>
+            {schedule?.editable ? (
+              <Tooltip title="This schedule is still accepting responses">
+                <LockOpenIcon fontSize="small" color="secondary" />
+              </Tooltip>
+            ) : (
+              <Tooltip title="This schedule is not accepting responses">
+                <LockIcon fontSize="small" color="secondary" />
+              </Tooltip>
+            )}
+          </Grid>
+          <Typography variant="body2">
+            If a cadet's availability is missing, you should remind them they need to add their availability before you
+            can generate a schedule. If a cadet has no availability listed below, they will not be included in the
+            generated schedule.
+          </Typography>
+
+          <Paper className={classes.paper}>
+            <div className={classes.calendarContainer}>
+              <Calendar
+                localizer={localizer}
+                defaultView="month"
+                views={["month"]}
+                selectable
+                showAllEvents
+                date={visibleDate}
+                onNavigate={(newDate) => setVisibleDate(newDate)}
+                events={events}
+                dayPropGetter={dayPropGetter}
+                eventPropGetter={eventPropGetter}
+                style={{ width: "100%", height: 800 }}
+              />
+            </div>
+          </Paper>
+        </React.Fragment>
+      )}
+
+      {tabIndex === 1 && (
+        <React.Fragment>
+          <Grid container direction="row" alignItems="center">
+            <Typography variant="h6">View/manage schedule for {schedule?.name}</Typography>
+            {schedule?.editable ? (
+              <Tooltip title="This schedule is still accepting responses">
+                <LockOpenIcon fontSize="small" color="secondary" />
+              </Tooltip>
+            ) : (
+              <Tooltip title="This schedule is not accepting responses">
+                <LockIcon fontSize="small" color="secondary" />
+              </Tooltip>
+            )}
+          </Grid>
+          <Typography variant="body2">
+            When you are ready to generate a schedule, you should lock the schedule so that cadets can't change their
+            availability after. You can generate a schedule automatically that will take into account the cadet
+            requirements as well as attempt to give cadets as close to even assignments as possible. If you are not
+            satisfied with the schedule you can generate a new one. As a warning, generating a schedule can take some
+            time, please do not navigate away while a schedule is being generated.
+          </Typography>
+        </React.Fragment>
+      )}
     </div>
   );
 };
