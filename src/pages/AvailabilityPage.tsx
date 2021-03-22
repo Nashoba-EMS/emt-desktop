@@ -4,6 +4,7 @@ import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
+import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
 import CircularProgress from "@material-ui/core/CircularProgress";
@@ -20,6 +21,7 @@ const useStyles = makeStyles((theme) =>
     },
     paper: {
       padding: theme.spacing(2),
+      marginTop: theme.spacing(2),
       marginBottom: theme.spacing(3)
     },
     calendarContainer: {},
@@ -191,6 +193,9 @@ const AvailabilityPage: React.FC = () => {
 
   return (
     <div className={classes.root}>
+      <Typography variant="h6">Edit your availability for {schedule?.name}</Typography>
+      <Typography variant="body2">Click on a day in the calendar to toggle your availability</Typography>
+
       <Paper className={classes.paper}>
         <div className={classes.calendarContainer}>
           <Calendar
