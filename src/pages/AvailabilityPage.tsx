@@ -17,7 +17,8 @@ import { _schedules } from "../redux/actions";
 const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
-      width: "100%"
+      width: "100%",
+      paddingBottom: theme.spacing(2)
     },
     paper: {
       padding: theme.spacing(2),

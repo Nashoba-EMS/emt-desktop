@@ -43,7 +43,8 @@ const drawerWidth = 256;
 const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
-      width: "100%"
+      width: "100%",
+      paddingBottom: theme.spacing(2)
     },
     crewContainer: {
       display: "flex"

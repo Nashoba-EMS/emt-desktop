@@ -32,7 +32,8 @@ const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
       width: "100%",
-      display: "flex"
+      display: "flex",
+      paddingBottom: theme.spacing(2)
     },
     gridRoot: {
       width: "100%"

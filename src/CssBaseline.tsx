@@ -24,6 +24,7 @@ const styles = (theme: Theme) =>
       body: {
         height: "100%",
         margin: 0, // Remove the margin in all browsers.
+        "overscroll-behavior-y": "none",
         color: theme.palette.text.primary,
         ...theme.typography.body2,
         backgroundColor: theme.palette.background.default,
