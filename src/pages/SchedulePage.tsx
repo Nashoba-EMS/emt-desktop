@@ -110,10 +110,11 @@ const SchedulePage: React.FC = () => {
   const availabilityEvents = React.useMemo(() => {
     let events: (Event & {
       user_id: string;
+      certified: boolean;
     })[] = [];
 
     for (const availability of scheduleAvailability) {
-      const cadetName = cadets.find((cadet) => cadet._id === availability.user_id)?.name ?? "Unknown";
+      const cadet = cadets.find((cadet) => cadet._id === availability.user_id);
 
       events = events.concat(
         availability.days
@@ -122,8 +123,9 @@ const SchedulePage: React.FC = () => {
             const date = moment(day).toDate();
 
             return {
-              title: cadetName,
+              title: cadet?.name ?? "Unknown",
               user_id: availability.user_id,
+              certified: cadet?.certified ?? false,
               start: date,
               end: date,
               allDay: true
@@ -138,19 +140,25 @@ const SchedulePage: React.FC = () => {
   const scheduleEvents = React.useMemo(() => {
     let events: (Event & {
       user_id: string;
+      certified: boolean;
     })[] = [];
 
     for (const assignment of assignments) {
       const date = moment(assignment.date).toDate();
 
       events = events.concat(
-        assignment.cadet_ids.map((cadet_id) => ({
-          title: cadets.find((cadet) => cadet._id === cadet_id)?.name ?? "Unknown",
-          user_id: cadet_id,
-          start: date,
-          end: date,
-          allDay: true
-        }))
+        assignment.cadet_ids.map((cadet_id) => {
+          const cadet = cadets.find((cadet) => cadet._id === cadet_id);
+
+          return {
+            title: cadet?.name ?? "Unknown",
+            user_id: cadet_id,
+            certified: cadet?.certified ?? false,
+            start: date,
+            end: date,
+            allDay: true
+          };
+        })
       );
     }
 
@@ -196,14 +204,13 @@ const SchedulePage: React.FC = () => {
 
   const eventPropGetter = React.useCallback(
     (event) => ({
-      style:
-        event.user_id === user?._id
-          ? {
-              backgroundColor: "#F48FB1"
-            }
-          : undefined
+      style: event.certified
+        ? {
+            backgroundColor: "#90CAF9"
+          }
+        : undefined
     }),
-    [user?._id]
+    []
   );
 
   /**
