@@ -4,6 +4,8 @@ import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { Calendar, Event, momentLocalizer } from "react-big-calendar";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
+import Tab from "@material-ui/core/Tab";
+import Tabs from "@material-ui/core/Tabs";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
 import Tooltip from "@material-ui/core/Tooltip";
@@ -13,12 +15,13 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import SaveIcon from "@material-ui/icons/Save";
 import LockIcon from "@material-ui/icons/Lock";
 import LockOpenIcon from "@material-ui/icons/LockOpen";
+import AssignmentIndIcon from "@material-ui/icons/AssignmentInd";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
 import { ReduxState } from "../redux";
 import { _schedules } from "../redux/actions";
-import { Tab, Tabs } from "@material-ui/core";
 import { Schedule, ScheduleDay } from "../api/schedules.d";
+import { buildSchedule } from "../utils/schedule";
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -28,6 +31,9 @@ const useStyles = makeStyles((theme) =>
     },
     paperTabs: {
       marginBottom: theme.spacing(2)
+    },
+    paddedButton: {
+      marginTop: theme.spacing(1)
     },
     paper: {
       padding: theme.spacing(2),
@@ -83,6 +89,7 @@ const SchedulePage: React.FC = () => {
   const [visibleDate, setVisibleDate] = React.useState<Date>(new Date());
   const [tabIndex, setTabIndex] = React.useState<number>(0);
   const [assignments, setAssignments] = React.useState<Schedule["assignments"]>([]);
+  const [isBuildingSchedule, setIsBuildingSchedule] = React.useState<boolean>(false);
 
   const schedule = React.useMemo(() => schedules.find((schedule) => schedule._id === schedule_id), [
     schedule_id,
@@ -186,6 +193,20 @@ const SchedulePage: React.FC = () => {
       ),
     [assignments, dispatch, schedule_id, token]
   );
+
+  const onClickBuildSchedule = React.useCallback(() => {
+    if (!schedule) {
+      return;
+    }
+
+    setIsBuildingSchedule(true);
+
+    setTimeout(() => {
+      buildSchedule(schedule, cadets, availability);
+
+      setIsBuildingSchedule(() => false);
+    }, 100);
+  }, [availability, cadets, schedule]);
 
   const dayPropGetter = React.useCallback(
     (date: Date) => {
@@ -318,6 +339,25 @@ const SchedulePage: React.FC = () => {
             satisfied with the schedule you can generate a new one. As a warning, generating a schedule can take some
             time, please do not navigate away while a schedule is being generated.
           </Typography>
+
+          <Tooltip title="Warning: this can take some time to complete">
+            <Button
+              className={classes.paddedButton}
+              variant="contained"
+              color="secondary"
+              startIcon={
+                isBuildingSchedule ? (
+                  <CircularProgress className={classes.spinner} color="inherit" size={16} />
+                ) : (
+                  <AssignmentIndIcon />
+                )
+              }
+              disabled={isGettingAvailability || isUpdatingSchedule || isBuildingSchedule}
+              onClick={onClickBuildSchedule}
+            >
+              Build Schedule
+            </Button>
+          </Tooltip>
 
           <Paper className={classes.paper}>
             <div className={classes.calendarContainer}>
