@@ -11,6 +11,9 @@ import Grid from "@material-ui/core/Grid";
 import Tooltip from "@material-ui/core/Tooltip";
 import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
+import FormGroup from "@material-ui/core/FormGroup";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Checkbox from "@material-ui/core/Checkbox";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import SaveIcon from "@material-ui/icons/Save";
 import LockIcon from "@material-ui/icons/Lock";
@@ -32,8 +35,14 @@ const useStyles = makeStyles((theme) =>
     paperTabs: {
       marginBottom: theme.spacing(2)
     },
-    paddedButton: {
+    paddedGrid: {
       marginTop: theme.spacing(1)
+    },
+    paddedButton: {
+      marginRight: theme.spacing(2)
+    },
+    checkboxContainer: {
+      marginRight: theme.spacing(2)
     },
     paper: {
       padding: theme.spacing(2),
@@ -88,6 +97,7 @@ const SchedulePage: React.FC = () => {
 
   const [visibleDate, setVisibleDate] = React.useState<Date>(new Date());
   const [tabIndex, setTabIndex] = React.useState<number>(0);
+  const [editable, setEditable] = React.useState<boolean>(false);
   const [assignments, setAssignments] = React.useState<Schedule["assignments"]>([]);
   const [isBuildingSchedule, setIsBuildingSchedule] = React.useState<boolean>(false);
 
@@ -174,10 +184,11 @@ const SchedulePage: React.FC = () => {
 
   const noModifications = React.useMemo(() => {
     return (
+      editable === schedule?.editable &&
       JSON.stringify(assignments.sort(compareScheduleDay)) ===
-      JSON.stringify(schedule?.assignments.sort(compareScheduleDay))
+        JSON.stringify(schedule?.assignments.sort(compareScheduleDay))
     );
-  }, [assignments, schedule?.assignments]);
+  }, [assignments, editable, schedule?.assignments, schedule?.editable]);
 
   const dispatch = useDispatch();
   const dispatchGetAvailabilityForSchedule = React.useCallback(
@@ -188,10 +199,11 @@ const SchedulePage: React.FC = () => {
     () =>
       dispatch(
         _schedules.updateSchedule(token, schedule_id, {
+          editable,
           assignments
         })
       ),
-    [assignments, dispatch, schedule_id, token]
+    [assignments, dispatch, editable, schedule_id, token]
   );
 
   const onClickBuildSchedule = React.useCallback(() => {
@@ -246,6 +258,10 @@ const SchedulePage: React.FC = () => {
   React.useEffect(() => {
     setAssignments(schedule?.assignments ?? []);
   }, [schedule?.assignments]);
+
+  React.useEffect(() => {
+    setEditable(schedule?.editable ?? false);
+  }, [schedule?.editable]);
 
   React.useEffect(() => {
     setVisibleDate(scheduleStartDate);
@@ -354,27 +370,37 @@ const SchedulePage: React.FC = () => {
             availability after. You can generate a schedule automatically that will take into account the cadet
             requirements as well as attempt to give cadets as close to even assignments as possible. If you are not
             satisfied with the schedule you can generate a new one. As a warning, generating a schedule can take some
-            time, please do not navigate away while a schedule is being generated.
+            time, please do not navigate away while a schedule is being generated. If you are satisfied with a schedule,
+            you can save it, if not you can clear the changes below the calendar.
           </Typography>
 
-          <Tooltip title="Warning: this can take some time to complete">
-            <Button
-              className={classes.paddedButton}
-              variant="contained"
-              color="secondary"
-              startIcon={
-                isBuildingSchedule ? (
-                  <CircularProgress className={classes.spinner} color="inherit" size={16} />
-                ) : (
-                  <AssignmentIndIcon />
-                )
-              }
-              disabled={isGettingAvailability || isUpdatingSchedule || isBuildingSchedule}
-              onClick={onClickBuildSchedule}
-            >
-              Build Schedule
-            </Button>
-          </Tooltip>
+          <Grid className={classes.paddedGrid} container direction="row" alignItems="flex-start">
+            <Tooltip title="Warning: this can take some time to complete">
+              <Button
+                className={classes.paddedButton}
+                variant="contained"
+                color="secondary"
+                startIcon={
+                  isBuildingSchedule ? (
+                    <CircularProgress className={classes.spinner} color="inherit" size={16} />
+                  ) : (
+                    <AssignmentIndIcon />
+                  )
+                }
+                disabled={isGettingAvailability || isUpdatingSchedule || isBuildingSchedule}
+                onClick={onClickBuildSchedule}
+              >
+                Build Schedule
+              </Button>
+            </Tooltip>
+
+            <FormGroup className={classes.checkboxContainer}>
+              <FormControlLabel
+                control={<Checkbox checked={editable} onChange={(e) => setEditable(e.target.checked)} />}
+                label="Editable"
+              />
+            </FormGroup>
+          </Grid>
 
           <Paper className={classes.paper}>
             <div className={classes.calendarContainer}>
@@ -397,7 +423,10 @@ const SchedulePage: React.FC = () => {
             className={classes.clearButton}
             color="secondary"
             disabled={noModifications}
-            onClick={() => setAssignments(schedule?.assignments ?? [])}
+            onClick={() => {
+              setAssignments(schedule?.assignments ?? []);
+              setEditable(schedule?.editable ?? false);
+            }}
           >
             Clear Changes
           </Button>
