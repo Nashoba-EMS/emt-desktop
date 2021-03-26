@@ -266,6 +266,23 @@ const SchedulePage: React.FC = () => {
             </Tooltip>
           )}
         </Grid>
+
+        <Paper className={classes.paper}>
+          <div className={classes.calendarContainer}>
+            <Calendar
+              localizer={localizer}
+              defaultView="month"
+              views={["month"]}
+              showAllEvents
+              date={visibleDate}
+              onNavigate={(newDate) => setVisibleDate(newDate)}
+              events={scheduleEvents}
+              dayPropGetter={dayPropGetter}
+              eventPropGetter={eventPropGetter}
+              style={{ width: "100%", height: 800 }}
+            />
+          </div>
+        </Paper>
       </div>
     );
   }
