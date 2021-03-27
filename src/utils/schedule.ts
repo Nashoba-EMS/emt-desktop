@@ -338,9 +338,17 @@ export const buildSchedule = (
 
   return {
     ...schedule,
-    assignments: days.map((day) => ({
-      date: day,
-      cadet_ids: dayToCadetIds[day] ?? []
-    }))
+    assignments: days.map((day) => {
+      const cadets = dayToCadetIds[day]?.map((cadetId) => userIdToUser[cadetId]);
+      const chiefCadets = cadets?.filter((cadet) => cadet?.chief) ?? [];
+      const certCadets = cadets?.filter((cadet) => cadet?.certified && !cadet?.chief) ?? [];
+      const uncertCadets = cadets?.filter((cadet) => !cadet?.certified && !cadet?.chief) ?? [];
+      const cadet_ids = [...chiefCadets, ...certCadets, ...uncertCadets].map((cadet) => cadet?._id ?? "");
+
+      return {
+        date: day,
+        cadet_ids
+      };
+    })
   };
 };
