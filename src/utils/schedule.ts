@@ -126,7 +126,7 @@ export const buildSchedule = (
       }
     });
 
-    return males > 0 && females > 0;
+    return { balanced: males > 0 && females > 0, males, females };
   };
 
   const isScheduleBalanced = () => {
@@ -170,7 +170,7 @@ export const buildSchedule = (
     }
 
     for (const day of days) {
-      if (!isGenderBalanced(day)) {
+      if (!isGenderBalanced(day).balanced) {
         console.log(`${day} is not gender balanced`);
         return false;
       }
@@ -223,7 +223,8 @@ export const buildSchedule = (
   while (!isScheduleBalanced()) {
     for (const day of days) {
       const availableCadets = shuffle(nonChiefs.filter((cadet) => isCadetAvailable(day, cadet._id)));
-      const numberOfCertifieds =
+
+      let numberOfCertifieds =
         dayToCadetIds[day]?.map((cadetId) => userIdToUser[cadetId]).filter((cadet) => !cadet?.chief && cadet?.certified)
           .length ?? 0;
 
@@ -252,7 +253,7 @@ export const buildSchedule = (
         highestCadetDays > -1 &&
         lowestCadetDays < Infinity &&
         highestCadetDays - lowestCadetDays >= 2 &&
-        (!userIdToUser[highestCadetId]?.certified || numberOfCertifieds > 1)
+        (!userIdToUser[highestCadetId]?.certified || numberOfCertifieds > 1 || userIdToUser[lowestCadetId]?.certified)
       ) {
         console.log({
           day,
@@ -262,6 +263,52 @@ export const buildSchedule = (
           lowestCadetDays
         });
         replaceCadet(day, highestCadetId, lowestCadetId);
+      }
+
+      numberOfCertifieds =
+        dayToCadetIds[day]?.map((cadetId) => userIdToUser[cadetId]).filter((cadet) => !cadet?.chief && cadet?.certified)
+          .length ?? 0;
+
+      const genderBalance = isGenderBalanced(day);
+      if (!genderBalance.balanced) {
+        const newGender = genderBalance.males > genderBalance.females ? "F" : "M";
+        const newGenderAvailableCadets = availableCadets.filter((cadet) => cadet.gender === newGender && !cadet.chief);
+
+        let lowestNewGenderCadetId = "";
+        let lowestNewGenderCadetDays = Infinity;
+
+        newGenderAvailableCadets.forEach((cadet) => {
+          const thisCadetDays = cadetIdToDays[cadet._id]?.length ?? 0;
+
+          if (
+            thisCadetDays < lowestNewGenderCadetDays &&
+            ((numberOfCertifieds > 1 && !cadet.certified) || (numberOfCertifieds === 1 && cadet.certified))
+          ) {
+            lowestNewGenderCadetId = cadet._id;
+            lowestNewGenderCadetDays = thisCadetDays;
+          }
+        });
+
+        let highestOldGenderCadetId = "";
+        let highestOldGenderCadetDays = -1;
+
+        dayToCadetIds[day]
+          ?.map((cadetId) => userIdToUser[cadetId])
+          .filter((cadet) => !cadet?.chief)
+          .forEach((cadet) => {
+            if (!cadet) return;
+
+            const thisCadetDays = cadetIdToDays[cadet._id]?.length ?? 0;
+
+            if (thisCadetDays > highestOldGenderCadetDays && (numberOfCertifieds > 1 || !cadet.certified)) {
+              highestOldGenderCadetId = cadet._id;
+              highestOldGenderCadetDays = thisCadetDays;
+            }
+          });
+
+        if (lowestNewGenderCadetDays < Infinity && highestOldGenderCadetDays > -1) {
+          replaceCadet(day, highestOldGenderCadetId, lowestNewGenderCadetId);
+        }
       }
     }
 
