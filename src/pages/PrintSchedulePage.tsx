@@ -39,10 +39,8 @@ const localizer = momentLocalizer(moment);
 const PrintSchedulePage: React.FC<{ id: string }> = ({ id }) => {
   const classes = useStyles();
 
-  const user = useSelector((state: ReduxState) => state.users.user);
   const cadets = useSelector((state: ReduxState) => state.users.cadets);
   const schedules = useSelector((state: ReduxState) => state.schedules.schedules);
-  const availability = useSelector((state: ReduxState) => state.schedules.availability);
 
   const [visibleDate, setVisibleDate] = React.useState<Date>(new Date());
 
@@ -77,6 +75,7 @@ const PrintSchedulePage: React.FC<{ id: string }> = ({ id }) => {
           return {
             title: cadet?.name ?? "Unknown",
             user_id: cadet_id,
+            chief: cadet?.chief ?? false,
             certified: cadet?.certified ?? false,
             start: date,
             end: date,
@@ -106,7 +105,11 @@ const PrintSchedulePage: React.FC<{ id: string }> = ({ id }) => {
 
   const eventPropGetter = React.useCallback(
     (event) => ({
-      style: event.certified
+      style: event.chief
+        ? {
+            backgroundColor: "#F48FB1"
+          }
+        : event.certified
         ? {
             backgroundColor: "#90CAF9"
           }

@@ -142,6 +142,7 @@ const SchedulePage: React.FC = () => {
             return {
               title: cadet?.name ?? "Unknown",
               user_id: availability.user_id,
+              chief: cadet?.chief ?? false,
               certified: cadet?.certified ?? false,
               start: date,
               end: date,
@@ -170,6 +171,7 @@ const SchedulePage: React.FC = () => {
           return {
             title: cadet?.name ?? "Unknown",
             user_id: cadet_id,
+            chief: cadet?.chief ?? false,
             certified: cadet?.certified ?? false,
             start: date,
             end: date,
@@ -239,7 +241,11 @@ const SchedulePage: React.FC = () => {
 
   const eventPropGetter = React.useCallback(
     (event) => ({
-      style: event.certified
+      style: event.chief
+        ? {
+            backgroundColor: "#F48FB1"
+          }
+        : event.certified
         ? {
             backgroundColor: "#90CAF9"
           }
