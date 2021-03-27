@@ -8,17 +8,24 @@ import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import AddIcon from "@material-ui/icons/Add";
+import RemoveIcon from "@material-ui/icons/Remove";
 import SaveIcon from "@material-ui/icons/Save";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
 import { ReduxState } from "../redux";
 import { _schedules } from "../redux/actions";
+import { getDaysInSchedule } from "../utils/datetime";
 
 const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
       width: "100%",
       paddingBottom: theme.spacing(2)
+    },
+    paddedButton: {
+      marginTop: theme.spacing(1),
+      marginRight: theme.spacing(1)
     },
     paper: {
       padding: theme.spacing(2),
@@ -173,6 +180,20 @@ const AvailabilityPage: React.FC = () => {
     [isDayValid]
   );
 
+  const onClickAddAll = React.useCallback(() => {
+    if (!schedule) {
+      return;
+    }
+
+    const daysInSchedule = getDaysInSchedule(schedule);
+
+    setNewAvailability(daysInSchedule);
+  }, [schedule]);
+
+  const onClickRemoveAll = React.useCallback(() => {
+    setNewAvailability([]);
+  }, []);
+
   const tooltipAccessor = React.useCallback(() => "Click on a day to toggle your availability", []);
 
   /**
@@ -196,6 +217,27 @@ const AvailabilityPage: React.FC = () => {
     <div className={classes.root}>
       <Typography variant="h6">Edit your availability for {schedule?.name}</Typography>
       <Typography variant="body2">Click on a day in the calendar to toggle your availability</Typography>
+
+      <Button
+        className={classes.paddedButton}
+        variant="contained"
+        color="secondary"
+        startIcon={<AddIcon />}
+        disabled={isGettingAvailability || isCreatingAvailability}
+        onClick={onClickAddAll}
+      >
+        Add All
+      </Button>
+      <Button
+        className={classes.paddedButton}
+        variant="contained"
+        color="secondary"
+        startIcon={<RemoveIcon />}
+        disabled={isGettingAvailability || isCreatingAvailability}
+        onClick={onClickRemoveAll}
+      >
+        Remove All
+      </Button>
 
       <Paper className={classes.paper}>
         <div className={classes.calendarContainer}>
