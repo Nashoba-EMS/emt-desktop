@@ -214,7 +214,9 @@ const SchedulePage: React.FC = () => {
     setIsBuildingSchedule(true);
 
     setTimeout(() => {
-      buildSchedule(schedule, cadets, availability);
+      const newSchedule = buildSchedule(schedule, cadets, availability);
+
+      setAssignments(() => newSchedule.assignments);
 
       setIsBuildingSchedule(() => false);
     }, 100);
