@@ -3,6 +3,13 @@ import moment from "moment";
 import { Schedule } from "../api/schedules.d";
 
 /**
+ * Get the current time in a human readable timestamp
+ */
+export const getHumanTimestamp = () => {
+  return moment().format("h:mm:ss a");
+};
+
+/**
  * Check if a YYYY-MM-DD formated date is valid
  */
 export const isDateStringValid = (date: string): boolean => date.match(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/) !== null;

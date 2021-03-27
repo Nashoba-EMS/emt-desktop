@@ -87,6 +87,10 @@ const useStyles = makeStyles((theme) =>
       background: theme.palette.error.main,
       color: theme.palette.error.contrastText
     },
+    successMessage: {
+      background: theme.palette.success.main,
+      color: theme.palette.error.contrastText
+    },
     printBox: {
       position: "fixed",
       width: "100%",
@@ -112,6 +116,10 @@ const App: React.FC = () => {
   const crewAssignments = useSelector((state: ReduxState) => state.crews.crewAssignments);
   const schedules = useSelector((state: ReduxState) => state.schedules.schedules);
 
+  const usersSuccessMessage = useSelector((state: ReduxState) => state.users.successMessage);
+  const crewsSuccessMessage = useSelector((state: ReduxState) => state.crews.successMessage);
+  const scheduleSuccessMessage = useSelector((state: ReduxState) => state.schedules.successMessage);
+
   const isGettingAllUsers = useSelector((state: ReduxState) => state.users.isGettingAllUsers);
   const getAllUsersErrorMessage = useSelector((state: ReduxState) => state.users.getAllUsersErrorMessage);
   const createUserErrorMessage = useSelector((state: ReduxState) => state.users.createUserErrorMessage);
@@ -135,6 +143,7 @@ const App: React.FC = () => {
   );
 
   const [errorMessage, setErrorMessage] = React.useState<string>("");
+  const [successMessage, setSuccessMessage] = React.useState<string>("");
   const [crewsOpen, setCrewsOpen] = React.useState<boolean>(true);
   const [schedulesOpen, setSchedulesOpen] = React.useState<boolean>(true);
   const [cadetsOpen, setCadetsOpen] = React.useState<boolean>(true);
@@ -171,6 +180,21 @@ const App: React.FC = () => {
       dispatchGetAllSchedules();
     }
   }, [dispatchGetAllSchedules, token]);
+
+  /**
+   * Display success message
+   */
+  React.useEffect(() => {
+    if (usersSuccessMessage) setSuccessMessage(usersSuccessMessage);
+  }, [usersSuccessMessage]);
+
+  React.useEffect(() => {
+    if (crewsSuccessMessage) setSuccessMessage(crewsSuccessMessage);
+  }, [crewsSuccessMessage]);
+
+  React.useEffect(() => {
+    if (scheduleSuccessMessage) setSuccessMessage(scheduleSuccessMessage);
+  }, [scheduleSuccessMessage]);
 
   /**
    * Display error message
@@ -452,6 +476,23 @@ const App: React.FC = () => {
           message={errorMessage}
           action={
             <Button color="inherit" size="small" onClick={() => setErrorMessage("")}>
+              Hide
+            </Button>
+          }
+        />
+      </Snackbar>
+
+      <Snackbar
+        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+        open={successMessage !== ""}
+        autoHideDuration={4000}
+        onClose={() => setSuccessMessage("")}
+      >
+        <SnackbarContent
+          className={classes.successMessage}
+          message={successMessage}
+          action={
+            <Button color="inherit" size="small" onClick={() => setSuccessMessage("")}>
               Hide
             </Button>
           }

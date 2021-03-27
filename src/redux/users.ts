@@ -1,4 +1,5 @@
 import { User, UserOptionalPassword, UserWithoutPassword } from "../api/users.d";
+import { getHumanTimestamp } from "../utils/datetime";
 import {
   UsersActionTypes,
   LOAD_SESSION_DONE,
@@ -17,7 +18,8 @@ import {
   UPDATE_USER_SUCCESS,
   UPDATE_USER_FAILURE,
   DELETE_USER_START,
-  DELETE_USER_SUCCESS
+  DELETE_USER_SUCCESS,
+  CLEAR_USERS_SUCCESS_MESSAGE
 } from "./types/users";
 
 export interface UsersState {
@@ -28,6 +30,8 @@ export interface UsersState {
 
   user: UserWithoutPassword | null;
   token: string;
+
+  successMessage: string;
 
   isGettingAllUsers: boolean;
   getAllUsersErrorMessage: string;
@@ -50,6 +54,8 @@ const initialState: UsersState = {
 
   user: null,
   token: "",
+
+  successMessage: "",
 
   isGettingAllUsers: false,
   getAllUsersErrorMessage: "",
@@ -100,7 +106,7 @@ const reducer = (state = initialState, action: UsersActionTypes): UsersState => 
         ...state,
         authenticated: false,
         isAuthenticating: false,
-        authenticationErrorMessage: action.body.error.message
+        authenticationErrorMessage: `${action.body.error.message} at ${getHumanTimestamp()}`
       };
     case LOGOUT:
       return {
@@ -108,6 +114,11 @@ const reducer = (state = initialState, action: UsersActionTypes): UsersState => 
         authenticated: false,
         user: null,
         token: ""
+      };
+    case CLEAR_USERS_SUCCESS_MESSAGE:
+      return {
+        ...state,
+        successMessage: ""
       };
     case GET_ALL_USERS_START:
       return {
@@ -125,7 +136,7 @@ const reducer = (state = initialState, action: UsersActionTypes): UsersState => 
       return {
         ...state,
         isGettingAllUsers: false,
-        getAllUsersErrorMessage: action.body.error.message
+        getAllUsersErrorMessage: `${action.body.error.message} at ${getHumanTimestamp()}`
       };
     case CREATE_USER_START:
       return {
@@ -136,6 +147,7 @@ const reducer = (state = initialState, action: UsersActionTypes): UsersState => 
     case CREATE_USER_SUCCESS:
       return {
         ...state,
+        successMessage: `Created user at ${getHumanTimestamp()}`,
         isCreatingUser: false,
         cadets: [...state.cadets, action.body.user],
         latestCadet: action.body.user
@@ -144,7 +156,7 @@ const reducer = (state = initialState, action: UsersActionTypes): UsersState => 
       return {
         ...state,
         isCreatingUser: false,
-        createUserErrorMessage: action.body.error.message
+        createUserErrorMessage: `${action.body.error.message} at ${getHumanTimestamp()}`
       };
     case UPDATE_USER_START:
       return {
@@ -155,6 +167,7 @@ const reducer = (state = initialState, action: UsersActionTypes): UsersState => 
     case UPDATE_USER_SUCCESS:
       return {
         ...state,
+        successMessage: `Saved user at ${getHumanTimestamp()}`,
         isUpdatingUser: false,
         cadets: [...state.cadets.filter((cadet) => cadet._id !== action.body.user._id), action.body.user],
         latestCadet: action.body.user,
@@ -164,7 +177,7 @@ const reducer = (state = initialState, action: UsersActionTypes): UsersState => 
       return {
         ...state,
         isUpdatingUser: false,
-        updateUserErrorMessage: action.body.error.message
+        updateUserErrorMessage: `${action.body.error.message} at ${getHumanTimestamp()}`
       };
     case DELETE_USER_START:
       return {
@@ -175,6 +188,7 @@ const reducer = (state = initialState, action: UsersActionTypes): UsersState => 
     case DELETE_USER_SUCCESS:
       return {
         ...state,
+        successMessage: `Deleted user at ${getHumanTimestamp()}`,
         isDeletingUser: false,
         cadets: state.cadets.filter((cadet) => cadet._id !== action.body.user._id)
       };

@@ -1,4 +1,5 @@
 import { Schedule, ScheduleAvailability } from "../api/schedules.d";
+import { getHumanTimestamp } from "../utils/datetime";
 import {
   SchedulesActionTypes,
   GET_ALL_SCHEDULES_START,
@@ -17,10 +18,13 @@ import {
   GET_AVAILABILITY_FAILURE,
   CREATE_AVAILABILITY_START,
   CREATE_AVAILABILITY_SUCCESS,
-  CREATE_AVAILABILITY_FAILURE
+  CREATE_AVAILABILITY_FAILURE,
+  CLEAR_SCHEDULE_SUCCESS_MESSAGE
 } from "./types/schedules";
 
 export interface SchedulesState {
+  successMessage: string;
+
   isGettingAllSchedules: boolean;
   getAllSchedulesErrorMessage: string;
   isCreatingSchedule: boolean;
@@ -41,6 +45,8 @@ export interface SchedulesState {
 }
 
 const initialState: SchedulesState = {
+  successMessage: "",
+
   isGettingAllSchedules: false,
   getAllSchedulesErrorMessage: "",
   isCreatingSchedule: false,
@@ -62,6 +68,11 @@ const initialState: SchedulesState = {
 
 const reducer = (state = initialState, action: SchedulesActionTypes): SchedulesState => {
   switch (action.type) {
+    case CLEAR_SCHEDULE_SUCCESS_MESSAGE:
+      return {
+        ...state,
+        successMessage: ""
+      };
     case GET_ALL_SCHEDULES_START:
       return {
         ...state,
@@ -78,7 +89,7 @@ const reducer = (state = initialState, action: SchedulesActionTypes): SchedulesS
       return {
         ...state,
         isGettingAllSchedules: false,
-        getAllSchedulesErrorMessage: action.body.error.message
+        getAllSchedulesErrorMessage: `${action.body.error.message} at ${getHumanTimestamp()}`
       };
     case CREATE_SCHEDULE_START:
       return {
@@ -89,6 +100,7 @@ const reducer = (state = initialState, action: SchedulesActionTypes): SchedulesS
     case CREATE_SCHEDULE_SUCCESS:
       return {
         ...state,
+        successMessage: `Created schedule at ${getHumanTimestamp()}`,
         isCreatingSchedule: false,
         schedules: [...state.schedules, action.body.schedule]
       };
@@ -96,7 +108,7 @@ const reducer = (state = initialState, action: SchedulesActionTypes): SchedulesS
       return {
         ...state,
         isCreatingSchedule: false,
-        createScheduleErrorMessage: action.body.error.message
+        createScheduleErrorMessage: `${action.body.error.message} at ${getHumanTimestamp()}`
       };
     case UPDATE_SCHEDULE_START:
       return {
@@ -107,6 +119,7 @@ const reducer = (state = initialState, action: SchedulesActionTypes): SchedulesS
     case UPDATE_SCHEDULE_SUCCESS:
       return {
         ...state,
+        successMessage: `Saved schedule at ${getHumanTimestamp()}`,
         isUpdatingSchedule: false,
         schedules: [
           ...state.schedules.filter((schedule) => schedule._id !== action.body.schedule._id),
@@ -117,7 +130,7 @@ const reducer = (state = initialState, action: SchedulesActionTypes): SchedulesS
       return {
         ...state,
         isUpdatingSchedule: false,
-        updateScheduleErrorMessage: action.body.error.message
+        updateScheduleErrorMessage: `${action.body.error.message} at ${getHumanTimestamp()}`
       };
     case DELETE_SCHEDULE_START:
       return {
@@ -128,6 +141,7 @@ const reducer = (state = initialState, action: SchedulesActionTypes): SchedulesS
     case DELETE_SCHEDULE_SUCCESS:
       return {
         ...state,
+        successMessage: `Deleted schedule at ${getHumanTimestamp()}`,
         isDeletingSchedule: false,
         schedules: state.schedules.filter((schedule) => schedule._id !== action.body.schedule._id)
       };
@@ -154,7 +168,7 @@ const reducer = (state = initialState, action: SchedulesActionTypes): SchedulesS
       return {
         ...state,
         isGettingAvailability: false,
-        getAvailabilityErrorMessage: action.body.error.message
+        getAvailabilityErrorMessage: `${action.body.error.message} at ${getHumanTimestamp()}`
       };
     case CREATE_AVAILABILITY_START:
       return {
@@ -165,6 +179,7 @@ const reducer = (state = initialState, action: SchedulesActionTypes): SchedulesS
     case CREATE_AVAILABILITY_SUCCESS:
       return {
         ...state,
+        successMessage: `Saved availability at ${getHumanTimestamp()}`,
         isCreatingAvailability: false,
         availability: [
           ...state.availability.filter(
@@ -179,7 +194,7 @@ const reducer = (state = initialState, action: SchedulesActionTypes): SchedulesS
       return {
         ...state,
         isCreatingAvailability: false,
-        createAvailabilityErrorMessage: action.body.error.message
+        createAvailabilityErrorMessage: `${action.body.error.message} at ${getHumanTimestamp()}`
       };
     default:
       return state;

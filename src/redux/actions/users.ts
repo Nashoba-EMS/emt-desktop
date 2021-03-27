@@ -21,7 +21,8 @@ import {
   UPDATE_USER_FAILURE,
   DELETE_USER_START,
   DELETE_USER_SUCCESS,
-  DELETE_USER_FAILURE
+  DELETE_USER_FAILURE,
+  CLEAR_USERS_SUCCESS_MESSAGE
 } from "../types/users";
 
 /**
@@ -126,6 +127,13 @@ export const logout = (): UsersActionTypes => {
     type: LOGOUT
   };
 };
+
+/**
+ * Clear the users success message
+ */
+export const clearUsersSuccessMessage = (): UsersActionTypes => ({
+  type: CLEAR_USERS_SUCCESS_MESSAGE
+});
 
 const getAllUsersStart = defaultStart(GET_ALL_USERS_START);
 const getAllUsersSuccess = defaultSuccess<UsersApi.GetAllUsersResponse>(GET_ALL_USERS_SUCCESS);

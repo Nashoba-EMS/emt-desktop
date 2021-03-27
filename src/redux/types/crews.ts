@@ -3,6 +3,7 @@ import { ThunkAction } from "redux-thunk";
 import { FailureResponse, SuccessResponse } from "../../api/endpoints";
 import { CreateCrewResponse, DeleteCrewResponse, GetAllCrewsResponse, UpdateCrewResponse } from "../../api/crews";
 
+export const CLEAR_CREWS_SUCCESS_MESSAGE = "CLEAR_CREWS_SUCCESS_MESSAGE";
 export const GET_ALL_CREWS_START = "GET_ALL_CREWS_START";
 export const GET_ALL_CREWS_SUCCESS = "GET_ALL_CREWS_SUCCESS";
 export const GET_ALL_CREWS_FAILURE = "GET_ALL_CREWS_FAILURE";
@@ -15,6 +16,10 @@ export const UPDATE_CREW_FAILURE = "UPDATE_CREW_FAILURE";
 export const DELETE_CREW_START = "DELETE_CREW_START";
 export const DELETE_CREW_SUCCESS = "DELETE_CREW_SUCCESS";
 export const DELETE_CREW_FAILURE = "DELETE_CREW_FAILURE";
+
+interface ClearCrewsSuccessMessage {
+  type: typeof CLEAR_CREWS_SUCCESS_MESSAGE;
+}
 
 interface GetAllCrewsStartAction {
   type: typeof GET_ALL_CREWS_START;
@@ -65,6 +70,7 @@ type DeleteCrewFailureAction = {
 } & FailureResponse;
 
 export type CrewsActionTypes =
+  | ClearCrewsSuccessMessage
   | GetAllCrewsStartAction
   | GetAllCrewsSuccessAction
   | GetAllCrewsFailureAction

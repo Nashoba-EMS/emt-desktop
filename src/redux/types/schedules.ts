@@ -13,6 +13,8 @@ import {
   UpdateScheduleResponse
 } from "../../api/schedules";
 
+export const CLEAR_SCHEDULE_SUCCESS_MESSAGE = "CLEAR_SCHEDULE_SUCCESS_MESSAGE";
+
 export const GET_ALL_SCHEDULES_START = "GET_ALL_SCHEDULES_START";
 export const GET_ALL_SCHEDULES_SUCCESS = "GET_ALL_SCHEDULES_SUCCESS";
 export const GET_ALL_SCHEDULES_FAILURE = "GET_ALL_SCHEDULES_FAILURE";
@@ -31,6 +33,10 @@ export const GET_AVAILABILITY_FAILURE = "GET_AVAILABILITY_FAILURE";
 export const CREATE_AVAILABILITY_START = "CREATE_AVAILABILITY_START";
 export const CREATE_AVAILABILITY_SUCCESS = "CREATE_AVAILABILITY_SUCCESS";
 export const CREATE_AVAILABILITY_FAILURE = "CREATE_AVAILABILITY_FAILURE";
+
+interface ClearScheduleSuccessMessage {
+  type: typeof CLEAR_SCHEDULE_SUCCESS_MESSAGE;
+}
 
 interface GetAllSchedulesStartAction {
   type: typeof GET_ALL_SCHEDULES_START;
@@ -106,6 +112,7 @@ type CreateAvailabilityFailureAction = {
 } & FailureResponse;
 
 export type SchedulesActionTypes =
+  | ClearScheduleSuccessMessage
   | GetAllSchedulesStartAction
   | GetAllSchedulesSuccessAction
   | GetAllSchedulesFailureAction

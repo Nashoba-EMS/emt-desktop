@@ -15,7 +15,8 @@ import {
   UPDATE_CREW_FAILURE,
   DELETE_CREW_START,
   DELETE_CREW_SUCCESS,
-  DELETE_CREW_FAILURE
+  DELETE_CREW_FAILURE,
+  CLEAR_CREWS_SUCCESS_MESSAGE
 } from "../types/crews";
 
 /**
@@ -45,6 +46,13 @@ const defaultFailure = (type: CrewsActionTypes["type"]) => (response: FailureRes
     type,
     ...response
   } as CrewsActionTypes);
+
+/**
+ * Clear the crews success message
+ */
+export const clearCrewsSuccessMessage = (): CrewsActionTypes => ({
+  type: CLEAR_CREWS_SUCCESS_MESSAGE
+});
 
 const getAllCrewsStart = defaultStart(GET_ALL_CREWS_START);
 const getAllCrewsSuccess = defaultSuccess<CrewsApi.GetAllCrewsResponse>(GET_ALL_CREWS_SUCCESS);

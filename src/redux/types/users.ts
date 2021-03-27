@@ -16,6 +16,7 @@ export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
 export const LOGIN_FAILURE = "LOGIN_FAILURE";
 export const LOGOUT = "LOGOUT";
 
+export const CLEAR_USERS_SUCCESS_MESSAGE = "CLEAR_USERS_SUCCESS_MESSAGE";
 export const GET_ALL_USERS_START = "GET_ALL_USERS_START";
 export const GET_ALL_USERS_SUCCESS = "GET_ALL_USERS_SUCCESS";
 export const GET_ALL_USERS_FAILURE = "GET_ALL_USERS_FAILURE";
@@ -28,6 +29,10 @@ export const UPDATE_USER_FAILURE = "UPDATE_USER_FAILURE";
 export const DELETE_USER_START = "DELETE_USER_START";
 export const DELETE_USER_SUCCESS = "DELETE_USER_SUCCESS";
 export const DELETE_USER_FAILURE = "DELETE_USER_FAILURE";
+
+type ClearUsersSuccessMessage = {
+  type: typeof CLEAR_USERS_SUCCESS_MESSAGE;
+};
 
 type LoadSessionDoneAction = {
   type: typeof LOAD_SESSION_DONE;
@@ -102,6 +107,7 @@ type DeleteUserFailureAction = {
 } & FailureResponse;
 
 export type UsersActionTypes =
+  | ClearUsersSuccessMessage
   | LoadSessionDoneAction
   | LoginResetAction
   | LoginStartAction

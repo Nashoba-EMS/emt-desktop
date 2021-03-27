@@ -1,4 +1,5 @@
 import { CrewAssignment } from "../api/crews.d";
+import { getHumanTimestamp } from "../utils/datetime";
 import {
   CrewsActionTypes,
   GET_ALL_CREWS_START,
@@ -11,10 +12,14 @@ import {
   UPDATE_CREW_SUCCESS,
   UPDATE_CREW_FAILURE,
   DELETE_CREW_START,
-  DELETE_CREW_SUCCESS
+  DELETE_CREW_SUCCESS,
+  CLEAR_CREWS_SUCCESS_MESSAGE,
+  DELETE_CREW_FAILURE
 } from "./types/crews";
 
 export interface CrewsState {
+  successMessage: string;
+
   isGettingAllCrews: boolean;
   getAllCrewsErrorMessage: string;
   isCreatingCrew: boolean;
@@ -28,6 +33,8 @@ export interface CrewsState {
 }
 
 const initialState: CrewsState = {
+  successMessage: "",
+
   isGettingAllCrews: false,
   getAllCrewsErrorMessage: "",
   isCreatingCrew: false,
@@ -42,6 +49,11 @@ const initialState: CrewsState = {
 
 const reducer = (state = initialState, action: CrewsActionTypes): CrewsState => {
   switch (action.type) {
+    case CLEAR_CREWS_SUCCESS_MESSAGE:
+      return {
+        ...state,
+        successMessage: ""
+      };
     case GET_ALL_CREWS_START:
       return {
         ...state,
@@ -58,7 +70,7 @@ const reducer = (state = initialState, action: CrewsActionTypes): CrewsState => 
       return {
         ...state,
         isGettingAllCrews: false,
-        getAllCrewsErrorMessage: action.body.error.message
+        getAllCrewsErrorMessage: `${action.body.error.message} at ${getHumanTimestamp()}`
       };
     case CREATE_CREW_START:
       return {
@@ -69,6 +81,7 @@ const reducer = (state = initialState, action: CrewsActionTypes): CrewsState => 
     case CREATE_CREW_SUCCESS:
       return {
         ...state,
+        successMessage: `Created crew at ${getHumanTimestamp()}`,
         isCreatingCrew: false,
         crewAssignments: [...state.crewAssignments, action.body.crewAssignment]
       };
@@ -76,7 +89,7 @@ const reducer = (state = initialState, action: CrewsActionTypes): CrewsState => 
       return {
         ...state,
         isCreatingCrew: false,
-        createCrewErrorMessage: action.body.error.message
+        createCrewErrorMessage: `${action.body.error.message} at ${getHumanTimestamp()}`
       };
     case UPDATE_CREW_START:
       return {
@@ -87,6 +100,7 @@ const reducer = (state = initialState, action: CrewsActionTypes): CrewsState => 
     case UPDATE_CREW_SUCCESS:
       return {
         ...state,
+        successMessage: `Saved crew at ${getHumanTimestamp()}`,
         isUpdatingCrew: false,
         crewAssignments: [
           ...state.crewAssignments.filter((crewAssignment) => crewAssignment._id !== action.body.crewAssignment._id),
@@ -97,7 +111,7 @@ const reducer = (state = initialState, action: CrewsActionTypes): CrewsState => 
       return {
         ...state,
         isUpdatingCrew: false,
-        updateCrewErrorMessage: action.body.error.message
+        updateCrewErrorMessage: `${action.body.error.message} at ${getHumanTimestamp()}`
       };
     case DELETE_CREW_START:
       return {
@@ -108,10 +122,17 @@ const reducer = (state = initialState, action: CrewsActionTypes): CrewsState => 
     case DELETE_CREW_SUCCESS:
       return {
         ...state,
+        successMessage: `Deleted crew at ${getHumanTimestamp()}`,
         isDeletingCrew: false,
         crewAssignments: state.crewAssignments.filter(
           (crewAssignment) => crewAssignment._id !== action.body.crewAssignment._id
         )
+      };
+    case DELETE_CREW_FAILURE:
+      return {
+        ...state,
+        isDeletingCrew: false,
+        deleteCrewErrorMessage: `${action.body.error.message} at ${getHumanTimestamp()}`
       };
     default:
       return state;

@@ -21,7 +21,8 @@ import {
   GET_AVAILABILITY_FAILURE,
   CREATE_AVAILABILITY_START,
   CREATE_AVAILABILITY_SUCCESS,
-  CREATE_AVAILABILITY_FAILURE
+  CREATE_AVAILABILITY_FAILURE,
+  CLEAR_SCHEDULE_SUCCESS_MESSAGE
 } from "../types/schedules";
 
 /**
@@ -51,6 +52,13 @@ const defaultFailure = (type: SchedulesActionTypes["type"]) => (response: Failur
     type,
     ...response
   } as SchedulesActionTypes);
+
+/**
+ * Clear the schedule success message
+ */
+export const clearScheduleSuccessMessage = (): SchedulesActionTypes => ({
+  type: CLEAR_SCHEDULE_SUCCESS_MESSAGE
+});
 
 const getAllSchedulesStart = defaultStart(GET_ALL_SCHEDULES_START);
 const getAllSchedulesSuccess = defaultSuccess<SchedulesApi.GetAllSchedulesResponse>(GET_ALL_SCHEDULES_SUCCESS);
