@@ -82,6 +82,27 @@ const compareScheduleDay = (a: ScheduleDay, b: ScheduleDay) => {
   return 0;
 };
 
+type CalendarEvent = Event & {
+  user_id: string;
+  chief: boolean;
+  certified: boolean;
+};
+
+const compareEvents = (a: CalendarEvent, b: CalendarEvent) => {
+  const aValue = `${a.chief ? "A" : a.certified ? "B" : "C"} ${a.title}`;
+  const bValue = `${b.chief ? "A" : b.certified ? "B" : "C"} ${b.title}`;
+
+  if (aValue < bValue) {
+    return -1;
+  }
+
+  if (aValue > bValue) {
+    return 1;
+  }
+
+  return 0;
+};
+
 const SchedulePage: React.FC = () => {
   const classes = useStyles();
 
@@ -125,10 +146,7 @@ const SchedulePage: React.FC = () => {
   );
 
   const availabilityEvents = React.useMemo(() => {
-    let events: (Event & {
-      user_id: string;
-      certified: boolean;
-    })[] = [];
+    let events: CalendarEvent[] = [];
 
     for (const availability of scheduleAvailability) {
       const cadet = cadets.find((cadet) => cadet._id === availability.user_id);
@@ -152,14 +170,11 @@ const SchedulePage: React.FC = () => {
       );
     }
 
-    return events;
+    return events.sort(compareEvents);
   }, [cadets, isDayValid, scheduleAvailability]);
 
   const scheduleEvents = React.useMemo(() => {
-    let events: (Event & {
-      user_id: string;
-      certified: boolean;
-    })[] = [];
+    let events: CalendarEvent[] = [];
 
     for (const assignment of assignments) {
       const date = moment(assignment.date).toDate();
