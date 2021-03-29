@@ -145,6 +145,42 @@ const SchedulePage: React.FC = () => {
     [scheduleEnd, scheduleStart]
   );
 
+  const legendEvents = React.useMemo(() => {
+    const dayBeforeStart = scheduleStart.subtract(scheduleStart.day(), "day").toDate();
+
+    const events: CalendarEvent[] = [
+      {
+        title: "Chief",
+        user_id: "",
+        chief: true,
+        certified: true,
+        start: dayBeforeStart,
+        end: dayBeforeStart,
+        allDay: true
+      },
+      {
+        title: "Certified",
+        user_id: "",
+        chief: false,
+        certified: true,
+        start: dayBeforeStart,
+        end: dayBeforeStart,
+        allDay: true
+      },
+      {
+        title: "Regular",
+        user_id: "",
+        chief: false,
+        certified: false,
+        start: dayBeforeStart,
+        end: dayBeforeStart,
+        allDay: true
+      }
+    ];
+
+    return events;
+  }, [scheduleStart]);
+
   const availabilityEvents = React.useMemo(() => {
     let events: CalendarEvent[] = [];
 
@@ -170,8 +206,8 @@ const SchedulePage: React.FC = () => {
       );
     }
 
-    return events.sort(compareEvents);
-  }, [cadets, isDayValid, scheduleAvailability]);
+    return [...legendEvents, ...events.sort(compareEvents)];
+  }, [cadets, isDayValid, legendEvents, scheduleAvailability]);
 
   const scheduleEvents = React.useMemo(() => {
     let events: CalendarEvent[] = [];
@@ -196,8 +232,8 @@ const SchedulePage: React.FC = () => {
       );
     }
 
-    return events;
-  }, [assignments, cadets]);
+    return [...legendEvents, ...events];
+  }, [assignments, cadets, legendEvents]);
 
   const noModifications = React.useMemo(() => {
     return (
@@ -330,51 +366,12 @@ const SchedulePage: React.FC = () => {
     <div className={classes.root}>
       <Paper className={classes.paperTabs}>
         <Tabs variant="fullWidth" value={tabIndex} onChange={(e, v) => setTabIndex(v)}>
-          <Tab label="View Availability" />
           <Tab label="View/Manage Schedule" />
+          <Tab label="View Availability" />
         </Tabs>
       </Paper>
 
       {tabIndex === 0 && (
-        <React.Fragment>
-          <Grid container direction="row" alignItems="center">
-            <Typography variant="h6">Everyone's availability for {schedule?.name}</Typography>
-            {schedule?.editable ? (
-              <Tooltip title="This schedule is still accepting responses">
-                <LockOpenIcon fontSize="small" color="secondary" />
-              </Tooltip>
-            ) : (
-              <Tooltip title="This schedule is not accepting responses">
-                <LockIcon fontSize="small" color="secondary" />
-              </Tooltip>
-            )}
-          </Grid>
-          <Typography variant="body2">
-            If a cadet's availability is missing, you should remind them they need to add their availability before you
-            can generate a schedule. If a cadet has no availability listed below, they will not be included in the
-            generated schedule.
-          </Typography>
-
-          <Paper className={classes.paper}>
-            <div className={classes.calendarContainer}>
-              <Calendar
-                localizer={localizer}
-                defaultView="month"
-                views={["month"]}
-                showAllEvents
-                date={visibleDate}
-                onNavigate={(newDate) => setVisibleDate(newDate)}
-                events={availabilityEvents}
-                dayPropGetter={dayPropGetter}
-                eventPropGetter={eventPropGetter}
-                style={{ width: "100%", height: 800 }}
-              />
-            </div>
-          </Paper>
-        </React.Fragment>
-      )}
-
-      {tabIndex === 1 && (
         <React.Fragment>
           <Grid container direction="row" alignItems="center">
             <Typography variant="h6">View/manage schedule for {schedule?.name}</Typography>
@@ -468,6 +465,45 @@ const SchedulePage: React.FC = () => {
           >
             Save Changes
           </Button>
+        </React.Fragment>
+      )}
+
+      {tabIndex === 1 && (
+        <React.Fragment>
+          <Grid container direction="row" alignItems="center">
+            <Typography variant="h6">Everyone's availability for {schedule?.name}</Typography>
+            {schedule?.editable ? (
+              <Tooltip title="This schedule is still accepting responses">
+                <LockOpenIcon fontSize="small" color="secondary" />
+              </Tooltip>
+            ) : (
+              <Tooltip title="This schedule is not accepting responses">
+                <LockIcon fontSize="small" color="secondary" />
+              </Tooltip>
+            )}
+          </Grid>
+          <Typography variant="body2">
+            If a cadet's availability is missing, you should remind them they need to add their availability before you
+            can generate a schedule. If a cadet has no availability listed below, they will not be included in the
+            generated schedule.
+          </Typography>
+
+          <Paper className={classes.paper}>
+            <div className={classes.calendarContainer}>
+              <Calendar
+                localizer={localizer}
+                defaultView="month"
+                views={["month"]}
+                showAllEvents
+                date={visibleDate}
+                onNavigate={(newDate) => setVisibleDate(newDate)}
+                events={availabilityEvents}
+                dayPropGetter={dayPropGetter}
+                eventPropGetter={eventPropGetter}
+                style={{ width: "100%", height: 800 }}
+              />
+            </div>
+          </Paper>
         </React.Fragment>
       )}
     </div>

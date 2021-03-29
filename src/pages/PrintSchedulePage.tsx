@@ -1,6 +1,6 @@
 import React from "react";
 import moment from "moment";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { Calendar, Event, momentLocalizer } from "react-big-calendar";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
@@ -9,7 +9,6 @@ import Paper from "@material-ui/core/Paper";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
 import { ReduxState } from "../redux";
-import { Schedule, ScheduleDay } from "../api/schedules.d";
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -36,6 +35,12 @@ const useStyles = makeStyles((theme) =>
 
 const localizer = momentLocalizer(moment);
 
+type CalendarEvent = Event & {
+  user_id: string;
+  chief: boolean;
+  certified: boolean;
+};
+
 const PrintSchedulePage: React.FC<{ id: string }> = ({ id }) => {
   const classes = useStyles();
 
@@ -58,6 +63,42 @@ const PrintSchedulePage: React.FC<{ id: string }> = ({ id }) => {
     },
     [scheduleEnd, scheduleStart]
   );
+
+  const legendEvents = React.useMemo(() => {
+    const dayBeforeStart = scheduleStart.subtract(scheduleStart.day(), "day").toDate();
+
+    const events: CalendarEvent[] = [
+      {
+        title: "Chief",
+        user_id: "",
+        chief: true,
+        certified: true,
+        start: dayBeforeStart,
+        end: dayBeforeStart,
+        allDay: true
+      },
+      {
+        title: "Certified",
+        user_id: "",
+        chief: false,
+        certified: true,
+        start: dayBeforeStart,
+        end: dayBeforeStart,
+        allDay: true
+      },
+      {
+        title: "Regular",
+        user_id: "",
+        chief: false,
+        certified: false,
+        start: dayBeforeStart,
+        end: dayBeforeStart,
+        allDay: true
+      }
+    ];
+
+    return events;
+  }, [scheduleStart]);
 
   const scheduleEvents = React.useMemo(() => {
     let events: (Event & {
@@ -85,8 +126,8 @@ const PrintSchedulePage: React.FC<{ id: string }> = ({ id }) => {
       );
     }
 
-    return events;
-  }, [cadets, schedule?.assignments]);
+    return [...legendEvents, ...events];
+  }, [cadets, legendEvents, schedule?.assignments]);
 
   const dayPropGetter = React.useCallback(
     (date: Date) => {
