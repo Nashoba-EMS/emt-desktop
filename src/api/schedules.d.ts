@@ -3,6 +3,7 @@ export interface Schedule {
   name: string;
   startDate: string;
   endDate: string;
+  excludedDates: string[];
   editable: boolean;
   assignments: ScheduleDay[];
 }

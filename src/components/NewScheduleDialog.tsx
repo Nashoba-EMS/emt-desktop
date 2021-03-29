@@ -57,6 +57,7 @@ const NewScheduleDialog: React.FC<{ onClose(): void }> = ({ onClose }) => {
     name: "",
     startDate: "",
     endDate: "",
+    excludedDates: [],
     editable: true,
     assignments: []
   });

@@ -9,6 +9,7 @@ import Paper from "@material-ui/core/Paper";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
 import { ReduxState } from "../redux";
+import { isDayValid } from "../utils/datetime";
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -53,16 +54,6 @@ const PrintSchedulePage: React.FC<{ id: string }> = ({ id }) => {
   const scheduleStart = React.useMemo(() => moment(schedule?.startDate), [schedule?.startDate]);
   const scheduleEnd = React.useMemo(() => moment(schedule?.endDate), [schedule?.endDate]);
   const scheduleStartDate = React.useMemo(() => scheduleStart.toDate(), [scheduleStart]);
-
-  const isDayValid = React.useCallback(
-    (date: string | Date) => {
-      const dateMoment = moment(date);
-      const dayOfWeek = dateMoment.day();
-
-      return dateMoment.isBetween(scheduleStart, scheduleEnd, "day", "[]") && dayOfWeek !== 0 && dayOfWeek !== 6;
-    },
-    [scheduleEnd, scheduleStart]
-  );
 
   const legendEvents = React.useMemo(() => {
     const dayBeforeStart = scheduleStart.subtract(scheduleStart.day(), "day").toDate();
@@ -109,29 +100,31 @@ const PrintSchedulePage: React.FC<{ id: string }> = ({ id }) => {
     for (const assignment of schedule?.assignments ?? []) {
       const date = moment(assignment.date).toDate();
 
-      events = events.concat(
-        assignment.cadet_ids.map((cadet_id) => {
-          const cadet = cadets.find((cadet) => cadet._id === cadet_id);
+      if (schedule && isDayValid(schedule, date)) {
+        events = events.concat(
+          assignment.cadet_ids.map((cadet_id) => {
+            const cadet = cadets.find((cadet) => cadet._id === cadet_id);
 
-          return {
-            title: cadet?.name ?? "Unknown",
-            user_id: cadet_id,
-            chief: cadet?.chief ?? false,
-            certified: cadet?.certified ?? false,
-            start: date,
-            end: date,
-            allDay: true
-          };
-        })
-      );
+            return {
+              title: cadet?.name ?? "Unknown",
+              user_id: cadet_id,
+              chief: cadet?.chief ?? false,
+              certified: cadet?.certified ?? false,
+              start: date,
+              end: date,
+              allDay: true
+            };
+          })
+        );
+      }
     }
 
     return [...legendEvents, ...events];
-  }, [cadets, legendEvents, schedule?.assignments]);
+  }, [cadets, legendEvents, schedule]);
 
   const dayPropGetter = React.useCallback(
     (date: Date) => {
-      if (!isDayValid(date)) {
+      if (schedule && !isDayValid(schedule, date)) {
         return {
           style: {
             backgroundColor: "#ECECED"
@@ -141,7 +134,7 @@ const PrintSchedulePage: React.FC<{ id: string }> = ({ id }) => {
 
       return {};
     },
-    [isDayValid]
+    [schedule]
   );
 
   const eventPropGetter = React.useCallback(

@@ -32,6 +32,7 @@ import { ReduxState } from "../redux";
 import { _schedules } from "../redux/actions";
 import { Schedule, ScheduleDay } from "../api/schedules.d";
 import { buildSchedule } from "../utils/schedule";
+import { isDayValid } from "../utils/datetime";
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -128,31 +129,30 @@ const SchedulePage: React.FC = () => {
   const [visibleDate, setVisibleDate] = React.useState<Date>(new Date());
   const [tabIndex, setTabIndex] = React.useState<number>(0);
   const [editable, setEditable] = React.useState<boolean>(false);
+  const [excludedDates, setExcludedDates] = React.useState<string[]>([]);
   const [assignments, setAssignments] = React.useState<Schedule["assignments"]>([]);
-  const [isBuildingSchedule, setIsBuildingSchedule] = React.useState<boolean>(false);
   const [showDeleteDialog, setShowDeleteDialog] = React.useState<boolean>(false);
 
-  const schedule = React.useMemo(() => schedules.find((schedule) => schedule._id === schedule_id), [
+  const savedSchedule = React.useMemo(() => schedules.find((schedule) => schedule._id === schedule_id), [
     schedule_id,
     schedules
   ]);
+  const schedule = React.useMemo(
+    () =>
+      savedSchedule
+        ? {
+            ...savedSchedule,
+            excludedDates
+          }
+        : undefined,
+    [excludedDates, savedSchedule]
+  );
   const scheduleStart = React.useMemo(() => moment(schedule?.startDate), [schedule?.startDate]);
-  const scheduleEnd = React.useMemo(() => moment(schedule?.endDate), [schedule?.endDate]);
   const scheduleStartDate = React.useMemo(() => scheduleStart.toDate(), [scheduleStart]);
 
   const scheduleAvailability = React.useMemo(
     () => availability.filter((_availability) => _availability.schedule_id === schedule_id) ?? [],
     [availability, schedule_id]
-  );
-
-  const isDayValid = React.useCallback(
-    (date: string | Date) => {
-      const dateMoment = moment(date);
-      const dayOfWeek = dateMoment.day();
-
-      return dateMoment.isBetween(scheduleStart, scheduleEnd, "day", "[]") && dayOfWeek !== 0 && dayOfWeek !== 6;
-    },
-    [scheduleEnd, scheduleStart]
   );
 
   const legendEvents = React.useMemo(() => {
@@ -192,6 +192,8 @@ const SchedulePage: React.FC = () => {
   }, [scheduleStart]);
 
   const availabilityEvents = React.useMemo(() => {
+    if (!schedule) return [];
+
     let events: CalendarEvent[] = [];
 
     for (const availability of scheduleAvailability) {
@@ -199,7 +201,7 @@ const SchedulePage: React.FC = () => {
 
       events = events.concat(
         availability.days
-          .filter((day) => isDayValid(day))
+          .filter((day) => isDayValid(schedule, day))
           .map((day) => {
             const date = moment(day).toDate();
 
@@ -217,7 +219,7 @@ const SchedulePage: React.FC = () => {
     }
 
     return [...legendEvents, ...events.sort(compareEvents)];
-  }, [cadets, isDayValid, legendEvents, scheduleAvailability]);
+  }, [cadets, legendEvents, schedule, scheduleAvailability]);
 
   const scheduleEvents = React.useMemo(() => {
     let events: CalendarEvent[] = [];
@@ -225,33 +227,43 @@ const SchedulePage: React.FC = () => {
     for (const assignment of assignments) {
       const date = moment(assignment.date).toDate();
 
-      events = events.concat(
-        assignment.cadet_ids.map((cadet_id) => {
-          const cadet = cadets.find((cadet) => cadet._id === cadet_id);
+      if (schedule && isDayValid(schedule, date)) {
+        events = events.concat(
+          assignment.cadet_ids.map((cadet_id) => {
+            const cadet = cadets.find((cadet) => cadet._id === cadet_id);
 
-          return {
-            title: cadet?.name ?? "Unknown",
-            user_id: cadet_id,
-            chief: cadet?.chief ?? false,
-            certified: cadet?.certified ?? false,
-            start: date,
-            end: date,
-            allDay: true
-          };
-        })
-      );
+            return {
+              title: cadet?.name ?? "Unknown",
+              user_id: cadet_id,
+              chief: cadet?.chief ?? false,
+              certified: cadet?.certified ?? false,
+              start: date,
+              end: date,
+              allDay: true
+            };
+          })
+        );
+      }
     }
 
     return [...legendEvents, ...events];
-  }, [assignments, cadets, legendEvents]);
+  }, [assignments, cadets, legendEvents, schedule]);
 
   const noModifications = React.useMemo(() => {
     return (
       editable === schedule?.editable &&
+      JSON.stringify(savedSchedule?.excludedDates) === JSON.stringify(schedule?.excludedDates) &&
       JSON.stringify(assignments.sort(compareScheduleDay)) ===
         JSON.stringify(schedule?.assignments.sort(compareScheduleDay))
     );
-  }, [assignments, editable, schedule?.assignments, schedule?.editable]);
+  }, [
+    assignments,
+    editable,
+    savedSchedule?.excludedDates,
+    schedule?.assignments,
+    schedule?.editable,
+    schedule?.excludedDates
+  ]);
 
   const dispatch = useDispatch();
   const dispatchGetAvailabilityForSchedule = React.useCallback(
@@ -263,10 +275,11 @@ const SchedulePage: React.FC = () => {
       dispatch(
         _schedules.updateSchedule(token, schedule_id, {
           editable,
+          excludedDates,
           assignments
         })
       ),
-    [assignments, dispatch, editable, schedule_id, token]
+    [assignments, dispatch, editable, excludedDates, schedule_id, token]
   );
   const dispatchDeleteSchedule = React.useCallback(() => dispatch(_schedules.deleteSchedule(token, schedule_id)), [
     dispatch,
@@ -279,20 +292,14 @@ const SchedulePage: React.FC = () => {
       return;
     }
 
-    setIsBuildingSchedule(true);
+    const newSchedule = buildSchedule(schedule, cadets, availability);
 
-    setTimeout(() => {
-      const newSchedule = buildSchedule(schedule, cadets, availability);
-
-      setAssignments(() => newSchedule.assignments);
-
-      setIsBuildingSchedule(() => false);
-    }, 100);
+    setAssignments(newSchedule.assignments);
   }, [availability, cadets, schedule]);
 
   const dayPropGetter = React.useCallback(
     (date: Date) => {
-      if (!isDayValid(date)) {
+      if (schedule && !isDayValid(schedule, date)) {
         return {
           style: {
             backgroundColor: "#ECECED"
@@ -302,7 +309,7 @@ const SchedulePage: React.FC = () => {
 
       return {};
     },
-    [isDayValid]
+    [schedule]
   );
 
   const eventPropGetter = React.useCallback(
@@ -320,6 +327,27 @@ const SchedulePage: React.FC = () => {
     []
   );
 
+  const handleDayClick = React.useCallback(
+    (value: { start: string | Date }) => {
+      const dateMoment = moment(value.start);
+      const dayOfWeek = dateMoment.day();
+      const date = dateMoment.format("YYYY-MM-DD");
+
+      if (
+        dateMoment.isBetween(schedule?.startDate, schedule?.endDate, "day", "[]") &&
+        dayOfWeek !== 0 &&
+        dayOfWeek !== 6
+      ) {
+        setExcludedDates((prevExcludedDates) =>
+          prevExcludedDates.includes(date)
+            ? prevExcludedDates.filter((thisDate) => thisDate !== date)
+            : [...prevExcludedDates, date]
+        );
+      }
+    },
+    [schedule?.endDate, schedule?.startDate]
+  );
+
   /**
    * Refresh the availability of the given schedule
    */
@@ -332,6 +360,10 @@ const SchedulePage: React.FC = () => {
   React.useEffect(() => {
     setAssignments(schedule?.assignments ?? []);
   }, [schedule?.assignments]);
+
+  React.useEffect(() => {
+    setExcludedDates(savedSchedule?.excludedDates ?? []);
+  }, [savedSchedule?.excludedDates]);
 
   React.useEffect(() => {
     setEditable(schedule?.editable ?? false);
@@ -411,22 +443,18 @@ const SchedulePage: React.FC = () => {
 
           <Grid className={classes.paddedGrid} container direction="row" alignItems="flex-start">
             <Tooltip title="Warning: this can take some time to complete">
-              <Button
-                className={classes.paddedButton}
-                variant="contained"
-                color="secondary"
-                startIcon={
-                  isBuildingSchedule ? (
-                    <CircularProgress className={classes.spinner} color="inherit" size={16} />
-                  ) : (
-                    <AssignmentIndIcon />
-                  )
-                }
-                disabled={isGettingAvailability || isUpdatingSchedule || isBuildingSchedule || isDeletingSchedule}
-                onClick={onClickBuildSchedule}
-              >
-                Build Schedule
-              </Button>
+              <div>
+                <Button
+                  className={classes.paddedButton}
+                  variant="contained"
+                  color="secondary"
+                  startIcon={<AssignmentIndIcon />}
+                  disabled={isGettingAvailability || isUpdatingSchedule || isDeletingSchedule}
+                  onClick={onClickBuildSchedule}
+                >
+                  Build Schedule
+                </Button>
+              </div>
             </Tooltip>
 
             <FormGroup className={classes.checkboxContainer}>
@@ -444,11 +472,13 @@ const SchedulePage: React.FC = () => {
                 defaultView="month"
                 views={["month"]}
                 showAllEvents
+                selectable
                 date={visibleDate}
                 onNavigate={(newDate) => setVisibleDate(newDate)}
                 events={scheduleEvents}
                 dayPropGetter={dayPropGetter}
                 eventPropGetter={eventPropGetter}
+                onSelectSlot={handleDayClick}
                 style={{ width: "100%", height: 800 }}
               />
             </div>
@@ -459,6 +489,7 @@ const SchedulePage: React.FC = () => {
             color="secondary"
             disabled={noModifications}
             onClick={() => {
+              setExcludedDates(savedSchedule?.excludedDates ?? []);
               setAssignments(schedule?.assignments ?? []);
               setEditable(schedule?.editable ?? false);
             }}

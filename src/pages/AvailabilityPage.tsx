@@ -15,7 +15,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 
 import { ReduxState } from "../redux";
 import { _schedules } from "../redux/actions";
-import { getDaysInSchedule } from "../utils/datetime";
+import { getDaysInSchedule, isDayValid } from "../utils/datetime";
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -84,31 +84,23 @@ const AvailabilityPage: React.FC = () => {
     [availability, schedule_id, user?._id]
   );
 
-  const isDayValid = React.useCallback(
-    (date: string | Date) => {
-      const dateMoment = moment(date);
-      const dayOfWeek = dateMoment.day();
-
-      return dateMoment.isBetween(scheduleStart, scheduleEnd, "day", "[]") && dayOfWeek !== 0 && dayOfWeek !== 6;
-    },
-    [scheduleEnd, scheduleStart]
-  );
-
   const events = React.useMemo(
     () =>
-      newAvailability
-        .filter((day) => isDayValid(day))
-        .map((day) => {
-          const date = moment(day).toDate();
+      schedule
+        ? newAvailability
+            .filter((day) => isDayValid(schedule, day))
+            .map((day) => {
+              const date = moment(day).toDate();
 
-          return {
-            title: "Available",
-            start: date,
-            end: date,
-            allDay: true
-          };
-        }),
-    [isDayValid, newAvailability]
+              return {
+                title: "Available",
+                start: date,
+                end: date,
+                allDay: true
+              };
+            })
+        : [],
+    [newAvailability, schedule]
   );
 
   const noModifications = React.useMemo(() => {
@@ -138,7 +130,7 @@ const AvailabilityPage: React.FC = () => {
 
   const dayPropGetter = React.useCallback(
     (date: Date) => {
-      if (!isDayValid(date)) {
+      if (schedule && !isDayValid(schedule, date)) {
         return {
           style: {
             backgroundColor: "#ECECED"
@@ -150,7 +142,7 @@ const AvailabilityPage: React.FC = () => {
         className: classes.calendarDay
       };
     },
-    [classes.calendarDay, isDayValid]
+    [classes.calendarDay, schedule]
   );
 
   const eventPropGetter = React.useCallback(
@@ -169,7 +161,7 @@ const AvailabilityPage: React.FC = () => {
     (value: { start: string | Date }) => {
       const date = moment(value.start).format("YYYY-MM-DD");
 
-      if (isDayValid(date)) {
+      if (schedule && isDayValid(schedule, date)) {
         setNewAvailability((prevAvailability) =>
           prevAvailability.includes(date)
             ? prevAvailability.filter((_date) => _date !== date)
@@ -177,7 +169,7 @@ const AvailabilityPage: React.FC = () => {
         );
       }
     },
-    [isDayValid]
+    [schedule]
   );
 
   const onClickAddAll = React.useCallback(() => {
@@ -206,8 +198,10 @@ const AvailabilityPage: React.FC = () => {
   }, [dispatchGetAvailabilityForScheduleAndUser, token]);
 
   React.useEffect(() => {
-    setNewAvailability(userAvailability?.days.filter((day) => isDayValid(day)) ?? []);
-  }, [isDayValid, userAvailability]);
+    if (schedule) {
+      setNewAvailability(userAvailability?.days.filter((day) => isDayValid(schedule, day)) ?? []);
+    }
+  }, [schedule, userAvailability]);
 
   React.useEffect(() => {
     setVisibleDate(scheduleStartDate);
