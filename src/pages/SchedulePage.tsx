@@ -1,6 +1,6 @@
 import React from "react";
 import moment from "moment";
-import { useParams } from "react-router";
+import { useHistory, useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { Calendar, Event, momentLocalizer } from "react-big-calendar";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
@@ -11,11 +11,18 @@ import Grid from "@material-ui/core/Grid";
 import Tooltip from "@material-ui/core/Tooltip";
 import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
 import SaveIcon from "@material-ui/icons/Save";
+import DeleteIcon from "@material-ui/icons/Delete";
 import LockIcon from "@material-ui/icons/Lock";
 import LockOpenIcon from "@material-ui/icons/LockOpen";
 import AssignmentIndIcon from "@material-ui/icons/AssignmentInd";
@@ -107,6 +114,7 @@ const SchedulePage: React.FC = () => {
   const classes = useStyles();
 
   const { schedule_id } = useParams<{ schedule_id: string }>();
+  const history = useHistory();
 
   const user = useSelector((state: ReduxState) => state.users.user);
   const cadets = useSelector((state: ReduxState) => state.users.cadets);
@@ -115,12 +123,14 @@ const SchedulePage: React.FC = () => {
   const availability = useSelector((state: ReduxState) => state.schedules.availability);
   const isGettingAvailability = useSelector((state: ReduxState) => state.schedules.isGettingAvailability);
   const isUpdatingSchedule = useSelector((state: ReduxState) => state.schedules.isUpdatingSchedule);
+  const isDeletingSchedule = useSelector((state: ReduxState) => state.schedules.isDeletingSchedule);
 
   const [visibleDate, setVisibleDate] = React.useState<Date>(new Date());
   const [tabIndex, setTabIndex] = React.useState<number>(0);
   const [editable, setEditable] = React.useState<boolean>(false);
   const [assignments, setAssignments] = React.useState<Schedule["assignments"]>([]);
   const [isBuildingSchedule, setIsBuildingSchedule] = React.useState<boolean>(false);
+  const [showDeleteDialog, setShowDeleteDialog] = React.useState<boolean>(false);
 
   const schedule = React.useMemo(() => schedules.find((schedule) => schedule._id === schedule_id), [
     schedule_id,
@@ -258,6 +268,11 @@ const SchedulePage: React.FC = () => {
       ),
     [assignments, dispatch, editable, schedule_id, token]
   );
+  const dispatchDeleteSchedule = React.useCallback(() => dispatch(_schedules.deleteSchedule(token, schedule_id)), [
+    dispatch,
+    schedule_id,
+    token
+  ]);
 
   const onClickBuildSchedule = React.useCallback(() => {
     if (!schedule) {
@@ -407,7 +422,7 @@ const SchedulePage: React.FC = () => {
                     <AssignmentIndIcon />
                   )
                 }
-                disabled={isGettingAvailability || isUpdatingSchedule || isBuildingSchedule}
+                disabled={isGettingAvailability || isUpdatingSchedule || isBuildingSchedule || isDeletingSchedule}
                 onClick={onClickBuildSchedule}
               >
                 Build Schedule
@@ -460,11 +475,38 @@ const SchedulePage: React.FC = () => {
                 <SaveIcon />
               )
             }
-            disabled={noModifications || isGettingAvailability || isUpdatingSchedule}
+            disabled={noModifications || isGettingAvailability || isUpdatingSchedule || isDeletingSchedule}
             onClick={dispatchUpdateSchedule}
           >
             Save Changes
           </Button>
+
+          <IconButton disabled={isUpdatingSchedule || isDeletingSchedule} onClick={() => setShowDeleteDialog(true)}>
+            <DeleteIcon />
+          </IconButton>
+
+          <Dialog open={showDeleteDialog} onClose={() => setShowDeleteDialog(false)}>
+            <DialogTitle>Delete {schedule?.name}?</DialogTitle>
+            <DialogContent>
+              <DialogContentText>Are you sure you want to delete the schedule?</DialogContentText>
+            </DialogContent>
+
+            <DialogActions>
+              <Button color="secondary" onClick={() => setShowDeleteDialog(false)}>
+                Cancel
+              </Button>
+              <Button
+                color="secondary"
+                variant="contained"
+                onClick={() => {
+                  dispatchDeleteSchedule();
+                  history.push("/profile");
+                }}
+              >
+                Delete
+              </Button>
+            </DialogActions>
+          </Dialog>
         </React.Fragment>
       )}
 
