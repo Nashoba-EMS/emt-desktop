@@ -20,3 +20,21 @@ REACT_APP_API_URL="<API_URL>"
 
 - Start the `emt-backend`
 - Run `yarn start`
+
+## Features and screenshots
+
+- Admins can create a schedule for a given range of days (typically one month). Admins can remove days that shouldn't have crews, for instance if there are vacation days in the month. Once a schedule has been created, each cadet can fill in their availability for the period:
+
+![Availability](.readme/availability.png)
+
+- After all the cadets have input their availability, an admin can automatically generate a schedule that is compliant with state guidelines and is as fair as possible:
+
+![Schedules](.readme/schedule-builder.png)
+
+- When using a rotating crew schedule instead of a per-day schedule, admins can assemble crews using the drag-and-drop crew builder:
+
+![Crews](.readme/crew-builder.png)
+
+- Admins can create and manage cadet accounts to do things like reset their passwords or change their status as certified or as a chief:
+
+![Cadets](.readme/cadet.png)
