@@ -24,7 +24,7 @@ export const getAge = (birthdate: string) => {
 /**
  * Check if a day is valid for a given schedule (must be a weekday)
  */
-export const isDayValid = (schedule: Schedule, date: string | Date) => {
+export const isDayValid = (schedule: Schedule, date: string | Date, ignoreExcluded: boolean = false) => {
   const dateMoment = moment(date);
   const dayOfWeek = dateMoment.day();
 
@@ -32,7 +32,7 @@ export const isDayValid = (schedule: Schedule, date: string | Date) => {
     dateMoment.isBetween(schedule.startDate, schedule.endDate, "day", "[]") &&
     dayOfWeek !== 0 &&
     dayOfWeek !== 6 &&
-    !schedule.excludedDates.includes(dateMoment.format("YYYY-MM-DD"))
+    (ignoreExcluded || !schedule.excludedDates.includes(dateMoment.format("YYYY-MM-DD")))
   );
 };
 

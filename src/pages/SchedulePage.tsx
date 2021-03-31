@@ -438,7 +438,8 @@ const SchedulePage: React.FC = () => {
             requirements as well as attempt to give cadets as close to even assignments as possible. If you are not
             satisfied with the schedule you can generate a new one. As a warning, generating a schedule can take some
             time, please do not navigate away while a schedule is being generated. If you are satisfied with a schedule,
-            you can save it, if not you can clear the changes below the calendar.
+            you can save it, if not you can clear the changes below the calendar. To remove a day from the schedule for
+            things like vacations, you can click on the day.
           </Typography>
 
           <Grid className={classes.paddedGrid} container direction="row" alignItems="flex-start">
