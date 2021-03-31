@@ -39,14 +39,23 @@ export const buildSchedule = (
   const certifieds = users.filter((user) => user.certified && !user.chief);
   const nonChiefs = users.filter((user) => !user.chief);
 
+  /**
+   * Check if a cadet is available on a given day
+   */
   const isCadetAvailable = (day: string, id: string) => {
     return userIdToAvailability[id]?.days.includes(day);
   };
 
+  /**
+   * Check if a cadet is assigned on a given day
+   */
   const isCadetAssigned = (day: string, id: string) => {
     return dayToCadetIds[day]?.includes(id);
   };
 
+  /**
+   * Check if a cadet can be assigned to a given day
+   */
   const canAssignCadet = (day: string, id: string) => {
     return isCadetAvailable(day, id) && !isCadetAssigned(day, id);
   };
@@ -99,6 +108,9 @@ export const buildSchedule = (
     });
   };
 
+  /**
+   * Remove a given cadet from the day and replace them with a new one
+   */
   const replaceCadet = (day: string, oldId: string, newId: string) => {
     cadetIdToDays[oldId] = cadetIdToDays[oldId]?.filter((thisDay) => day !== thisDay);
     dayToCadetIds[day] = dayToCadetIds[day]?.filter((_id) => _id !== oldId);
@@ -112,6 +124,9 @@ export const buildSchedule = (
     }
   };
 
+  /**
+   * Check if a given day has at least one male and female
+   */
   const isGenderBalanced = (day: string) => {
     let males = 0;
     let females = 0;
@@ -129,33 +144,57 @@ export const buildSchedule = (
     return { balanced: males > 0 && females > 0, males, females };
   };
 
+  const getOnCallSpread = (
+    availableCadets: UserWithoutPassword[],
+    day: string,
+    modifyLow: boolean,
+    modifyHigh: boolean
+  ) => {
+    let lowestCadetId = "";
+    let lowestCadetDays = Infinity;
+
+    let highestCadetId = "";
+    let highestCadetDays = 0;
+
+    // Find the highest and lowest on-call counts
+    // Certified cadets are weighted differently to increase their expected count
+    availableCadets.forEach((cadet) => {
+      const thisCadetDays = cadetIdToDays[cadet._id]?.length ?? 0;
+      const modifier = cadet.certified ? 1 : 0;
+      const lowModifier = modifyLow ? modifier : 0;
+      const highModifier = modifyHigh ? modifier : 0;
+
+      if (thisCadetDays - lowModifier < lowestCadetDays && !isCadetAssigned(day, cadet._id)) {
+        lowestCadetId = cadet._id;
+        lowestCadetDays = thisCadetDays - lowModifier;
+      }
+
+      if (thisCadetDays - highModifier > highestCadetDays && isCadetAssigned(day, cadet._id)) {
+        highestCadetId = cadet._id;
+        highestCadetDays = thisCadetDays - highModifier;
+      }
+    });
+
+    return { lowestCadetDays, lowestCadetId, highestCadetDays, highestCadetId };
+  };
+
+  /**
+   * Check if the schedule is balanced for both cadet on-call counts and gender
+   */
   const isScheduleBalanced = () => {
+    // Verify that each day is balanced by cadet on-call counts
     for (const day of days) {
       const availableCadets = nonChiefs.filter((cadet) => isCadetAvailable(day, cadet._id));
       const numberOfCertifieds =
         dayToCadetIds[day]?.map((cadetId) => userIdToUser[cadetId]).filter((cadet) => !cadet?.chief && cadet?.certified)
           .length ?? 0;
 
-      let lowestCadetId = "";
-      let lowestCadetDays = Infinity;
-
-      let highestCadetId = "";
-      let highestCadetDays = 0;
-
-      availableCadets.forEach((cadet) => {
-        const thisCadetDays = cadetIdToDays[cadet._id]?.length ?? 0;
-        const modifier = cadet.certified ? 1 : 0;
-
-        if (thisCadetDays - modifier < lowestCadetDays && !isCadetAssigned(day, cadet._id)) {
-          lowestCadetId = cadet._id;
-          lowestCadetDays = thisCadetDays - modifier;
-        }
-
-        if (thisCadetDays - modifier > highestCadetDays && isCadetAssigned(day, cadet._id)) {
-          highestCadetId = cadet._id;
-          highestCadetDays = thisCadetDays - modifier;
-        }
-      });
+      const { lowestCadetDays, lowestCadetId, highestCadetDays, highestCadetId } = getOnCallSpread(
+        availableCadets,
+        day,
+        true,
+        true
+      );
 
       if (highestCadetDays - lowestCadetDays >= 2 && numberOfCertifieds > 1) {
         console.log(`${day} is not cadet balanced`, {
@@ -169,6 +208,7 @@ export const buildSchedule = (
       }
     }
 
+    // Verify that each day is balanced by gender
     for (const day of days) {
       if (!isGenderBalanced(day).balanced) {
         console.log(`${day} is not gender balanced`);
@@ -223,39 +263,25 @@ export const buildSchedule = (
   while (!isScheduleBalanced()) {
     for (const day of days) {
       const availableCadets = shuffle(nonChiefs.filter((cadet) => isCadetAvailable(day, cadet._id)));
-
       let numberOfCertifieds =
         dayToCadetIds[day]?.map((cadetId) => userIdToUser[cadetId]).filter((cadet) => !cadet?.chief && cadet?.certified)
           .length ?? 0;
 
-      let lowestCadetId = "";
-      let lowestCadetDays = Infinity;
+      const { lowestCadetDays, lowestCadetId, highestCadetDays, highestCadetId } = getOnCallSpread(
+        availableCadets,
+        day,
+        true,
+        false
+      );
 
-      let highestCadetId = "";
-      let highestCadetDays = -1;
-
-      availableCadets.forEach((cadet) => {
-        const thisCadetDays = cadetIdToDays[cadet._id]?.length ?? 0;
-        const modifier = cadet.certified ? 1 : 0;
-
-        if (thisCadetDays - modifier < lowestCadetDays && !isCadetAssigned(day, cadet._id)) {
-          lowestCadetId = cadet._id;
-          lowestCadetDays = thisCadetDays - modifier;
-        }
-
-        if (thisCadetDays > highestCadetDays && isCadetAssigned(day, cadet._id)) {
-          highestCadetId = cadet._id;
-          highestCadetDays = thisCadetDays;
-        }
-      });
-
+      // Only replace the highest candidate if it won't effect the required number of certifieds
       if (
         highestCadetDays > -1 &&
         lowestCadetDays < Infinity &&
         highestCadetDays - lowestCadetDays >= 2 &&
         (!userIdToUser[highestCadetId]?.certified || numberOfCertifieds > 1 || userIdToUser[lowestCadetId]?.certified)
       ) {
-        console.log({
+        console.log("Replacement:", {
           day,
           highestUser: userIdToUser[highestCadetId]?.name,
           lowestUser: userIdToUser[lowestCadetId]?.name,
@@ -265,18 +291,23 @@ export const buildSchedule = (
         replaceCadet(day, highestCadetId, lowestCadetId);
       }
 
+      // Update the number of certifieds now that changes might have been made
       numberOfCertifieds =
         dayToCadetIds[day]?.map((cadetId) => userIdToUser[cadetId]).filter((cadet) => !cadet?.chief && cadet?.certified)
           .length ?? 0;
 
       const genderBalance = isGenderBalanced(day);
+
       if (!genderBalance.balanced) {
+        // Replace the highest count of the highest gender with the lowest of the unassigned gender
+        // available on the given day
         const newGender = genderBalance.males > genderBalance.females ? "F" : "M";
         const newGenderAvailableCadets = availableCadets.filter((cadet) => cadet.gender === newGender && !cadet.chief);
 
         let lowestNewGenderCadetId = "";
         let lowestNewGenderCadetDays = Infinity;
 
+        // Find the lowest of the missing gender
         newGenderAvailableCadets.forEach((cadet) => {
           const thisCadetDays = cadetIdToDays[cadet._id]?.length ?? 0;
 
@@ -292,6 +323,7 @@ export const buildSchedule = (
         let highestOldGenderCadetId = "";
         let highestOldGenderCadetDays = -1;
 
+        // Only add non-chiefs in the search for who to remove from the day, chiefs should never be removed
         dayToCadetIds[day]
           ?.map((cadetId) => userIdToUser[cadetId])
           .filter((cadet) => !cadet?.chief)
@@ -312,33 +344,41 @@ export const buildSchedule = (
       }
     }
 
-    console.log(i);
+    console.log("Iteration:", i);
 
+    // Only try to balance 10 times
     i++;
     if (i >= 10) break;
   }
 
-  // @ts-ignore
-  console.log(
-    Object.entries(cadetIdToDays)
-      .map(([cadetId, cadetDays]) => [userIdToUser[cadetId], cadetDays])
-      // @ts-ignore
-      .filter(([cadet, cadetDays]) => !cadet.chief)
-      .map(([cadet, cadetDays]) => ({
-        // @ts-ignore
-        cadetName: cadet.name,
-        // @ts-ignore
-        certified: cadet.certified,
-        // @ts-ignore
-        cadetDays: cadetDays?.length
-      }))
-  );
+  // Get diagnostic info to quickly verify that cadets have a good distribution
+  const onCallCounts: {
+    cadetName: string;
+    certified: boolean;
+    cadetDays: number;
+  }[] = [];
 
-  console.log(isScheduleBalanced());
+  for (const [cadetId, cadetDays] of Object.entries(cadetIdToDays)) {
+    const cadet = userIdToUser[cadetId];
+
+    if (cadet?.chief === false) {
+      onCallCounts.push({
+        cadetName: cadet.name,
+        certified: cadet.certified,
+        cadetDays: cadetDays?.length ?? 0
+      });
+    }
+  }
+
+  onCallCounts.sort((a, b) => b.cadetDays - a.cadetDays);
+
+  console.log("On call balance:", onCallCounts);
+  console.log("Is schedule balanced:", isScheduleBalanced());
 
   return {
     ...schedule,
     assignments: days.map((day) => {
+      // Sort the cadets by chief >> certified >> uncertified
       const cadets = dayToCadetIds[day]?.map((cadetId) => userIdToUser[cadetId]);
       const chiefCadets = cadets?.filter((cadet) => cadet?.chief) ?? [];
       const certCadets = cadets?.filter((cadet) => cadet?.certified && !cadet?.chief) ?? [];
