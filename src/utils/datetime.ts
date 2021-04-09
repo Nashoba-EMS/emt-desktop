@@ -32,7 +32,7 @@ export const isDayValid = (schedule: Schedule, date: string | Date, ignoreExclud
     dateMoment.isBetween(schedule.startDate, schedule.endDate, "day", "[]") &&
     dayOfWeek !== 0 &&
     dayOfWeek !== 6 &&
-    (ignoreExcluded || !schedule.excludedDates.includes(dateMoment.format("YYYY-MM-DD")))
+    (ignoreExcluded || !schedule.excludedDates?.includes(dateMoment.format("YYYY-MM-DD")))
   );
 };
 
