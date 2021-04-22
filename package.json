@@ -1,7 +1,9 @@
 {
   "name": "emt-desktop",
+  "license": "BSD-3-Clause",
   "version": "0.1.0",
-  "private": true,
+  "description": "React desktop frontend for Nashoba EMS Scheduler",
+  "author": "Jeff Taylor-Chang & Matt Taylor-Chang",
   "dependencies": {
     "@date-io/moment": "1.x",
     "@material-ui/core": "^4.9.0",

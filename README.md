@@ -38,3 +38,7 @@ REACT_APP_API_URL="<API_URL>"
 - Admins can create and manage cadet accounts to do things like reset their passwords or change their status as certified or as a chief:
 
 ![Cadets](.readme/cadet.png)
+
+## License
+
+`@nashoba-ems/emt-desktop` is [BSD-3-Clause licensed](./LICENSE)
